@@ -1,16 +1,9 @@
 const SUPABASE_URL = "https://ooojdxmyekdghexyeeuc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_vdnGOAUwh38wzud2WN8fyA_vGOfPV8t";
-
-if (!window.supabase) {
-  document.body.innerHTML = "<main style='padding:24px;font-family:system-ui'>Supabase konnte nicht geladen werden. Bitte Internetverbindung prüfen und Seite neu laden.</main>";
-  throw new Error("Supabase library missing");
-}
-
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-});
+const SESSION_KEY = "wo-ist-was-supabase-session-v4";
 
 let items = [];
+let session = loadSession();
 
 const SYMBOL_RULES = [
   [["glühbirne","leuchtmittel","lampe","led","g9"],["💡","🔦","✨"]],
@@ -28,7 +21,7 @@ const SYMBOL_RULES = [
   [["garten","pflanze"],["🌿","🌱","🪴"]]
 ];
 
-const $ = (s) => document.querySelector(s);
+const $ = s => document.querySelector(s);
 const els = {
   loginScreen: $("#loginScreen"), appShell: $("#appShell"),
   loginForm: $("#loginForm"), loginEmail: $("#loginEmail"), loginPassword: $("#loginPassword"),
@@ -46,6 +39,15 @@ const els = {
   template: $("#itemTemplate")
 };
 
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
+  catch { return null; }
+}
+function saveSession(value) {
+  session = value;
+  if (value) localStorage.setItem(SESSION_KEY, JSON.stringify(value));
+  else localStorage.removeItem(SESSION_KEY);
+}
 function normalize(value) {
   return (value ?? "").toString().toLocaleLowerCase("de-DE")
     .normalize("NFD").replace(/\p{Diacritic}/gu, "");
@@ -55,7 +57,7 @@ function keywordsToArray(value) {
   return String(value || "").split(",").map(x => x.trim()).filter(Boolean);
 }
 function searchableText(item) {
-  return normalize([item.name, item.room, item.location, item.note, ...keywordsToArray(item.keywords)].join(" "));
+  return normalize([item.name,item.room,item.location,item.note,...keywordsToArray(item.keywords)].join(" "));
 }
 function suggestFor(text) {
   const t = normalize(text);
@@ -68,7 +70,6 @@ function setStatus(text, error=false) {
   els.syncStatus.textContent = text;
   els.syncStatus.classList.toggle("error-text", error);
 }
-
 function renderSymbolChoices() {
   const icons = suggestFor(els.name.value);
   els.symbolChoices.innerHTML = "";
@@ -77,208 +78,207 @@ function renderSymbolChoices() {
     b.type = "button";
     b.className = "symbol-choice";
     b.textContent = icon;
-    b.addEventListener("click", () => { els.symbol.value = icon; });
+    b.addEventListener("click", () => els.symbol.value = icon);
     els.symbolChoices.appendChild(b);
   });
 }
 
+async function authFetch(path, options={}, retry=true) {
+  const headers = new Headers(options.headers || {});
+  headers.set("apikey", SUPABASE_KEY);
+  if (session?.access_token) headers.set("Authorization", "Bearer " + session.access_token);
+
+  const response = await fetch(SUPABASE_URL + path, {...options, headers});
+  if (response.status === 401 && retry && session?.refresh_token) {
+    const ok = await refreshSession();
+    if (ok) return authFetch(path, options, false);
+  }
+  return response;
+}
+
+async function refreshSession() {
+  try {
+    const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
+      method:"POST",
+      headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({refresh_token:session.refresh_token})
+    });
+    if (!r.ok) { saveSession(null); return false; }
+    saveSession(await r.json());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function signIn(email, password) {
+  const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+    method:"POST",
+    headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
+  });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.msg || body.error_description || body.message || "Anmeldung fehlgeschlagen");
+  saveSession(body);
+}
+
 async function loadItems() {
   setStatus("Daten werden geladen …");
-  const { data, error } = await db.from("items").select("*").order("name", { ascending: true });
-  if (error) {
-    setStatus("Daten konnten nicht geladen werden: " + error.message, true);
-    return;
+  try {
+    const r = await authFetch("/rest/v1/items?select=*&order=name.asc");
+    const body = await r.json().catch(() => []);
+    if (!r.ok) throw new Error(body.message || body.error || "Fehler beim Laden");
+    items = body || [];
+    setStatus("");
+    render();
+  } catch (e) {
+    setStatus("Daten konnten nicht geladen werden: " + e.message, true);
   }
-  items = data || [];
-  setStatus("");
-  render();
 }
 
 function renderFilters() {
-  const rooms = [...new Set(items.map(x => x.room).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de"));
-  els.filters.innerHTML = "";
-  rooms.slice(0,6).forEach(room => {
-    const btn = document.createElement("button");
-    btn.className = "chip";
-    btn.textContent = room;
-    btn.addEventListener("click", () => { els.search.value = room; render(); });
+  const rooms=[...new Set(items.map(x=>x.room).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de"));
+  els.filters.innerHTML="";
+  rooms.slice(0,6).forEach(room=>{
+    const btn=document.createElement("button");
+    btn.className="chip"; btn.textContent=room;
+    btn.addEventListener("click",()=>{els.search.value=room;render();});
     els.filters.appendChild(btn);
   });
 }
 
 function render() {
-  const q = normalize(els.search.value.trim());
-  const filtered = items
-    .filter(item => !q || searchableText(item).includes(q))
-    .sort((a,b) => (a.name || "").localeCompare(b.name || "", "de"));
+  const q=normalize(els.search.value.trim());
+  const filtered=items.filter(item=>!q||searchableText(item).includes(q))
+    .sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"));
+  els.list.innerHTML="";
+  els.empty.classList.toggle("hidden",filtered.length!==0);
+  els.listTitle.textContent=q?"Suchergebnisse":"Alle Dinge";
+  els.count.textContent=`${filtered.length} ${filtered.length===1?"Eintrag":"Einträge"}`;
 
-  els.list.innerHTML = "";
-  els.empty.classList.toggle("hidden", filtered.length !== 0);
-  els.listTitle.textContent = q ? "Suchergebnisse" : "Alle Dinge";
-  els.count.textContent = `${filtered.length} ${filtered.length === 1 ? "Eintrag" : "Einträge"}`;
-
-  filtered.forEach(item => {
-    const node = els.template.content.cloneNode(true);
-    node.querySelector(".item-symbol").textContent = item.symbol || suggestFor(item.name)[0];
-    node.querySelector(".item-name").textContent = item.name || "";
-    node.querySelector(".item-location").textContent = [item.room, item.location].filter(Boolean).join(" → ");
-    const extras = [];
-    const kws = keywordsToArray(item.keywords);
-    if (kws.length) extras.push(`Suchbegriffe: ${kws.join(", ")}`);
-    if (item.note) extras.push(item.note);
-    node.querySelector(".item-meta").textContent = extras.join(" · ");
-    node.querySelector(".card-main").addEventListener("click", () => openEdit(item.id));
+  filtered.forEach(item=>{
+    const node=els.template.content.cloneNode(true);
+    node.querySelector(".item-symbol").textContent=item.symbol||suggestFor(item.name)[0];
+    node.querySelector(".item-name").textContent=item.name||"";
+    node.querySelector(".item-location").textContent=[item.room,item.location].filter(Boolean).join(" → ");
+    const extras=[], kws=keywordsToArray(item.keywords);
+    if(kws.length) extras.push(`Suchbegriffe: ${kws.join(", ")}`);
+    if(item.note) extras.push(item.note);
+    node.querySelector(".item-meta").textContent=extras.join(" · ");
+    node.querySelector(".card-main").addEventListener("click",()=>openEdit(item.id));
     els.list.appendChild(node);
   });
   renderFilters();
 }
 
 function openNew() {
-  els.form.reset();
-  els.id.value = "";
-  els.symbol.value = "";
-  els.dialogTitle.textContent = "Neuen Gegenstand eintragen";
+  els.form.reset(); els.id.value=""; els.symbol.value="";
+  els.dialogTitle.textContent="Neuen Gegenstand eintragen";
   els.delete.classList.add("hidden");
-  renderSymbolChoices();
-  els.dialog.showModal();
-  setTimeout(() => els.name.focus(), 50);
+  renderSymbolChoices(); els.dialog.showModal();
 }
-
 function openEdit(id) {
-  const item = items.find(x => String(x.id) === String(id));
-  if (!item) return;
-  els.id.value = item.id;
-  els.symbol.value = item.symbol || suggestFor(item.name)[0];
-  els.name.value = item.name || "";
-  els.room.value = item.room || "";
-  els.location.value = item.location || "";
-  els.keywords.value = keywordsToArray(item.keywords).join(", ");
-  els.note.value = item.note || "";
-  els.dialogTitle.textContent = "Eintrag bearbeiten";
-  els.delete.classList.remove("hidden");
-  renderSymbolChoices();
-  els.dialog.showModal();
+  const item=items.find(x=>String(x.id)===String(id)); if(!item)return;
+  els.id.value=item.id; els.symbol.value=item.symbol||suggestFor(item.name)[0];
+  els.name.value=item.name||""; els.room.value=item.room||"";
+  els.location.value=item.location||""; els.keywords.value=keywordsToArray(item.keywords).join(", ");
+  els.note.value=item.note||""; els.dialogTitle.textContent="Eintrag bearbeiten";
+  els.delete.classList.remove("hidden"); renderSymbolChoices(); els.dialog.showModal();
 }
 
 async function showSession() {
-  const { data, error } = await db.auth.getSession();
-  if (error) {
-    els.loginStatus.textContent = "Sitzung konnte nicht geprüft werden: " + error.message;
-    els.loginStatus.classList.add("error-text");
-  }
-  const signedIn = !!data?.session;
-  els.loginScreen.classList.toggle("hidden", signedIn);
-  els.appShell.classList.toggle("hidden", !signedIn);
-  if (signedIn) await loadItems();
+  const signedIn=!!session?.access_token;
+  els.loginScreen.classList.toggle("hidden",signedIn);
+  els.appShell.classList.toggle("hidden",!signedIn);
+  if(signedIn) await loadItems();
 }
 
-els.loginForm.addEventListener("submit", async (e) => {
+els.loginForm.addEventListener("submit",async e=>{
   e.preventDefault();
-  els.loginStatus.textContent = "Anmeldung läuft …";
-  els.loginStatus.classList.remove("error-text");
-  const { error } = await db.auth.signInWithPassword({
-    email: els.loginEmail.value.trim(),
-    password: els.loginPassword.value
-  });
-  if (error) {
-    els.loginStatus.textContent = "Anmeldung fehlgeschlagen: " + error.message;
+  els.loginStatus.textContent="Anmeldung läuft …"; els.loginStatus.classList.remove("error-text");
+  try {
+    await signIn(els.loginEmail.value.trim(), els.loginPassword.value);
+    els.loginStatus.textContent=""; await showSession();
+  } catch(e) {
+    els.loginStatus.textContent="Anmeldung fehlgeschlagen: "+e.message;
     els.loginStatus.classList.add("error-text");
-    return;
   }
-  els.loginStatus.textContent = "";
-  await showSession();
 });
 
-els.form.addEventListener("submit", async (e) => {
+els.form.addEventListener("submit",async e=>{
   e.preventDefault();
-  const record = {
-    name: els.name.value.trim(),
-    symbol: els.symbol.value.trim() || suggestFor(els.name.value)[0],
-    room: els.room.value.trim(),
-    location: els.location.value.trim(),
-    keywords: els.keywords.value.split(",").map(x => x.trim()).filter(Boolean).join(", "),
-    note: els.note.value.trim()
+  const record={
+    name:els.name.value.trim(),
+    symbol:els.symbol.value.trim()||suggestFor(els.name.value)[0],
+    room:els.room.value.trim(),
+    location:els.location.value.trim(),
+    keywords:els.keywords.value.split(",").map(x=>x.trim()).filter(Boolean).join(", "),
+    note:els.note.value.trim()
   };
-  if (!record.name || !record.room) return;
-
+  if(!record.name||!record.room)return;
   setStatus("Speichern …");
-  let result;
-  if (els.id.value) {
-    result = await db.from("items").update(record).eq("id", els.id.value);
-  } else {
-    result = await db.from("items").insert(record);
-  }
 
-  if (result.error) {
-    setStatus("Speichern fehlgeschlagen: " + result.error.message, true);
-    return;
-  }
-  els.dialog.close();
-  await loadItems();
-});
-
-els.delete.addEventListener("click", async () => {
-  const id = els.id.value;
-  if (!id || !confirm("Diesen Eintrag wirklich löschen?")) return;
-  const { error } = await db.from("items").delete().eq("id", id);
-  if (error) {
-    setStatus("Löschen fehlgeschlagen: " + error.message, true);
-    return;
-  }
-  els.dialog.close();
-  await loadItems();
-});
-
-els.search.addEventListener("input", render);
-els.clear.addEventListener("click", () => { els.search.value = ""; render(); els.search.focus(); });
-els.add.addEventListener("click", openNew);
-els.closeDialog.addEventListener("click", () => els.dialog.close());
-els.cancel.addEventListener("click", () => els.dialog.close());
-els.settingsBtn.addEventListener("click", () => els.settingsDialog.showModal());
-els.closeSettings.addEventListener("click", () => els.settingsDialog.close());
-els.refreshBtn.addEventListener("click", async () => { els.settingsDialog.close(); await loadItems(); });
-
-els.logoutBtn.addEventListener("click", async () => {
-  els.settingsDialog.close();
-  await db.auth.signOut();
-  items = [];
-  render();
-  await showSession();
-});
-
-els.exportBtn.addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `wo-ist-was-sicherung-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-els.name.addEventListener("input", renderSymbolChoices);
-els.suggestSymbol.addEventListener("click", () => {
-  const icons = suggestFor(els.name.value);
-  els.symbol.value = icons[0];
-  renderSymbolChoices();
-});
-
-db.auth.onAuthStateChange((event) => {
-  if (event === "SIGNED_OUT") {
-    els.appShell.classList.add("hidden");
-    els.loginScreen.classList.remove("hidden");
-  }
-});
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.update()));
-      await navigator.serviceWorker.register("./sw.js?v=3");
-    } catch (e) {
-      console.warn("Service Worker:", e);
+  try {
+    let r;
+    if(els.id.value) {
+      r=await authFetch("/rest/v1/items?id=eq."+encodeURIComponent(els.id.value), {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json","Prefer":"return=minimal"},
+        body:JSON.stringify(record)
+      });
+    } else {
+      r=await authFetch("/rest/v1/items", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Prefer":"return=minimal"},
+        body:JSON.stringify(record)
+      });
     }
+    if(!r.ok) {
+      const body=await r.json().catch(()=>({}));
+      throw new Error(body.message||body.error||"Speichern fehlgeschlagen");
+    }
+    els.dialog.close(); await loadItems();
+  } catch(e) {
+    setStatus("Speichern fehlgeschlagen: "+e.message,true);
+  }
+});
+
+els.delete.addEventListener("click",async()=>{
+  const id=els.id.value;
+  if(!id||!confirm("Diesen Eintrag wirklich löschen?"))return;
+  try {
+    const r=await authFetch("/rest/v1/items?id=eq."+encodeURIComponent(id),{method:"DELETE"});
+    if(!r.ok) throw new Error("Löschen fehlgeschlagen");
+    els.dialog.close(); await loadItems();
+  } catch(e) {
+    setStatus(e.message,true);
+  }
+});
+
+els.search.addEventListener("input",render);
+els.clear.addEventListener("click",()=>{els.search.value="";render();els.search.focus();});
+els.add.addEventListener("click",openNew);
+els.closeDialog.addEventListener("click",()=>els.dialog.close());
+els.cancel.addEventListener("click",()=>els.dialog.close());
+els.settingsBtn.addEventListener("click",()=>els.settingsDialog.showModal());
+els.closeSettings.addEventListener("click",()=>els.settingsDialog.close());
+els.refreshBtn.addEventListener("click",async()=>{els.settingsDialog.close();await loadItems();});
+els.logoutBtn.addEventListener("click",()=>{els.settingsDialog.close();saveSession(null);items=[];render();showSession();});
+els.exportBtn.addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(items,null,2)],{type:"application/json"});
+  const u=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=u;a.download=`wo-ist-was-sicherung-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);
+});
+els.name.addEventListener("input",renderSymbolChoices);
+els.suggestSymbol.addEventListener("click",()=>{const icons=suggestFor(els.name.value);els.symbol.value=icons[0];renderSymbolChoices();});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",async()=>{
+    try {
+      const regs=await navigator.serviceWorker.getRegistrations();
+      for(const reg of regs) await reg.update();
+      await navigator.serviceWorker.register("./sw.js?v=4");
+    } catch(e) { console.warn(e); }
   });
 }
 

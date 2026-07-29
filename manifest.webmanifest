@@ -1,7 +1,7 @@
 {
   "name": "Wo ist was? – Haus-Suchmaschine",
   "short_name": "Wo ist was?",
-  "start_url": "./?v=3",
+  "start_url": "./?v=4",
   "display": "standalone",
   "background_color": "#eaf4ff",
   "theme_color": "#eaf4ff",
