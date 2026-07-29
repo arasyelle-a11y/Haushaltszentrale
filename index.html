@@ -1,56 +1,79 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f4efe8" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Wo ist was?" />
-  <link rel="manifest" href="manifest.webmanifest">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf4ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Wo ist was?">
+  <link rel="manifest" href="manifest.webmanifest?v=3">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <title>Wo ist was?</title>
 </head>
 <body>
-  <header class="topbar">
-    <div>
+  <section id="loginScreen" class="login-screen hidden">
+    <div class="login-card">
       <p class="eyebrow">HAUS-SUCHMASCHINE</p>
       <h1>Wo ist was?</h1>
-      <p class="subtitle">Finde Dinge, bevor du sie noch einmal kaufst. 😄</p>
+      <p class="subtitle">Mit dem gemeinsamen Familienzugang anmelden.</p>
+      <form id="loginForm">
+        <label>E-Mail
+          <input id="loginEmail" type="email" autocomplete="username" required>
+        </label>
+        <label>Passwort
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary-btn full-btn" type="submit">Anmelden</button>
+        <p id="loginStatus" class="status-text"></p>
+      </form>
     </div>
-    <button id="settingsBtn" class="icon-btn" aria-label="Daten verwalten">⚙️</button>
-  </header>
+  </section>
 
-  <main>
-    <section class="search-card">
-      <label for="searchInput">Was suchst du?</label>
-      <div class="search-row">
-        <input id="searchInput" type="search" placeholder="z. B. Blumendraht, G9, Batterien …" autocomplete="off">
-        <button id="clearSearch" class="small-btn" aria-label="Suche löschen">✕</button>
-      </div>
-      <div id="quickFilters" class="chips"></div>
-    </section>
-
-    <section class="section-head">
+  <div id="appShell" class="hidden">
+    <header class="topbar">
       <div>
-        <h2 id="listTitle">Alle Dinge</h2>
-        <p id="countText"></p>
+        <p class="eyebrow">HAUS-SUCHMASCHINE</p>
+        <h1>Wo ist was?</h1>
+        <p class="subtitle">Finde Dinge, bevor du sie noch einmal kaufst. 😄</p>
       </div>
-      <button id="addBtn" class="primary-btn">＋ Eintragen</button>
-    </section>
+      <button id="settingsBtn" class="icon-btn" aria-label="Einstellungen">⚙️</button>
+    </header>
 
-    <section id="emptyState" class="empty hidden">
-      <div class="empty-icon">🔎</div>
-      <h3>Nichts gefunden</h3>
-      <p>Versuche einen anderen Suchbegriff oder trage den Gegenstand neu ein.</p>
-    </section>
+    <main>
+      <section class="search-card">
+        <label for="searchInput">Was suchst du?</label>
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="z. B. Blumendraht, G9, Batterien …" autocomplete="off">
+          <button id="clearSearch" class="small-btn" aria-label="Suche löschen">✕</button>
+        </div>
+        <div id="quickFilters" class="chips"></div>
+      </section>
 
-    <section id="itemsList" class="items"></section>
-  </main>
+      <section class="section-head">
+        <div>
+          <h2 id="listTitle">Alle Dinge</h2>
+          <p id="countText"></p>
+        </div>
+        <button id="addBtn" class="primary-btn">＋ Eintragen</button>
+      </section>
+
+      <p id="syncStatus" class="status-text"></p>
+
+      <section id="emptyState" class="empty hidden">
+        <div class="empty-icon">🔎</div>
+        <h3>Nichts gefunden</h3>
+        <p>Versuche einen anderen Suchbegriff oder trage den Gegenstand neu ein.</p>
+      </section>
+
+      <section id="itemsList" class="items"></section>
+    </main>
+  </div>
 
   <dialog id="itemDialog">
-    <form id="itemForm" method="dialog">
+    <form id="itemForm">
       <div class="dialog-head">
         <div>
           <p class="eyebrow">EINTRAG</p>
@@ -63,6 +86,14 @@
 
       <label>Name*
         <input id="name" required placeholder="z. B. Blumendraht">
+      </label>
+
+      <label>Symbol
+        <div class="symbol-row">
+          <input id="symbol" maxlength="8" placeholder="💡">
+          <button type="button" id="suggestSymbol" class="secondary-btn">Vorschlagen</button>
+        </div>
+        <div id="symbolChoices" class="symbol-choices"></div>
       </label>
 
       <label>Raum / Bereich*
@@ -95,21 +126,17 @@
     <div class="dialog-head">
       <div>
         <p class="eyebrow">DATEN</p>
-        <h2>Sichern & übertragen</h2>
+        <h2>Gemeinsame Datenbank</h2>
       </div>
       <button type="button" class="icon-btn" id="closeSettings" aria-label="Schließen">✕</button>
     </div>
     <p class="settings-copy">
-      Diese erste Version speichert die Einträge auf diesem Gerät. Du kannst sie als Datei sichern
-      und auf einem anderen Gerät wieder importieren.
+      Alle Einträge werden in der gemeinsamen Familien-Datenbank gespeichert.
     </p>
     <div class="stack">
-      <button id="exportBtn" class="primary-btn">⬇️ Sicherung exportieren</button>
-      <label class="file-btn">
-        ⬆️ Sicherung importieren
-        <input id="importInput" type="file" accept="application/json,.json" hidden>
-      </label>
-      <button id="resetBtn" class="danger-outline-btn">Beispieldaten wiederherstellen</button>
+      <button id="refreshBtn" class="primary-btn">↻ Daten neu laden</button>
+      <button id="exportBtn" class="secondary-btn">⬇️ Sicherung exportieren</button>
+      <button id="logoutBtn" class="danger-outline-btn">Familienzugang abmelden</button>
     </div>
   </dialog>
 
@@ -117,9 +144,12 @@
     <article class="item-card">
       <button class="card-main">
         <div class="item-top">
-          <div>
-            <h3 class="item-name"></h3>
-            <p class="item-location"></p>
+          <div class="item-title-row">
+            <span class="item-symbol"></span>
+            <div>
+              <h3 class="item-name"></h3>
+              <p class="item-location"></p>
+            </div>
           </div>
           <span class="chevron">›</span>
         </div>
@@ -128,6 +158,6 @@
     </article>
   </template>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
