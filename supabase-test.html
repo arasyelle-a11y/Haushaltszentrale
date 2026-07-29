@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Haussuchmaschine – Supabase Test</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;background:#eaf4ff;color:#10264a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:720px;margin:auto;padding:28px 18px}
+.card{background:#fff;border:1px solid #cfe3f6;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 10px 30px rgba(57,110,160,.08)}
+h1{font-size:38px;margin:4px 0} .eyebrow{color:#1976d2;font-weight:800;letter-spacing:1.6px;font-size:12px}
+p{color:#6f7f93} label{display:block;font-weight:700;margin:12px 0}
+input{width:100%;padding:14px;margin-top:7px;border:1px solid #cfe3f6;border-radius:14px;font:inherit;box-sizing:border-box}
+button{border:0;border-radius:14px;padding:13px 16px;font:inherit;font-weight:800}
+.primary{width:100%;background:#1976d2;color:white} .secondary{background:#dceeff;color:#0f4f91}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.item{border:1px solid #cfe3f6;border-radius:18px;padding:15px;margin-top:10px;background:#fff}
+.name{font-size:20px;font-weight:800;color:#0f4f91} .place{margin-top:6px;font-weight:700;color:#235f98}
+.meta,.status{color:#6f7f93;font-size:14px;margin-top:8px} .error{color:#b42318;font-weight:700} .hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">SUPABASE-TEST</div>
+<h1>Haussuchmaschine</h1>
+<p>Dieser Test verändert deine bestehende App nicht.</p>
+
+<section id="login" class="card">
+<h2>Familienzugang</h2>
+<form id="form">
+<label>E-Mail<input id="email" type="email" required autocomplete="username"></label>
+<label>Passwort<input id="password" type="password" required autocomplete="current-password"></label>
+<button class="primary" type="submit">Anmelden</button>
+</form>
+<div id="loginStatus" class="status"></div>
+</section>
+
+<section id="data" class="card hidden">
+<div class="top"><div><div class="eyebrow">GEMEINSAME DATENBANK</div><h2 style="margin:0">items</h2></div><button id="logout" class="secondary">Abmelden</button></div>
+<div id="dataStatus" class="status">Lade Daten …</div>
+<div id="items"></div>
+</section>
+</main>
+
+<script>
+const client = window.supabase.createClient('https://ooojdxmyekdghexyeeuc.supabase.co', 'sb_publishable_vdnGOAUwh38wzud2WN8fyA_vGOfPV8t', {
+  auth: { persistSession:true, autoRefreshToken:true }
+});
+
+const login=document.getElementById('login');
+const data=document.getElementById('data');
+const form=document.getElementById('form');
+const loginStatus=document.getElementById('loginStatus');
+const dataStatus=document.getElementById('dataStatus');
+const items=document.getElementById('items');
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+
+async function loadItems(){
+  dataStatus.className='status';
+  dataStatus.textContent='Lade Daten …';
+  items.innerHTML='';
+  const r=await client.from('items').select('id,created_at,name,symbol,room,location,keywords,note').order('created_at',{ascending:true});
+  if(r.error){dataStatus.className='status error';dataStatus.textContent='Fehler beim Laden: '+r.error.message;return}
+  dataStatus.textContent=`${r.data.length} ${r.data.length===1?'Eintrag':'Einträge'} geladen`;
+  items.innerHTML=r.data.map(x=>{
+    const place=[x.room,x.location].filter(Boolean).join(' → ');
+    const meta=[x.keywords?('Suchbegriffe: '+x.keywords):'',x.note||''].filter(Boolean).join(' · ');
+    return `<div class="item"><div class="name">${esc(x.symbol||'📦')} ${esc(x.name||'Ohne Namen')}</div>${place?`<div class="place">${esc(place)}</div>`:''}${meta?`<div class="meta">${esc(meta)}</div>`:''}</div>`;
+  }).join('');
+}
+
+async function render(){
+  const s=await client.auth.getSession();
+  const session=s.data.session;
+  login.classList.toggle('hidden',!!session);
+  data.classList.toggle('hidden',!session);
+  if(session) await loadItems();
+}
+
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  loginStatus.className='status';
+  loginStatus.textContent='Anmeldung läuft …';
+  const r=await client.auth.signInWithPassword({
+    email:document.getElementById('email').value.trim(),
+    password:document.getElementById('password').value
+  });
+  if(r.error){loginStatus.className='status error';loginStatus.textContent='Anmeldung fehlgeschlagen: '+r.error.message;return}
+  loginStatus.textContent='';
+  await render();
+});
+
+document.getElementById('logout').addEventListener('click',async()=>{await client.auth.signOut();await render()});
+render();
+</script>
+</body>
+</html>
