@@ -1,0 +1,95 @@
+
+:root{
+  --bg:#f4efe8;
+  --card:#fffdf9;
+  --text:#20211f;
+  --muted:#716e67;
+  --line:#ded7cd;
+  --accent:#3f6f5a;
+  --accent-soft:#dfeae4;
+  --danger:#a63d3d;
+  --shadow:0 8px 30px rgba(40,35,28,.08);
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{
+  display:flex; justify-content:space-between; gap:18px; align-items:flex-start;
+  padding:calc(22px + env(safe-area-inset-top)) 20px 14px;
+  max-width:760px; margin:auto;
+}
+h1{font-size:36px; line-height:1.05; margin:2px 0 5px; letter-spacing:-1.3px}
+h2{font-size:22px; margin:0}
+h3{margin:0}
+.eyebrow{font-size:11px; letter-spacing:1.6px; font-weight:800; color:var(--accent); margin:0}
+.subtitle,.settings-copy{color:var(--muted); margin:6px 0 0; line-height:1.45}
+main{max-width:760px; margin:auto; padding:6px 16px calc(36px + env(safe-area-inset-bottom))}
+.search-card{
+  background:var(--card); border:1px solid var(--line); border-radius:22px;
+  padding:16px; box-shadow:var(--shadow);
+}
+.search-card label{font-weight:750; display:block; margin-bottom:8px}
+.search-row{display:flex; gap:8px}
+input,textarea{
+  width:100%; border:1px solid var(--line); background:white; color:var(--text);
+  border-radius:14px; padding:13px 14px; outline:none;
+}
+input:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.search-row input{font-size:17px}
+.small-btn,.icon-btn{
+  border:1px solid var(--line); background:var(--card); color:var(--text);
+  border-radius:13px; min-width:44px; min-height:44px;
+}
+.chips{display:flex; gap:7px; flex-wrap:wrap; margin-top:12px}
+.chip{
+  border:0; background:var(--accent-soft); color:#284638; border-radius:999px;
+  padding:7px 10px; font-size:13px; font-weight:650;
+}
+.section-head{display:flex; align-items:end; justify-content:space-between; gap:10px; margin:23px 2px 11px}
+#countText{margin:4px 0 0; color:var(--muted); font-size:13px}
+.primary-btn,.secondary-btn,.danger-btn,.danger-outline-btn,.file-btn{
+  border-radius:13px; padding:11px 14px; font-weight:750; border:1px solid transparent;
+}
+.primary-btn{background:var(--accent); color:white}
+.secondary-btn{background:white; border-color:var(--line); color:var(--text)}
+.danger-btn{background:var(--danger); color:white}
+.danger-outline-btn{background:white; border-color:#d8aaaa; color:var(--danger)}
+.file-btn{background:white; border-color:var(--line); text-align:center; cursor:pointer}
+.items{display:grid; gap:10px}
+.item-card{
+  background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+}
+.card-main{width:100%; border:0; background:transparent; text-align:left; padding:16px}
+.item-top{display:flex; justify-content:space-between; gap:12px; align-items:center}
+.item-name{font-size:18px; margin-bottom:4px}
+.item-location{margin:0; color:var(--accent); font-weight:700}
+.item-meta{margin-top:10px; color:var(--muted); font-size:13px; line-height:1.45}
+.chevron{font-size:30px; color:#aaa49a; font-weight:300}
+.empty{text-align:center; padding:45px 20px; color:var(--muted)}
+.empty h3{color:var(--text); margin-top:8px}
+.empty-icon{font-size:36px}
+.hidden{display:none!important}
+dialog{
+  width:min(92vw,620px); border:0; border-radius:22px; padding:20px;
+  background:var(--card); color:var(--text); box-shadow:0 30px 80px rgba(0,0,0,.25);
+}
+dialog::backdrop{background:rgba(30,28,24,.35); backdrop-filter:blur(2px)}
+.dialog-head{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:16px}
+form label{display:block; font-weight:700; margin:13px 0}
+form label input,form label textarea{margin-top:6px; font-weight:400}
+.hint{display:block; font-size:12px; color:var(--muted); margin-top:5px; font-weight:400}
+.dialog-actions{display:flex; gap:9px; align-items:center; margin-top:18px; flex-wrap:wrap}
+.spacer{flex:1}
+.stack{display:grid; gap:10px; margin-top:18px}
+@media (max-width:420px){
+  h1{font-size:32px}
+  .dialog-actions .primary-btn,.dialog-actions .secondary-btn{flex:1}
+}
