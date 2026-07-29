@@ -1,5 +1,5 @@
-const CACHE = "wo-ist-was-v4";
-const CORE = ["./?v=4","./index.html?v=4","./styles.css?v=4","./app.js?v=4"];
+const CACHE = "wo-ist-was-v5";
+const CORE = ["./?v=5","./index.html?v=5","./styles.css?v=5","./app.js?v=5"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
@@ -22,9 +22,9 @@ self.addEventListener("fetch", event => {
     event.respondWith(
       fetch(event.request).then(response => {
         const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put("./?v=4", copy));
+        caches.open(CACHE).then(cache => cache.put("./?v=5", copy));
         return response;
-      }).catch(() => caches.match("./?v=4"))
+      }).catch(() => caches.match("./?v=5"))
     );
     return;
   }

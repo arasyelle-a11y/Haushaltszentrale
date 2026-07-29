@@ -20,7 +20,7 @@ body{
   color:var(--text);
   min-height:100vh;
 }
-button,input,textarea{font:inherit}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .topbar{
   display:flex;justify-content:space-between;gap:18px;align-items:flex-start;
@@ -39,11 +39,11 @@ main{max-width:760px;margin:auto;padding:6px 16px calc(36px + env(safe-area-inse
 }
 .search-card label{font-weight:750;display:block;margin-bottom:8px}
 .search-row{display:flex;gap:8px}
-input,textarea{
+input,textarea,select{
   width:100%;border:1px solid var(--line);background:white;color:var(--text);
   border-radius:14px;padding:13px 14px;outline:none;
 }
-input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .search-row input{font-size:17px}
 .small-btn,.icon-btn{
   border:1px solid var(--line);background:var(--card);color:var(--text);
@@ -87,7 +87,7 @@ dialog{
 dialog::backdrop{background:rgba(16,38,74,.28);backdrop-filter:blur(2px)}
 .dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
 form label{display:block;font-weight:700;margin:13px 0}
-form label input,form label textarea{margin-top:6px;font-weight:400}
+form label input,form label textarea,form label select{margin-top:6px;font-weight:400}
 .hint{display:block;font-size:12px;color:var(--muted);margin-top:5px;font-weight:400}
 .dialog-actions{display:flex;gap:9px;align-items:center;margin-top:18px;flex-wrap:wrap}
 .spacer{flex:1}
@@ -109,3 +109,10 @@ form label input,form label textarea{margin-top:6px;font-weight:400}
   h1{font-size:32px}
   .dialog-actions .primary-btn,.dialog-actions .secondary-btn{flex:1}
 }
+
+#roomCustom{margin-top:8px}
+.photo-preview-wrap{display:grid;gap:9px;margin:7px 0 10px}
+.photo-preview{width:100%;max-height:300px;object-fit:cover;border-radius:16px;border:1px solid var(--line);background:var(--accent-pale)}
+#photoInput{padding:10px;background:var(--accent-pale)}
+.card-photo-wrap{width:100%;aspect-ratio:16/8;overflow:hidden;background:var(--accent-pale);border-bottom:1px solid var(--line)}
+.card-photo{width:100%;height:100%;object-fit:cover;display:block}

@@ -7,9 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
-  <link rel="manifest" href="manifest.webmanifest?v=4">
+  <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -95,8 +95,35 @@
         <div id="symbolChoices" class="symbol-choices"></div>
       </label>
 
+      <label>Foto
+        <div id="photoPreviewWrap" class="photo-preview-wrap hidden">
+          <img id="photoPreview" class="photo-preview" alt="Foto des Gegenstands">
+          <button type="button" id="removePhotoBtn" class="danger-outline-btn">Foto entfernen</button>
+        </div>
+        <input id="photoInput" type="file" accept="image/*">
+        <span class="hint">Auf dem iPhone kannst du fotografieren oder ein Bild aus der Mediathek auswählen.</span>
+      </label>
+
       <label>Raum / Bereich*
-        <input id="room" required placeholder="z. B. Schaukelzimmer">
+        <select id="roomSelect" required>
+          <option value="">Bitte auswählen …</option>
+          <option>Küche</option>
+          <option>Vorratsraum</option>
+          <option>Wohnzimmer</option>
+          <option>Esszimmer</option>
+          <option>Schaukelzimmer</option>
+          <option>Bad</option>
+          <option>Schlafzimmer</option>
+          <option>Kinderzimmer</option>
+          <option>Flur</option>
+          <option>Garage</option>
+          <option>Garten</option>
+          <option>Gartenhaus</option>
+          <option>Schuppen</option>
+          <option>Dachboden</option>
+          <option value="__other__">Anderer Bereich …</option>
+        </select>
+        <input id="roomCustom" class="hidden" placeholder="Eigenen Bereich eingeben">
       </label>
 
       <label>Genauer Ort
@@ -141,6 +168,7 @@
 
   <template id="itemTemplate">
     <article class="item-card">
+      <div class="card-photo-wrap hidden"><img class="card-photo" alt=""></div>
       <button class="card-main">
         <div class="item-top">
           <div class="item-title-row">
@@ -157,6 +185,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
