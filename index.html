@@ -72,20 +72,81 @@
         <p>Versuche einen anderen Suchbegriff oder trage den Gegenstand neu ein.</p>
       </section>
 
-      <section id="itemsList" class="items"></section>
-        </section>
-      <section id="suppliesView" class="app-view hidden">
-  <section class="section-head">
-    <div>
-      <h2>Vorräte</h2>
-      <p>Was haben wir noch da?</p>
-    </div>
-    <button id="addSupplyBtn" class="primary-btn">＋ Vorrat</button>
+     <section id="suppliesView" class="app-view hidden">
+
+  <section id="suppliesHome">
+
+    <section class="search-card supply-search-card">
+      <label for="supplySearchInput">Was suchst du?</label>
+
+      <div class="search-row">
+        <input
+          id="supplySearchInput"
+          type="search"
+          placeholder="z. B. Milch, Mehl, Kokosmilch …"
+          autocomplete="off"
+        >
+
+        <button
+          id="clearSupplySearch"
+          class="small-btn"
+          aria-label="Suche löschen"
+        >
+          ✕
+        </button>
+      </div>
+    </section>
+
+    <section class="section-head">
+      <div>
+        <h2>Vorräte</h2>
+        <p>Wähle eine Kategorie.</p>
+      </div>
+
+      <button id="addSupplyBtn" class="primary-btn">
+        ＋ Vorrat
+      </button>
+    </section>
+
+    <section
+      id="supplyCategories"
+      class="supply-categories"
+    ></section>
+
   </section>
 
-  <section id="suppliesList" class="items"></section>
-</section>
 
+  <section
+    id="suppliesCategoryView"
+    class="hidden"
+  >
+
+    <section class="section-head">
+      <div>
+        <button
+          id="backToSupplyCategories"
+          class="secondary-btn"
+          type="button"
+        >
+          ← Kategorien
+        </button>
+
+        <h2 id="supplyCategoryTitle">
+          Vorräte
+        </h2>
+
+        <p id="supplyCategoryCount"></p>
+      </div>
+    </section>
+
+    <section
+      id="suppliesList"
+      class="items"
+    ></section>
+
+  </section>
+
+</section>
 <section id="shoppingView" class="app-view hidden">
   <section class="section-head">
     <div>
