@@ -107,6 +107,113 @@ async function hydrateCardPhotos(){
 }
 
 async function loadItems(){setStatus("Daten werden geladen …");try{const r=await authFetch("/rest/v1/items?select=*&order=name.asc");const body=await r.json().catch(()=>[]);if(!r.ok)throw new Error(body.message||body.error||"Fehler beim Laden");items=body||[];setStatus("");render();}catch(e){setStatus("Daten konnten nicht geladen werden: "+e.message,true);}}
+async function loadSupplies() {
+  if (!els.suppliesList) return;
+
+  els.suppliesList.innerHTML = "<p>Vorräte werden geladen …</p>";
+
+  try {
+    const r = await authFetch(
+      "/rest/v1/supplies?select=*&order=name.asc"
+    );
+
+    const body = await r.json().catch(() => []);
+
+    if (!r.ok) {
+      throw new Error(
+        body.message ||
+        body.error ||
+        "Fehler beim Laden der Vorräte"
+      );
+    }
+
+    supplies = body || [];
+    renderSupplies();
+
+  } catch (e) {
+    els.suppliesList.innerHTML =
+      `<p class="error-text">Vorräte konnten nicht geladen werden: ${e.message}</p>`;
+  }
+}
+
+
+function renderSupplies() {
+  if (!els.suppliesList) return;
+
+  els.suppliesList.innerHTML = "";
+
+  if (supplies.length === 0) {
+    els.suppliesList.innerHTML = `
+      <section class="empty">
+        <div class="empty-icon">📦</div>
+        <h3>Noch keine Vorräte</h3>
+        <p>Hier erscheinen später Milch, Haferflocken, Konserven und alles andere.</p>
+      </section>
+    `;
+    return;
+  }
+
+  supplies.forEach(supply => {
+    const card = document.createElement("article");
+    card.className = "item-card";
+
+    const quantity =
+      supply.quantity != null
+        ? `${supply.quantity}${supply.unit ? " " + supply.unit : ""}`
+        : "";
+
+    const place = [
+      supply.room,
+      supply.storage_location,
+      supply.location_note
+    ].filter(Boolean).join(" → ");
+
+    let bestBefore = "";
+
+    if (supply.best_before) {
+      const date = new Date(supply.best_before + "T00:00:00");
+
+      bestBefore =
+        "MHD: " +
+        date.toLocaleDateString("de-DE");
+    }
+
+    const meta = [
+      supply.category,
+      quantity,
+      bestBefore,
+      supply.note
+    ].filter(Boolean).join(" · ");
+
+    card.innerHTML = `
+      <div class="card-main">
+        <div class="item-top">
+          <div class="item-title-row">
+            <span class="item-symbol">${supply.symbol || "📦"}</span>
+
+            <div>
+              <h3 class="item-name"></h3>
+              <p class="item-location"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-meta"></div>
+      </div>
+    `;
+
+    card.querySelector(".item-name").textContent =
+      supply.name || "";
+
+    card.querySelector(".item-location").textContent =
+      place;
+
+    card.querySelector(".item-meta").textContent =
+      meta;
+
+    els.suppliesList.appendChild(card);
+  });
+}
 function renderFilters(){const rooms=[...new Set(items.map(x=>x.room).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de"));els.filters.innerHTML="";rooms.slice(0,6).forEach(room=>{const btn=document.createElement("button");btn.className="chip";btn.textContent=room;btn.addEventListener("click",()=>{els.search.value=room;render();});els.filters.appendChild(btn);});}
 function render(){
   const q=normalize(els.search.value.trim());const filtered=items.filter(item=>!q||searchableText(item).includes(q)).sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"));
@@ -116,7 +223,17 @@ function render(){
 }
 function openNew(){els.form.reset();clearPhotoState();setRoomValue("");els.id.value="";els.symbol.value="";els.dialogTitle.textContent="Neuen Gegenstand eintragen";els.delete.classList.add("hidden");renderSymbolChoices();els.dialog.showModal();}
 function openEdit(id){const item=items.find(x=>String(x.id)===String(id));if(!item)return;els.form.reset();clearPhotoState();els.id.value=item.id;els.symbol.value=item.symbol||suggestFor(item.name)[0];els.name.value=item.name||"";setRoomValue(item.room||"");els.location.value=item.location||"";els.keywords.value=keywordsToArray(item.keywords).join(", ");els.note.value=item.note||"";els.dialogTitle.textContent="Eintrag bearbeiten";els.delete.classList.remove("hidden");renderSymbolChoices();els.dialog.showModal();if(item.photo_path)showStoredPhoto(item.photo_path);}
-async function showSession(){const signedIn=!!session?.access_token;els.loginScreen.classList.toggle("hidden",signedIn);els.appShell.classList.toggle("hidden",!signedIn);if(signedIn)await loadItems();}
+async function showSession() {
+  const signedIn = !!session?.access_token;
+
+  els.loginScreen.classList.toggle("hidden", signedIn);
+  els.appShell.classList.toggle("hidden", !signedIn);
+
+  if (signedIn) {
+    await loadItems();
+    await loadSupplies();
+  }
+}
 
 els.loginForm.addEventListener("submit",async e=>{e.preventDefault();els.loginStatus.textContent="Anmeldung läuft …";els.loginStatus.classList.remove("error-text");try{await signIn(els.loginEmail.value.trim(),els.loginPassword.value);els.loginStatus.textContent="";await showSession();}catch(e){els.loginStatus.textContent="Anmeldung fehlgeschlagen: "+e.message;els.loginStatus.classList.add("error-text");}});
 els.form.addEventListener("submit",async e=>{
@@ -146,7 +263,7 @@ const navButtons = document.querySelectorAll(".nav-btn");
 const appViews = document.querySelectorAll(".app-view");
 
 navButtons.forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     const targetView = button.dataset.view;
 
     navButtons.forEach((btn) => btn.classList.remove("active"));
@@ -157,5 +274,8 @@ navButtons.forEach((button) => {
     document
       .getElementById(`${targetView}View`)
       .classList.remove("hidden");
+    if (targetView === "supplies") {
+  await loadSupplies();
+}
   });
 });
