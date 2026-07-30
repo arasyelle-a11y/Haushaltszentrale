@@ -689,7 +689,44 @@ function renderItems() {
   renderFilters();
   hydrateCardPhotos();
 }
-function automaticSupplyStatus(quantity, minimumQuantity) {
+function getBestBeforeText(bestBefore) {
+  if (!bestBefore) return "";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const date = new Date(bestBefore + "T00:00:00");
+
+  const days = Math.round(
+    (date - today) / (1000 * 60 * 60 * 24)
+  );
+
+  const formatted = date.toLocaleDateString("de-DE");
+
+  if (days < 0) {
+    const overdue = Math.abs(days);
+
+    return `🔴 seit ${overdue} ${
+      overdue === 1 ? "Tag" : "Tagen"
+    } abgelaufen`;
+  }
+
+  if (days === 0) {
+    return "🔴 MHD heute";
+  }
+
+  if (days <= 7) {
+    return `🟠 MHD ${formatted} · noch ${days} ${
+      days === 1 ? "Tag" : "Tage"
+    }`;
+  }
+
+  if (days <= 30) {
+    return `🟡 MHD ${formatted} · noch ${days} Tage`;
+  }
+
+  return `📅 MHD ${formatted}`;
+}function automaticSupplyStatus(quantity, minimumQuantity) {
   if (quantity == null || quantity === "") return null;
 
   const q = Number(quantity);
@@ -819,17 +856,7 @@ function renderSupplies() {
       .filter(Boolean)
       .join(" → ");
 
-    let bestBefore = "";
-
-    if (supply.best_before) {
-      const date = new Date(
-        supply.best_before + "T00:00:00"
-      );
-
-      bestBefore =
-        "MHD: " +
-        date.toLocaleDateString("de-DE");
-    }
+  const bestBefore = getBestBeforeText(supply.best_before);
 
    const statusText = supplyStatusText(supply);
 
