@@ -229,22 +229,25 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 }
 
 /* dezente Holzleisten */
-.supply-category-box::before,
-.supply-category-box::after {
+.supply-category-box::before {
   content: "";
   position: absolute;
-  left: 8px;
-  right: 8px;
-  height: 1px;
-  background: rgba(120, 88, 55, 0.13);
-}
+  inset: 0;
+  border-radius: 7px;
+  pointer-events: none;
 
-.supply-category-box::before {
-  top: 13px;
-}
-
-.supply-category-box::after {
-  bottom: 13px;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 32%,
+      rgba(105, 67, 30, 0.28) 33%,
+      rgba(255, 255, 255, 0.18) 34%,
+      transparent 35%,
+      transparent 65%,
+      rgba(105, 67, 30, 0.28) 66%,
+      rgba(255, 255, 255, 0.18) 67%,
+      transparent 68%
+    );
 }
 
 .supply-category-box:active {
