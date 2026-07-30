@@ -1,5 +1,5 @@
-const SUPABASE_URL = "https://ooojdxmyekdghexyeeuc.supabase.co";
-const SUPABASE_KEY = "sb_publishable_vdnGOAUwh38wzud2WN8fyA_vGOfPV8t";
+const SUPABASE_URL = "https://muujfgwspkoogjxtvcrp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_F6Q3yYsgbdiOBmo1u4Ar_Q_9SF6WrHx";
 // Absichtlich derselbe Schlüssel wie in V4: bestehende Anmeldung bleibt erhalten.
 const SESSION_KEY = "wo-ist-was-supabase-session-v4";
 const PHOTO_BUCKET = "item-photos";
