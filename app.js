@@ -137,3 +137,20 @@ els.name.addEventListener("input",renderSymbolChoices);els.suggestSymbol.addEven
 
 if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const regs=await navigator.serviceWorker.getRegistrations();for(const reg of regs)await reg.update();await navigator.serviceWorker.register("./sw.js?v=5");}catch(e){console.warn(e);}});}
 showSession();
+const navButtons = document.querySelectorAll(".nav-btn");
+const appViews = document.querySelectorAll(".app-view");
+
+navButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const targetView = button.dataset.view;
+
+    navButtons.forEach((btn) => btn.classList.remove("active"));
+    button.classList.add("active");
+
+    appViews.forEach((view) => view.classList.add("hidden"));
+
+    document
+      .getElementById(`${targetView}View`)
+      .classList.remove("hidden");
+  });
+});
