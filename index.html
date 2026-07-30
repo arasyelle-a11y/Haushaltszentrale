@@ -40,8 +40,13 @@
       </div>
       <button id="settingsBtn" class="icon-btn" aria-label="Einstellungen">⚙️</button>
     </header>
-
+<nav class="main-nav">
+  <button class="nav-btn active" data-view="items">🔎 Wo ist was?</button>
+  <button class="nav-btn" data-view="supplies">📦 Vorräte</button>
+  <button class="nav-btn" data-view="shopping">🛒 Einkauf</button>
+</nav>   
     <main>
+      <section id="itemsView" class="app-view">
       <section class="search-card">
         <label for="searchInput">Was suchst du?</label>
         <div class="search-row">
@@ -68,6 +73,27 @@
       </section>
 
       <section id="itemsList" class="items"></section>
+        </section>
+      <section id="suppliesView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Vorräte</h2>
+      <p>Was haben wir noch da?</p>
+    </div>
+    <button id="addSupplyBtn" class="primary-btn">＋ Vorrat</button>
+  </section>
+
+  <section id="suppliesList" class="items"></section>
+</section>
+
+<section id="shoppingView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Einkaufsliste</h2>
+      <p>Kommt als Nächstes.</p>
+    </div>
+  </section>
+</section>
     </main>
   </div>
 
