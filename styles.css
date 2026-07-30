@@ -154,8 +154,3 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     font-size: 0.9rem;
   }
 }
-.nav-btn {
-  background: red !important;
-  color: white !important;
-  font-size: 24px !important;
-}
