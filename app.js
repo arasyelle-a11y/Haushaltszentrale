@@ -689,7 +689,96 @@ function renderItems() {
   renderFilters();
   hydrateCardPhotos();
 }
+function automaticSupplyStatus(quantity, minimumQuantity) {
+  if (quantity == null || quantity === "") return null;
 
+  const q = Number(quantity);
+
+  if (!Number.isFinite(q)) return null;
+
+  if (q <= 0) return "empty";
+
+  if (minimumQuantity != null && minimumQuantity !== "") {
+    const min = Number(minimumQuantity);
+
+    if (Number.isFinite(min) && q <= min) {
+      return "low";
+    }
+  }
+
+  return "enough";
+}
+
+function supplyStatusText(supply) {
+  const status =
+    automaticSupplyStatus(
+      supply.quantity,
+      supply.minimum_quantity
+    ) || supply.stock_status;
+
+  if (status === "enough") return "🟢 Genug";
+  if (status === "low") return "🟡 Wenig";
+  if (status === "empty") return "🔴 Leer";
+
+  return "";
+}
+
+async function changeSupplyQuantity(id, delta) {
+  const supply = supplies.find(
+    (entry) => String(entry.id) === String(id)
+  );
+
+  if (!supply) return;
+
+  const current = Number(supply.quantity ?? 0);
+  const next = Math.max(0, current + delta);
+
+  const status = automaticSupplyStatus(
+    next,
+    supply.minimum_quantity
+  );
+
+  try {
+    const response = await authFetch(
+      "/rest/v1/supplies?id=eq." +
+        encodeURIComponent(id),
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          quantity: next,
+          stock_status: status,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const body = await response
+        .json()
+        .catch(() => ({}));
+
+      throw new Error(
+        body.message ||
+        body.error ||
+        "Bestand konnte nicht geändert werden"
+      );
+    }
+
+    supply.quantity = next;
+    supply.stock_status = status;
+
+    renderSupplies();
+
+  } catch (error) {
+    alert(
+      "Bestand konnte nicht geändert werden: " +
+      error.message
+    );
+  }
+}
 function renderSupplies() {
   if (!els.suppliesList) return;
 
@@ -742,19 +831,7 @@ function renderSupplies() {
         date.toLocaleDateString("de-DE");
     }
 
-    let statusText = "";
-
-    if (supply.stock_status === "enough") {
-      statusText = "🟢 Genug";
-    } else if (
-      supply.stock_status === "low"
-    ) {
-      statusText = "🟡 Wenig";
-    } else if (
-      supply.stock_status === "empty"
-    ) {
-      statusText = "🔴 Leer";
-    }
+   const statusText = supplyStatusText(supply);
 
     const meta = [
       supply.category,
@@ -783,7 +860,24 @@ function renderSupplies() {
           <span class="chevron">›</span>
         </div>
 
-        <div class="item-meta"></div>
+     <div class="item-meta"></div>
+
+<div class="supply-quantity-controls">
+  <button
+    type="button"
+    class="supply-qty-btn supply-minus"
+    aria-label="Bestand verringern"
+  >−</button>
+
+  <span class="supply-qty-value"></span>
+
+  <button
+    type="button"
+    class="supply-qty-btn supply-plus"
+    aria-label="Bestand erhöhen"
+  >＋</button>
+</div>
+
       </div>
     `;
 
@@ -802,6 +896,28 @@ function renderSupplies() {
     ).textContent =
       meta;
 
+    const qtyValue = card.querySelector(".supply-qty-value");
+
+qtyValue.textContent =
+  supply.quantity != null
+    ? `${supply.quantity}${supply.unit ? " " + supply.unit : ""}`
+    : `0${supply.unit ? " " + supply.unit : ""}`;
+
+card.querySelector(".supply-minus").addEventListener(
+  "click",
+  async (event) => {
+    event.stopPropagation();
+    await changeSupplyQuantity(supply.id, -1);
+  }
+);
+
+card.querySelector(".supply-plus").addEventListener(
+  "click",
+  async (event) => {
+    event.stopPropagation();
+    await changeSupplyQuantity(supply.id, 1);
+  }
+);    
     card.addEventListener(
       "click",
       () => openEditSupply(supply.id)
@@ -1242,10 +1358,16 @@ els.supplyForm.addEventListener(
     };
 
     if (!record.name) {
-      return;
-    }
+  return;
+}
 
-    try {
+record.stock_status =
+  automaticSupplyStatus(
+    record.quantity,
+    record.minimum_quantity
+  ) || record.stock_status;
+
+try {
       let response;
 
       if (els.supplyId.value) {
