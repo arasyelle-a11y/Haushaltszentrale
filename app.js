@@ -563,9 +563,9 @@ async function loadSupplies() {
       );
     }
 
-    supplies = body || [];
+   supplies = body || [];
 
-    renderSupplies();
+renderSupplyCategories();
   } catch (error) {
     els.suppliesList.innerHTML =
       `<p class="error-text">Vorräte konnten nicht geladen werden: ${error.message}</p>`;
