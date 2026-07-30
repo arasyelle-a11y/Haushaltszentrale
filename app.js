@@ -88,7 +88,15 @@ const els = {
 
   suppliesList: $("#suppliesList"),
   addSupplyBtn: $("#addSupplyBtn"),
-
+supplySearchInput: $("#supplySearchInput"),
+clearSupplySearch: $("#clearSupplySearch"),
+supplyCategories: $("#supplyCategories"),
+suppliesHome: $("#suppliesHome"),
+suppliesCategoryView: $("#suppliesCategoryView"),
+backToSupplyCategories: $("#backToSupplyCategories"),
+supplyCategoryTitle: $("#supplyCategoryTitle"),
+supplyCategoryCount: $("#supplyCategoryCount"),
+  
   supplyDialog: $("#supplyDialog"),
   supplyForm: $("#supplyForm"),
   supplyDialogTitle: $("#supplyDialogTitle"),
@@ -830,12 +838,88 @@ async function changeSupplyQuantity(id, delta) {
     );
   }
 }
-function renderSupplies() {
+function getCategoryIcon(category) {
+  const icons = {
+    Frühstück: "🥣",
+    Backen: "🧁",
+    Konserven: "🥫",
+    Getränke: "🥤",
+    Grundnahrungsmittel: "🍝",
+    Snacks: "🍫",
+    Haushalt: "🧻",
+    Hygiene: "🧴",
+    Sonstiges: "📦"
+  };
+
+  return icons[category] || "📦";
+}
+
+function renderSupplyCategories() {
+  if (!els.supplyCategories) return;
+
+  const categories = [...new Set(
+    supplies
+      .map((supply) => supply.category)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "de"));
+
+  els.supplyCategories.innerHTML = "";
+
+  categories.forEach((category) => {
+    const categorySupplies = supplies.filter(
+      (supply) => supply.category === category
+    );
+
+    const box = document.createElement("button");
+
+    box.type = "button";
+    box.className = "supply-category-box";
+
+    box.innerHTML = `
+      <div class="supply-category-icon">${getCategoryIcon(category)}</div>
+      <div class="supply-category-name"></div>
+      <div class="supply-category-info"></div>
+    `;
+
+    box.querySelector(".supply-category-name").textContent =
+      category;
+
+    box.querySelector(".supply-category-info").textContent =
+      `${categorySupplies.length} ${
+        categorySupplies.length === 1 ? "Artikel" : "Artikel"
+      }`;
+
+    box.addEventListener("click", () => {
+      showSupplyCategory(category);
+    });
+
+    els.supplyCategories.appendChild(box);
+  });
+}
+
+function showSupplyCategory(category) {
+  els.suppliesHome.classList.add("hidden");
+  els.suppliesCategoryView.classList.remove("hidden");
+
+  els.supplyCategoryTitle.textContent = category;
+
+  const filtered = supplies.filter(
+    (supply) => supply.category === category
+  );
+
+  els.supplyCategoryCount.textContent =
+    `${filtered.length} ${
+      filtered.length === 1 ? "Artikel" : "Artikel"
+    }`;
+
+  renderSupplies(filtered);
+}
+function renderSupplies(list = supplies) {
   if (!els.suppliesList) return;
 
   els.suppliesList.innerHTML = "";
 
-  if (supplies.length === 0) {
+  if (list.length === 0) {
     els.suppliesList.innerHTML = `
       <section class="empty">
         <div class="empty-icon">📦</div>
@@ -847,7 +931,7 @@ function renderSupplies() {
     return;
   }
 
-  supplies.forEach((supply) => {
+  list.forEach((supply) => {
     const card =
       document.createElement("article");
 
