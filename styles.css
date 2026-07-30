@@ -249,7 +249,20 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
       transparent 68%
     );
 }
+.supply-category-box::after {
+  content: "";
+  position: absolute;
+  inset: 7px 10px;
+  border-radius: 4px;
+  pointer-events: none;
 
+  border-left: 11px solid rgba(126, 78, 35, 0.32);
+  border-right: 11px solid rgba(126, 78, 35, 0.32);
+
+  box-shadow:
+    inset 3px 0 0 rgba(255, 240, 205, 0.22),
+    inset -3px 0 0 rgba(91, 54, 25, 0.15);
+}
 .supply-category-box:active {
   transform: scale(0.98);
 }
@@ -276,4 +289,10 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   .supply-categories {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+.supply-category-icon,
+.supply-category-name,
+.supply-category-info {
+  position: relative;
+  z-index: 2;
 }
