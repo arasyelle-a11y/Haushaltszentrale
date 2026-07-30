@@ -174,6 +174,113 @@
     </form>
   </dialog>
 
+  <dialog id="supplyDialog">
+  <form id="supplyForm">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">VORRAT</p>
+        <h2 id="supplyDialogTitle">Neuen Vorrat eintragen</h2>
+      </div>
+      <button type="button" class="icon-btn" id="closeSupplyDialog" aria-label="Schließen">✕</button>
+    </div>
+
+    <input type="hidden" id="supplyId">
+
+    <label>Name*
+      <input id="supplyName" required placeholder="z. B. Haferflocken">
+    </label>
+
+    <label>Symbol
+      <input id="supplySymbol" maxlength="8" placeholder="🥣">
+    </label>
+
+    <label>Kategorie
+      <select id="supplyCategory">
+        <option value="">Bitte auswählen …</option>
+        <option>Frühstück</option>
+        <option>Backen</option>
+        <option>Konserven</option>
+        <option>Getränke</option>
+        <option>Grundnahrungsmittel</option>
+        <option>Snacks</option>
+        <option>Haushalt</option>
+        <option>Hygiene</option>
+        <option>Sonstiges</option>
+      </select>
+    </label>
+
+    <label>Vorratsart
+      <select id="supplyType">
+        <option value="">Bitte auswählen …</option>
+        <option value="daily">Häufiger Verbrauch</option>
+        <option value="stock">Immer auf Lager</option>
+        <option value="rare">Seltener Vorrat</option>
+      </select>
+    </label>
+
+    <label>Raum / Bereich
+      <input id="supplyRoom" placeholder="z. B. Vorratsraum">
+    </label>
+
+    <label>Lagerplatz
+      <input id="supplyStorageLocation" placeholder="z. B. Holzkiste Frühstück">
+    </label>
+
+    <label>Genauer Ort
+      <input id="supplyLocationNote" placeholder="z. B. hinten links">
+    </label>
+
+    <div class="two-columns">
+      <label>Bestand
+        <input id="supplyQuantity" type="number" min="0" step="0.1" placeholder="2">
+      </label>
+
+      <label>Einheit
+        <select id="supplyUnit">
+          <option value="">–</option>
+          <option>Packungen</option>
+          <option>Flaschen</option>
+          <option>Gläser</option>
+          <option>Dosen</option>
+          <option>Stück</option>
+          <option>kg</option>
+          <option>g</option>
+          <option>l</option>
+          <option>ml</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Mindestbestand
+      <input id="supplyMinimumQuantity" type="number" min="0" step="0.1" placeholder="1">
+    </label>
+
+    <label>Status
+      <select id="supplyStockStatus">
+        <option value="">Automatisch / nicht angegeben</option>
+        <option value="enough">🟢 Genug</option>
+        <option value="low">🟡 Wenig</option>
+        <option value="empty">🔴 Leer</option>
+      </select>
+    </label>
+
+    <label>Mindesthaltbar bis
+      <input id="supplyBestBefore" type="date">
+    </label>
+
+    <label>Notiz
+      <textarea id="supplyNote" rows="3" placeholder="Optional"></textarea>
+    </label>
+
+    <div class="dialog-actions">
+      <button type="button" id="deleteSupplyBtn" class="danger-btn hidden">Löschen</button>
+      <span class="spacer"></span>
+      <button type="button" id="cancelSupplyBtn" class="secondary-btn">Abbrechen</button>
+      <button type="submit" class="primary-btn">Speichern</button>
+    </div>
+  </form>
+</dialog>
+  
   <dialog id="settingsDialog">
     <div class="dialog-head">
       <div>
