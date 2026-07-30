@@ -5,6 +5,7 @@ const SESSION_KEY = "wo-ist-was-supabase-session-v4";
 const PHOTO_BUCKET = "item-photos";
 
 let items = [];
+let supplies = [];
 let session = loadSession();
 let pendingPhotoBlob = null;
 let removeExistingPhoto = false;
@@ -42,7 +43,11 @@ const els = {
   removePhotoBtn: $("#removePhotoBtn"), closeDialog: $("#closeDialog"), cancel: $("#cancelBtn"),
   delete: $("#deleteBtn"), settingsBtn: $("#settingsBtn"), settingsDialog: $("#settingsDialog"),
   closeSettings: $("#closeSettings"), exportBtn: $("#exportBtn"), refreshBtn: $("#refreshBtn"),
-  logoutBtn: $("#logoutBtn"), template: $("#itemTemplate")
+  logoutBtn: $("#logoutBtn"),
+template: $("#itemTemplate"),
+
+suppliesList: $("#suppliesList"),
+addSupplyBtn: $("#addSupplyBtn")
 };
 
 function loadSession(){ try{return JSON.parse(localStorage.getItem(SESSION_KEY)||"null");}catch{return null;} }
