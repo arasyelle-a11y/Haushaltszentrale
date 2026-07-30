@@ -689,8 +689,10 @@ function renderItems() {
   renderFilters();
   hydrateCardPhotos();
 }
-function getBestBeforeText(bestBefore) {
-  if (!bestBefore) return "";
+function getBestBeforeInfo(bestBefore) {
+  if (!bestBefore) {
+    return { text: "", className: "" };
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -706,27 +708,39 @@ function getBestBeforeText(bestBefore) {
   if (days < 0) {
     const overdue = Math.abs(days);
 
-    return `🔴 seit ${overdue} ${
-      overdue === 1 ? "Tag" : "Tagen"
-    } abgelaufen`;
+    return {
+      text: `MHD ${formatted} · seit ${overdue} ${overdue === 1 ? "Tag" : "Tagen"} abgelaufen`,
+      className: "mhd-expired"
+    };
   }
 
   if (days === 0) {
-    return "🔴 MHD heute";
+    return {
+      text: `MHD ${formatted} · heute`,
+      className: "mhd-expired"
+    };
   }
 
   if (days <= 7) {
-    return `🟠 MHD ${formatted} · noch ${days} ${
-      days === 1 ? "Tag" : "Tage"
-    }`;
+    return {
+      text: `MHD ${formatted} · noch ${days} ${days === 1 ? "Tag" : "Tage"}`,
+      className: "mhd-soon"
+    };
   }
 
   if (days <= 30) {
-    return `🟡 MHD ${formatted} · noch ${days} Tage`;
+    return {
+      text: `MHD ${formatted} · noch ${days} Tage`,
+      className: "mhd-warning"
+    };
   }
 
-  return `📅 MHD ${formatted}`;
-}function automaticSupplyStatus(quantity, minimumQuantity) {
+  return {
+    text: `MHD ${formatted}`,
+    className: "mhd-normal"
+  };
+}
+function automaticSupplyStatus(quantity, minimumQuantity) {
   if (quantity == null || quantity === "") return null;
 
   const q = Number(quantity);
@@ -856,19 +870,18 @@ function renderSupplies() {
       .filter(Boolean)
       .join(" → ");
 
-  const bestBefore = getBestBeforeText(supply.best_before);
+  const bestBefore = getBestBeforeInfo(supply.best_before);
 
    const statusText = supplyStatusText(supply);
 
-    const meta = [
-      supply.category,
-      quantity,
-      statusText,
-      bestBefore,
-      supply.note,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+const meta = [
+  supply.category,
+  quantity,
+  statusText,
+  supply.note,
+]
+  .filter(Boolean)
+  .join(" · ");
 
     card.innerHTML = `
       <div class="card-main">
@@ -888,7 +901,7 @@ function renderSupplies() {
         </div>
 
      <div class="item-meta"></div>
-
+<div class="mhd-text"></div>
 <div class="supply-quantity-controls">
   <button
     type="button"
@@ -923,6 +936,15 @@ function renderSupplies() {
     ).textContent =
       meta;
 
+    const mhdEl = card.querySelector(".mhd-text");
+
+if (bestBefore.text) {
+  mhdEl.textContent = bestBefore.text;
+  mhdEl.className = `mhd-text ${bestBefore.className}`;
+} else {
+  mhdEl.textContent = "";
+  mhdEl.className = "mhd-text";
+}
     const qtyValue = card.querySelector(".supply-qty-value");
 
 qtyValue.textContent =
