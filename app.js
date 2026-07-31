@@ -1772,6 +1772,11 @@ els.clear.addEventListener(
   }
 );
 
+els.backToSupplyCategories.addEventListener("click", () => {
+  els.suppliesCategoryView.classList.add("hidden");
+  els.suppliesHome.classList.remove("hidden");
+});
+
 els.add.addEventListener(
   "click",
   openNewItem
