@@ -1077,46 +1077,50 @@ const meta = [
   .filter(Boolean)
   .join(" · ");
 
-    card.innerHTML = `
-      <div class="card-main">
-      <div class="item-top supply-item-top">
-  <div class="item-title-row">
-    <span class="item-symbol">${
-      supply.symbol || "📦"
-    }</span>
+card.innerHTML = `
+  <div class="card-main">
+    <div class="item-top supply-item-top">
 
-    <h3 class="item-name"></h3>
-  </div>
+      <div class="item-title-row">
+        <span class="item-symbol">${
+          supply.symbol || "📦"
+        }</span>
 
-  <div class="supply-quantity-box">
-    <div class="supply-quantity-controls">
-      <button
-        type="button"
-        class="supply-qty-btn supply-minus"
-        aria-label="Bestand verringern"
-      >−</button>
-
-      <div class="supply-quantity-center">
-        <div class="item-meta"></div>
-        <span class="supply-qty-value"></span>
+        <h3 class="item-name"></h3>
       </div>
 
-      <button
-        type="button"
-        class="supply-qty-btn supply-plus"
-        aria-label="Bestand erhöhen"
-      >＋</button>
+      <div class="supply-quantity-box">
+        <div class="supply-quantity-controls">
+
+          <button
+            type="button"
+            class="supply-qty-btn supply-minus"
+            aria-label="Bestand verringern"
+          >−</button>
+
+          <div class="supply-quantity-center">
+            <div class="item-meta"></div>
+            <span class="supply-qty-value"></span>
+          </div>
+
+          <button
+            type="button"
+            class="supply-qty-btn supply-plus"
+            aria-label="Bestand erhöhen"
+          >＋</button>
+
+        </div>
+      </div>
+
+      <span class="chevron">›</span>
+
     </div>
+
+    <p class="item-location supply-location"></p>
+
+    <div class="mhd-text"></div>
   </div>
-
-  <span class="chevron">›</span>
-</div>
-
-<p class="item-location supply-location"></p>
-
-<p class="item-location supply-location hidden"></p>
-
-<div class="mhd-text"></div>
+`;
 
 
     card.querySelector(
