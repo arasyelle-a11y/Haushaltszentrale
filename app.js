@@ -1123,12 +1123,6 @@ const meta = [
 
 <div class="mhd-text"></div>
 
-  <div class="supply-quantity-controls">
-    <button
-      type="button"
-      class="supply-qty-btn supply-minus"
-      aria-label="Bestand verringern"
-    >−</button>
 
     <div class="supply-quantity-center">
       <div class="item-meta"></div>
