@@ -610,3 +610,76 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     transform-origin: right center;
   }
 }
+/* ===== Vorratskarten auf dem Handy ===== */
+
+@media (max-width: 600px) {
+
+  .supply-item-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Name bekommt auf dem Handy die ganze erste Zeile */
+  .supply-item-top .item-title-row {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  /* Mengensteuerung darunter */
+  .supply-item-top .supply-quantity-box {
+    margin-left: 48px;
+  }
+
+  /* nicht mehr verkleinern */
+  .supply-item-top .supply-quantity-controls {
+    transform: none;
+  }
+
+  /* Pfeil rechts oben */
+  .supply-item-top .chevron {
+    display: block;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+  }
+
+  /* Lagerort darunter klein */
+  .supply-location {
+    margin: 6px 0 0 48px;
+    font-size: 0.76rem;
+    line-height: 1.25;
+    color: #7a8da1;
+  }
+
+  #suppliesCategoryView .item-card {
+    position: relative;
+    padding: 16px;
+    min-height: 0;
+  }
+}
+@media (max-width: 600px) {
+
+  .supply-quantity-controls {
+    gap: 5px;
+    padding: 4px 6px;
+  }
+
+  .supply-qty-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .supply-quantity-center {
+    min-width: 90px;
+  }
+
+  .supply-quantity-center .item-meta {
+    font-size: 0.72rem;
+  }
+
+  .supply-quantity-center .supply-qty-value {
+    font-size: 0.85rem;
+  }
+}
