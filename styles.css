@@ -200,7 +200,6 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 }
 
 .supply-category-box {
-  .supply-category-box {
   position: relative;
   min-height: 125px;
   padding: 18px 14px;
@@ -225,6 +224,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   cursor: pointer;
   overflow: hidden;
 }
+
 .supply-category-box:active {
   transform: scale(0.98);
 }
