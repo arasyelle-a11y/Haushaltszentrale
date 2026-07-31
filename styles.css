@@ -339,3 +339,52 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   color: #2e7d32;
   font-weight: 700;
 }
+/* ===== Vorräte: Mengensteuerung ===== */
+
+.supply-quantity-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 10px;
+  padding: 5px 8px;
+
+  background: #f4f8fc;
+  border: 1px solid #d7e3ef;
+  border-radius: 999px;
+}
+
+.supply-qty-btn {
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #e3eef8;
+  color: #244b73;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.supply-qty-btn:active {
+  transform: scale(0.92);
+  background: #d5e6f5;
+}
+
+.supply-qty-value {
+  min-width: 78px;
+
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #24384f;
+}
