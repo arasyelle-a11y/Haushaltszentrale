@@ -901,9 +901,13 @@ const matches = supplies
     button.querySelector(".supply-suggestion-name").textContent =
       supply.name || "";
 
-    button.querySelector(".supply-suggestion-place").textContent =
-  `${supply.category || "Vorrat"} · ${supply.quantity ?? 0} ${supply.unit || ""}`;
+  const info = button.querySelector(".supply-suggestion-place");
+const quantity = Number(supply.quantity ?? 0);
 
+info.textContent =
+  `${supply.category || "Vorrat"} · ${quantity} ${supply.unit || ""}`;
+
+info.classList.toggle("out-of-stock", quantity <= 0);
     button.addEventListener("click", () => {
       els.supplySuggestions.classList.add("hidden");
       els.supplySearchInput.value = supply.name || "";
