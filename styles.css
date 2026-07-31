@@ -473,3 +473,34 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.88rem;
   color: #71849a;
 }
+/* ===== Vorräte: Kategorie-Kopf kompakt ===== */
+
+#suppliesCategoryView .section-head {
+  margin-bottom: 14px;
+}
+
+#suppliesCategoryView .section-head > div {
+  width: 100%;
+}
+
+#supplyCategoryTitle {
+  display: none;
+}
+
+#backToSupplyCategories {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #183d68;
+  font-size: 1.35rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+#supplyCategoryCount {
+  margin: 3px 0 0 28px;
+  font-size: 0.88rem;
+  color: #71849a;
+}
