@@ -200,20 +200,18 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 }
 
 .supply-category-box {
+  .supply-category-box {
   position: relative;
   min-height: 125px;
   padding: 18px 14px;
-  border: 1px solid rgba(132, 101, 68, 0.18);
-  border-radius: 8px;
 
- background:
-  linear-gradient(
-    180deg,
-    #edc98f 0%,
-    #e4b978 48%,
-    #dcae6d 52%,
-    #e8c186 100%
-  );
+  background-image: url("wood-crate.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  border: none;
+  border-radius: 8px;
 
   box-shadow:
     0 4px 12px rgba(74, 55, 35, 0.08);
@@ -227,63 +225,6 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   cursor: pointer;
   overflow: hidden;
 }
-
-/* dezente Holzleisten */
-.supply-category-box::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 7px;
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      to bottom,
-      transparent 32%,
-      rgba(105, 67, 30, 0.28) 33%,
-      rgba(255, 255, 255, 0.18) 34%,
-      transparent 35%,
-      transparent 65%,
-      rgba(105, 67, 30, 0.28) 66%,
-      rgba(255, 255, 255, 0.18) 67%,
-      transparent 68%
-    );
-}
-.supply-category-box::after {
-  content: "";
-  position: absolute;
-  inset: 7px 10px;
-  border-radius: 1px;
-  pointer-events: none;
-
-  border-left: 18px solid rgba(126, 78, 35, 0.32);
-  border-right: 18px solid rgba(126, 78, 35, 0.32);
-
- box-shadow:
-  inset 3px 0 0 rgba(255, 240, 205, 0.22),
-  inset -3px 0 0 rgba(91, 54, 25, 0.15);
-
-background:
-  radial-gradient(
-    circle at 1px 12px,
-    #5f4631 0 3px,
-    transparent 3.5px
-  ),
-  radial-gradient(
-    circle at 1px calc(100% - 12px),
-    #5f4631 0 3px,
-    transparent 3.5px
-  ),
-  radial-gradient(
-    circle at calc(100% - 1px) 12px,
-    #5f4631 0 3px,
-    transparent 3.5px
-  ),
-  radial-gradient(
-    circle at calc(100% - 1px) calc(100% - 12px),
-    #5f4631 0 3px,
-    transparent 3.5px
-  );
 .supply-category-box:active {
   transform: scale(0.98);
 }
