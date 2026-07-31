@@ -1013,7 +1013,8 @@ function showSupplyCategory(category) {
   els.suppliesCategoryView.classList.remove("hidden");
 
   els.supplyCategoryTitle.textContent = category;
-
+  els.backToSupplyCategories.textContent = `← ${category}`;
+  
   const filtered = supplies.filter(
     (supply) => supply.category === category
   );
