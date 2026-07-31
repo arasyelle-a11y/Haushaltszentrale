@@ -388,3 +388,12 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-weight: 700;
   color: #24384f;
 }
+.item-name,
+.chevron {
+  cursor: pointer;
+}
+
+.chevron {
+  padding: 10px;
+  margin: -10px;
+}
