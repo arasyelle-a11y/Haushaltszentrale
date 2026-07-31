@@ -902,9 +902,7 @@ const matches = supplies
       supply.name || "";
 
     button.querySelector(".supply-suggestion-place").textContent =
-      [supply.category, supply.storage_location]
-        .filter(Boolean)
-        .join(" · ");
+  `${supply.category || "Vorrat"} · ${supply.quantity ?? 0} ${supply.unit || ""}`;
 
     button.addEventListener("click", () => {
       els.supplySuggestions.classList.add("hidden");
