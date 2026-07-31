@@ -246,6 +246,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   line-height: 1.1;
   color: #4a2f18;
   text-shadow: 0 1px 0 rgba(255, 240, 210, 0.35);
+  transform: translateY(8px);
 }
 
 .supply-category-info {
@@ -253,6 +254,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.9rem;
   font-weight: 500;
   color: #654c36;
+  transform: translateY(8px);
 }
 
 @media (min-width: 700px) {
