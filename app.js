@@ -1119,22 +1119,6 @@ const meta = [
 <div class="mhd-text"></div>
 
 
-    <div class="supply-quantity-center">
-      <div class="item-meta"></div>
-      <span class="supply-qty-value"></span>
-    </div>
-
-    <button
-      type="button"
-      class="supply-qty-btn supply-plus"
-      aria-label="Bestand erhöhen"
-    >＋</button>
-  </div>
-</div>
-
-      </div>
-    `;
-
     card.querySelector(
       ".item-name"
     ).textContent =
