@@ -781,9 +781,9 @@ function supplyStatusText(supply) {
       supply.minimum_quantity
     ) || supply.stock_status;
 
-  if (status === "enough") return "🟢 Genug";
-  if (status === "low") return "🟡 Wenig";
-  if (status === "empty") return "🔴 Leer";
+  if (status === "enough") return "Genug";
+  if (status === "low") return "Wenig";
+  if (status === "empty") return "Leer";
 
   return "";
 }
@@ -1124,10 +1124,23 @@ const meta = [
     ).textContent =
       place;
 
-    card.querySelector(
-      ".item-meta"
-    ).textContent =
-      meta;
+    const metaEl = card.querySelector(".item-meta");
+
+metaEl.textContent = meta;
+
+metaEl.classList.remove(
+  "status-empty",
+  "status-low",
+  "status-enough"
+);
+
+if (supply.stock_status === "empty") {
+  metaEl.classList.add("status-empty");
+} else if (supply.stock_status === "low") {
+  metaEl.classList.add("status-low");
+} else if (supply.stock_status === "enough") {
+  metaEl.classList.add("status-enough");
+}
 
     const mhdEl = card.querySelector(".mhd-text");
 
