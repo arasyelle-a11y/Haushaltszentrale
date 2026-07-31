@@ -869,19 +869,12 @@ function renderSupplySuggestions(query) {
     return;
   }
 
-  const matches = supplies
-    .filter((supply) => {
-      const text = normalize([
-        supply.name,
-        supply.category,
-        supply.room,
-        supply.storage_location,
-        supply.location_note
-      ].filter(Boolean).join(" "));
-
-      return text.includes(q);
-    })
-    .slice(0, 8);
+const matches = supplies
+  .filter((supply) => {
+    const name = normalize(supply.name || "");
+    return name.includes(q);
+  })
+  .slice(0, 8);
 
   if (matches.length === 0) {
     els.supplySuggestions.innerHTML = `
