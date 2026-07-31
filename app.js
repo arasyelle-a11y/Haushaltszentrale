@@ -7,6 +7,7 @@ const PHOTO_BUCKET = "item-photos";
 
 let items = [];
 let supplies = [];
+let activeSupplyCategory = null;
 let session = loadSession();
 let pendingPhotoBlob = null;
 let removeExistingPhoto = false;
@@ -998,6 +999,8 @@ function renderSupplyCategories() {
 }
 
 function showSupplyCategory(category) {
+  activeSupplyCategory = category;
+  
   els.suppliesHome.classList.add("hidden");
   els.suppliesCategoryView.classList.remove("hidden");
 
@@ -1660,6 +1663,10 @@ try {
       els.supplyDialog.close();
 
       await loadSupplies();
+  
+      if (activeSupplyCategory) {
+        showSupplyCategory(activeSupplyCategory);
+      }
     } catch (error) {
       alert(
         "Vorrat konnte nicht gespeichert werden: " +
@@ -1869,6 +1876,8 @@ els.clear.addEventListener(
 );
 
 els.backToSupplyCategories.addEventListener("click", () => {
+  activeSupplyCategory = null;
+  
   els.suppliesCategoryView.classList.add("hidden");
   els.suppliesHome.classList.remove("hidden");
 });
@@ -2078,9 +2087,9 @@ navButtons.forEach(
         }
 
         if (
-          targetView ===
-          "supplies"
-        ) {
+          targetView ===  "supplies"    ) {
+          activeSupplyCategory = null;
+          
           els.suppliesCategoryView.classList.add(
             "hidden"
           );
