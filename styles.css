@@ -504,3 +504,26 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.88rem;
   color: #71849a;
 }
+/* ===== Vorräte: Karten kompakter ===== */
+
+#suppliesCategoryView .item-card {
+  padding: 14px 16px;
+}
+
+#suppliesCategoryView .item-meta {
+  margin-top: 8px;
+}
+
+#suppliesCategoryView .supply-quantity-controls {
+  margin-top: 6px;
+}
+
+#suppliesCategoryView .item-meta + .mhd-text + .supply-quantity-controls,
+#suppliesCategoryView .item-meta + .supply-quantity-controls {
+  margin-top: 4px;
+}
+#suppliesCategoryView .item-location {
+  color: #5f748a;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
