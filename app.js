@@ -1079,24 +1079,50 @@ const meta = [
 
     card.innerHTML = `
       <div class="card-main">
-        <div class="item-top">
-          <div class="item-title-row">
-            <span class="item-symbol">${
-              supply.symbol || "📦"
-            }</span>
+      <div class="item-top supply-item-top">
+  <div class="item-title-row">
+    <span class="item-symbol">${
+      supply.symbol || "📦"
+    }</span>
 
-            <div>
-              <h3 class="item-name"></h3>
-              <p class="item-location"></p>
-            </div>
-          </div>
+    <h3 class="item-name"></h3>
+  </div>
 
-          <span class="chevron">›</span>
-        </div>
+  <div class="supply-quantity-box">
+    <div class="supply-quantity-controls">
+      <button
+        type="button"
+        class="supply-qty-btn supply-minus"
+        aria-label="Bestand verringern"
+      >−</button>
+
+      <div class="supply-quantity-center">
+        <div class="item-meta"></div>
+        <span class="supply-qty-value"></span>
+      </div>
+
+      <button
+        type="button"
+        class="supply-qty-btn supply-plus"
+        aria-label="Bestand erhöhen"
+      >＋</button>
+    </div>
+  </div>
+
+  <span class="chevron">›</span>
+</div>
+
+<button
+  type="button"
+  class="supply-location-toggle"
+>
+  📍 Ort
+</button>
+
+<p class="item-location supply-location hidden"></p>
 
 <div class="mhd-text"></div>
 
-<div class="supply-quantity-box">
   <div class="supply-quantity-controls">
     <button
       type="button"
@@ -1129,6 +1155,23 @@ const meta = [
       ".item-location"
     ).textContent =
       place;
+
+    const locationToggle =
+  card.querySelector(".supply-location-toggle");
+
+const locationEl =
+  card.querySelector(".supply-location");
+
+locationToggle.addEventListener("click", (event) => {
+  event.stopPropagation();
+
+  locationEl.classList.toggle("hidden");
+
+  locationToggle.textContent =
+    locationEl.classList.contains("hidden")
+      ? "🔍 Ort"
+      : "🔍 Ort ausblenden";
+});
 
     const metaEl = card.querySelector(".item-meta");
 
