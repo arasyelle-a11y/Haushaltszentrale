@@ -1112,12 +1112,7 @@ const meta = [
   <span class="chevron">›</span>
 </div>
 
-<button
-  type="button"
-  class="supply-location-toggle"
->
-  📍 Ort
-</button>
+<p class="item-location supply-location"></p>
 
 <p class="item-location supply-location hidden"></p>
 
@@ -1150,22 +1145,6 @@ const meta = [
     ).textContent =
       place;
 
-    const locationToggle =
-  card.querySelector(".supply-location-toggle");
-
-const locationEl =
-  card.querySelector(".supply-location");
-
-locationToggle.addEventListener("click", (event) => {
-  event.stopPropagation();
-
-  locationEl.classList.toggle("hidden");
-
-  locationToggle.textContent =
-    locationEl.classList.contains("hidden")
-      ? "🔍 Ort"
-      : "🔍 Ort ausblenden";
-});
 
     const metaEl = card.querySelector(".item-meta");
 
