@@ -88,14 +88,14 @@ const els = {
 
   suppliesList: $("#suppliesList"),
   addSupplyBtn: $("#addSupplyBtn"),
-supplySearchInput: $("#supplySearchInput"),
-clearSupplySearch: $("#clearSupplySearch"),
-supplyCategories: $("#supplyCategories"),
-suppliesHome: $("#suppliesHome"),
-suppliesCategoryView: $("#suppliesCategoryView"),
-backToSupplyCategories: $("#backToSupplyCategories"),
-supplyCategoryTitle: $("#supplyCategoryTitle"),
-supplyCategoryCount: $("#supplyCategoryCount"),
+  supplySearchInput: $("#supplySearchInput"),
+  clearSupplySearch: $("#clearSupplySearch"),
+  supplyCategories: $("#supplyCategories"),
+  suppliesHome: $("#suppliesHome"),
+  suppliesCategoryView: $("#suppliesCategoryView"),
+  backToSupplyCategories: $("#backToSupplyCategories"),
+  supplyCategoryTitle: $("#supplyCategoryTitle"),
+  supplyCategoryCount: $("#supplyCategoryCount"),
   
   supplyDialog: $("#supplyDialog"),
   supplyForm: $("#supplyForm"),
@@ -856,6 +856,39 @@ function getCategoryIcon(category) {
   };
 
   return icons[category] || "📦";
+}
+
+function searchSupplies(query) {
+  const q = normalize(query.trim());
+
+  if (!q) {
+    els.suppliesCategoryView.classList.add("hidden");
+    els.suppliesHome.classList.remove("hidden");
+    renderSupplyCategories();
+    return;
+  }
+
+  const filtered = supplies.filter((supply) => {
+    const text = normalize([
+      supply.name,
+      supply.category,
+      supply.room,
+      supply.storage_location,
+      supply.location_note,
+      supply.note
+    ].filter(Boolean).join(" "));
+
+    return text.includes(q);
+  });
+
+  els.suppliesHome.classList.add("hidden");
+  els.suppliesCategoryView.classList.remove("hidden");
+
+  els.supplyCategoryTitle.textContent = "Suchergebnisse";
+  els.supplyCategoryCount.textContent =
+    `${filtered.length} ${filtered.length === 1 ? "Artikel" : "Artikel"}`;
+
+  renderSupplies(filtered);
 }
 
 function renderSupplyCategories() {
@@ -1814,6 +1847,16 @@ els.cancelSupplyBtn.addEventListener(
     els.supplyDialog.close();
   }
 );
+
+els.supplySearchInput.addEventListener("input", () => {
+  searchSupplies(els.supplySearchInput.value);
+});
+
+els.clearSupplySearch.addEventListener("click", () => {
+  els.supplySearchInput.value = "";
+  searchSupplies("");
+  els.supplySearchInput.focus();
+});
 
 els.settingsBtn.addEventListener(
   "click",
