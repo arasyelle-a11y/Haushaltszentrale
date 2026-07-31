@@ -1173,10 +1173,15 @@ card.querySelector(".supply-plus").addEventListener(
     await changeSupplyQuantity(supply.id, 1);
   }
 );    
-    card.addEventListener(
-      "click",
-      () => openEditSupply(supply.id)
-    );
+   card.querySelector(".item-name").addEventListener(
+  "click",
+  () => openEditSupply(supply.id)
+);
+
+card.querySelector(".chevron").addEventListener(
+  "click",
+  () => openEditSupply(supply.id)
+);
 
     els.suppliesList.appendChild(card);
   });
