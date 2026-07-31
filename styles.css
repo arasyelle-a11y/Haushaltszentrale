@@ -319,3 +319,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   padding: 12px 14px;
   color: #70839a;
 }
+.supply-suggestion-place.out-of-stock {
+  color: #c62828;
+  font-weight: 700;
+}
