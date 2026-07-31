@@ -233,21 +233,26 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 }
 
 .supply-category-icon {
+  display: none;
   font-size: 2rem;
   line-height: 1;
   margin-bottom: 9px;
 }
 
 .supply-category-name {
-  font-size: 1rem;
-  font-weight: 750;
-  color: #4f4236;
+  font-family: "Snell Roundhand", "Apple Chancery", "Segoe Script", cursive;
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: #4a2f18;
+  text-shadow: 0 1px 0 rgba(255, 240, 210, 0.35);
 }
 
 .supply-category-info {
-  margin-top: 5px;
-  font-size: 0.82rem;
-  color: #7c6a58;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #654c36;
 }
 
 @media (min-width: 700px) {
