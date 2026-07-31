@@ -323,3 +323,19 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   color: #c62828;
   font-weight: 700;
 }
+/* ===== Vorräte: Bestandsstatus ===== */
+
+.item-meta.status-empty {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.item-meta.status-low {
+  color: #c77800;
+  font-weight: 700;
+}
+
+.item-meta.status-enough {
+  color: #2e7d32;
+  font-weight: 700;
+}
