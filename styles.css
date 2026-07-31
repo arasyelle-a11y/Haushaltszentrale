@@ -527,3 +527,24 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.95rem;
   font-weight: 600;
 }
+/* ===== Vorräte: Status + Menge ===== */
+
+.supply-quantity-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: 10px;
+}
+
+/* Status direkt über der Mengensteuerung */
+.supply-quantity-box .item-meta {
+  margin: 0 0 3px 0;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* Mengensteuerung direkt darunter */
+.supply-quantity-box .supply-quantity-controls {
+  margin-top: 0;
+}
