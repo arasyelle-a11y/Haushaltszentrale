@@ -201,6 +201,11 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
 .supply-category-box {
   position: relative;
+  
+  background-color: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  
   min-height: 125px;
   padding: 18px 14px;
 
@@ -211,9 +216,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
   border: none;
   border-radius: 8px;
-
-  box-shadow:
-    0 4px 12px rgba(74, 55, 35, 0.08);
+  box-shadow: none;
 
   display: flex;
   flex-direction: column;
