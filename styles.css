@@ -436,3 +436,40 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.9rem;
   color: #6f8195;
 }
+/* ===== Vorräte: Kategorie-Kopf kompakt ===== */
+
+#suppliesCategoryView .section-head {
+  margin-bottom: 14px;
+}
+
+#suppliesCategoryView .section-head > div {
+  width: 100%;
+}
+
+/* große doppelte Überschrift ausblenden */
+#supplyCategoryTitle {
+  display: none;
+}
+
+/* Zurück + Kategoriename */
+#backToSupplyCategories {
+  padding: 0;
+  margin: 0;
+
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  color: #183d68;
+  font-size: 1.35rem;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+/* Anzahl direkt darunter */
+#supplyCategoryCount {
+  margin: 3px 0 0 28px;
+  font-size: 0.88rem;
+  color: #71849a;
+}
