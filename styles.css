@@ -398,3 +398,13 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   padding: 10px;
   margin: -10px;
 }
+.supply-quantity-controls,
+.supply-qty-btn {
+  touch-action: manipulation;
+}
+
+.supply-qty-btn {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
