@@ -1062,8 +1062,6 @@ function renderSupplies(list = supplies) {
    const statusText = supplyStatusText(supply);
 
 const meta = [
-  supply.category,
-  quantity,
   statusText,
   supply.note,
 ]
