@@ -548,3 +548,26 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 .supply-quantity-box .supply-quantity-controls {
   margin-top: 0;
 }
+/* Status + Menge innerhalb des Ovals */
+
+.supply-quantity-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 110px;
+  line-height: 1.1;
+}
+
+.supply-quantity-center .item-meta {
+  margin: 0 0 2px 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.supply-quantity-center .supply-qty-value {
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
