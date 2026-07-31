@@ -835,7 +835,15 @@ async function changeSupplyQuantity(id, delta) {
     supply.quantity = next;
     supply.stock_status = status;
 
-    renderSupplies();
+    if (activeSupplyCategory) {
+  const filtered = supplies.filter(
+    (item) => item.category === activeSupplyCategory
+  );
+
+  renderSupplies(filtered);
+} else {
+  renderSupplies();
+}
 
   } catch (error) {
     alert(
