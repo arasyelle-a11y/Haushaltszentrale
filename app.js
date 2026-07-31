@@ -117,6 +117,10 @@ supplyCategoryCount: $("#supplyCategoryCount"),
   closeSupplyDialog: $("#closeSupplyDialog"),
   cancelSupplyBtn: $("#cancelSupplyBtn"),
   deleteSupplyBtn: $("#deleteSupplyBtn"),
+  suppliesHome: $("#suppliesHome"),
+  suppliesCategoryView: $("#suppliesCategoryView"),
+  backToSupplyCategories: $("#backToSupplyCategories"),
+  supplyCategoryTitle: $("#supplyCategoryTitle"),
 };
 
 function loadSession() {
