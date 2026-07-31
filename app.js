@@ -1094,22 +1094,26 @@ const meta = [
           <span class="chevron">›</span>
         </div>
 
-     <div class="item-meta"></div>
 <div class="mhd-text"></div>
-<div class="supply-quantity-controls">
-  <button
-    type="button"
-    class="supply-qty-btn supply-minus"
-    aria-label="Bestand verringern"
-  >−</button>
 
-  <span class="supply-qty-value"></span>
+<div class="supply-quantity-box">
+  <div class="item-meta"></div>
 
-  <button
-    type="button"
-    class="supply-qty-btn supply-plus"
-    aria-label="Bestand erhöhen"
-  >＋</button>
+  <div class="supply-quantity-controls">
+    <button
+      type="button"
+      class="supply-qty-btn supply-minus"
+      aria-label="Bestand verringern"
+    >−</button>
+
+    <span class="supply-qty-value"></span>
+
+    <button
+      type="button"
+      class="supply-qty-btn supply-plus"
+      aria-label="Bestand erhöhen"
+    >＋</button>
+  </div>
 </div>
 
       </div>
