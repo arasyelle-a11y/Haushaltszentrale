@@ -90,6 +90,7 @@ const els = {
   addSupplyBtn: $("#addSupplyBtn"),
   supplySearchInput: $("#supplySearchInput"),
   clearSupplySearch: $("#clearSupplySearch"),
+  supplySuggestions: $("#supplySuggestions"),
   supplyCategories: $("#supplyCategories"),
   suppliesHome: $("#suppliesHome"),
   suppliesCategoryView: $("#suppliesCategoryView"),
@@ -856,6 +857,73 @@ function getCategoryIcon(category) {
   };
 
   return icons[category] || "📦";
+}
+
+function renderSupplySuggestions(query) {
+  const q = normalize(query.trim());
+
+  els.supplySuggestions.innerHTML = "";
+
+  if (q.length < 2) {
+    els.supplySuggestions.classList.add("hidden");
+    return;
+  }
+
+  const matches = supplies
+    .filter((supply) => {
+      const text = normalize([
+        supply.name,
+        supply.category,
+        supply.room,
+        supply.storage_location,
+        supply.location_note
+      ].filter(Boolean).join(" "));
+
+      return text.includes(q);
+    })
+    .slice(0, 8);
+
+  if (matches.length === 0) {
+    els.supplySuggestions.innerHTML = `
+      <div class="supply-suggestion-empty">
+        Nichts gefunden
+      </div>
+    `;
+
+    els.supplySuggestions.classList.remove("hidden");
+    return;
+  }
+
+  matches.forEach((supply) => {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "supply-suggestion";
+
+    button.innerHTML = `
+      <span class="supply-suggestion-name"></span>
+      <span class="supply-suggestion-place"></span>
+    `;
+
+    button.querySelector(".supply-suggestion-name").textContent =
+      supply.name || "";
+
+    button.querySelector(".supply-suggestion-place").textContent =
+      [supply.category, supply.storage_location]
+        .filter(Boolean)
+        .join(" · ");
+
+    button.addEventListener("click", () => {
+      els.supplySuggestions.classList.add("hidden");
+      els.supplySearchInput.value = supply.name || "";
+
+      openEditSupply(supply.id);
+    });
+
+    els.supplySuggestions.appendChild(button);
+  });
+
+  els.supplySuggestions.classList.remove("hidden");
 }
 
 function searchSupplies(query) {
@@ -1849,12 +1917,13 @@ els.cancelSupplyBtn.addEventListener(
 );
 
 els.supplySearchInput.addEventListener("input", () => {
-  searchSupplies(els.supplySearchInput.value);
+  renderSupplySuggestions(els.supplySearchInput.value);
 });
 
 els.clearSupplySearch.addEventListener("click", () => {
   els.supplySearchInput.value = "";
-  searchSupplies("");
+  els.supplySuggestions.innerHTML = "";
+  els.supplySuggestions.classList.add("hidden");
   els.supplySearchInput.focus();
 });
 
