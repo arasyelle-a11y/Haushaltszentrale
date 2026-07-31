@@ -408,3 +408,31 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+/* ===== Vorräte: Kategorie-Kopf ===== */
+
+#suppliesCategoryView .section-head {
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+#suppliesCategoryView .section-head > div {
+  width: 100%;
+}
+
+#backToSupplyCategories {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+#supplyCategoryTitle {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+#supplyCategoryCount {
+  margin: 3px 0 0;
+  font-size: 0.9rem;
+  color: #6f8195;
+}
