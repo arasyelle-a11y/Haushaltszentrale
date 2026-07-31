@@ -268,3 +268,54 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   position: relative;
   z-index: 2;
 }
+/* ===== Vorräte: Suchvorschläge ===== */
+
+.supply-suggestions {
+  margin-top: 6px;
+  background: white;
+  border: 1px solid #c9d9ea;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(20, 50, 90, 0.12);
+}
+
+.supply-suggestion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+
+  padding: 11px 14px;
+
+  background: white;
+  border: none;
+  border-bottom: 1px solid #e5edf5;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.supply-suggestion:last-child {
+  border-bottom: none;
+}
+
+.supply-suggestion-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #142f57;
+}
+
+.supply-suggestion-place {
+  font-size: 0.82rem;
+  color: #70839a;
+}
+
+.supply-suggestion:active {
+  background: #eef6ff;
+}
+
+.supply-suggestion-empty {
+  padding: 12px 14px;
+  color: #70839a;
+}
