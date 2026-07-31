@@ -2081,13 +2081,32 @@ navButtons.forEach(
           targetView ===
           "supplies"
         ) {
+          els.suppliesCategoryView.classList.add(
+            "hidden"
+          );
+
+          els.suppliesHome.classList.remove(
+            "hidden"
+          );
+
+          els.supplySearchInput.value =
+            "";
+
+          els.supplySuggestions.innerHTML =
+            "";
+
+          els.supplySuggestions.classList.add(
+            "hidden"
+          );
+
           await loadSupplies();
+
+          renderSupplyCategories();
         }
       }
     );
   }
 );
-
 if (
   "serviceWorker" in navigator
 ) {
