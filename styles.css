@@ -264,12 +264,26 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   inset -3px 0 0 rgba(91, 54, 25, 0.15);
 
 background:
-  radial-gradient(circle at 9px 10px, #5f4631 0 3px, transparent 4px),
-  radial-gradient(circle at 9px calc(100% - 10px), #5f4631 0 3px, transparent 4px),
-
-  radial-gradient(circle at calc(100% - 9px) 10px, #5f4631 0 3px, transparent 4px),
-  radial-gradient(circle at calc(100% - 9px) calc(100% - 10px), #5f4631 0 3px, transparent 4px);
-}
+  radial-gradient(
+    circle at 1px 12px,
+    #5f4631 0 3px,
+    transparent 3.5px
+  ),
+  radial-gradient(
+    circle at 1px calc(100% - 12px),
+    #5f4631 0 3px,
+    transparent 3.5px
+  ),
+  radial-gradient(
+    circle at calc(100% - 1px) 12px,
+    #5f4631 0 3px,
+    transparent 3.5px
+  ),
+  radial-gradient(
+    circle at calc(100% - 1px) calc(100% - 12px),
+    #5f4631 0 3px,
+    transparent 3.5px
+  );
 .supply-category-box:active {
   transform: scale(0.98);
 }
