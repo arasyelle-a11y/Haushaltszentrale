@@ -571,3 +571,56 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: 0.95rem;
   font-weight: 700;
 }
+/* Vorräte: kompakte Kopfzeile */
+
+.supply-item-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.supply-item-top .item-title-row {
+  min-width: 0;
+}
+
+.supply-item-top .supply-quantity-box {
+  margin: 0;
+}
+
+.supply-location-toggle {
+  margin: 8px 0 0 48px;
+  padding: 3px 7px;
+
+  border: none;
+  background: transparent;
+
+  color: #647b92;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.supply-location {
+  margin: 4px 0 0 48px;
+
+  color: #647b92;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .supply-item-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .supply-item-top .chevron {
+    display: none;
+  }
+
+  .supply-item-top .supply-quantity-controls {
+    transform: scale(0.92);
+    transform-origin: right center;
+  }
+}
