@@ -7,7 +7,10 @@ const LAST_VIEW_KEY =
   "wo-ist-was-last-view";
 
 const LAST_SUPPLY_CATEGORY_KEY =
-  "wo-ist-was-last-supply-category";const PHOTO_BUCKET = "item-photos";
+  "wo-ist-was-last-supply-category";
+
+const PHOTO_BUCKET = 
+  "item-photos";
 
 let items = [];
 let supplies = [];
@@ -1013,9 +1016,6 @@ function renderSupplyCategories() {
 function showSupplyCategory(category) {
   activeSupplyCategory = category;
 
-  function showSupplyCategory(category) {
-  activeSupplyCategory = category;
-
   localStorage.setItem(
     LAST_VIEW_KEY,
     "supplies"
@@ -1026,22 +1026,27 @@ function showSupplyCategory(category) {
     category
   );
 
-  els.suppliesHome.classList.add("hidden");
-  
-  els.suppliesHome.classList.add("hidden");
-  els.suppliesCategoryView.classList.remove("hidden");
+  els.suppliesHome.classList.add(
+    "hidden"
+  );
 
-  els.supplyCategoryTitle.textContent = category;
-  els.backToSupplyCategories.textContent = `← ${category}`;
-  
+  els.suppliesCategoryView.classList.remove(
+    "hidden"
+  );
+
+  els.supplyCategoryTitle.textContent =
+    category;
+
+  els.backToSupplyCategories.textContent =
+    `← ${category}`;
+
   const filtered = supplies.filter(
-    (supply) => supply.category === category
+    (supply) =>
+      supply.category === category
   );
 
   els.supplyCategoryCount.textContent =
-    `${filtered.length} ${
-      filtered.length === 1 ? "Artikel" : "Artikel"
-    }`;
+    `${filtered.length} Artikel`;
 
   renderSupplies(filtered);
 }
