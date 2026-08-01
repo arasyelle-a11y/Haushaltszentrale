@@ -126,6 +126,344 @@
   >
 
     <section class="section-head supply-category-head">
+      <div>
+        <button
+          id="backToSupplyCategories"
+          class="secondary-btn"
+          type="button"
+        >
+          ← Kategorien
+        </button>
+
+        <h2 id="supplyCategoryTitle">
+          Vorräte
+        </h2>
+
+        <p id="supplyCategoryCount"></p>
+      </div>
+
+      <button
+        id="addSupplyInCategoryBtn"
+        class="primary-btn"
+        type="button"
+      >
+        ＋ Vorrat
+      </button>
+    </section>
+
+    <section
+      id="suppliesList"
+      class="items"
+    ></section>
+
+  </section>
+
+</section>
+<section id="shoppingView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Einkaufsliste</h2>
+      <p>Kommt als Nächstes.</p>
+    </div>
+  </section>
+</section>
+    </main>
+  </div>
+
+  <dialog id="itemDialog">
+    <form id="itemForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">EINTRAG</p>
+          <h2 id="dialogTitle">Neuen Gegenstand eintragen</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closeDialog" aria-label="Schließen">✕</button>
+      </div>
+
+      <input type="hidden" id="itemId">
+
+      <label>Name*
+        <input id="name" required placeholder="z. B. Blumendraht">
+      </label>
+
+      <label>Symbol
+        <div class="symbol-row">
+          <input id="symbol" maxlength="8" placeholder="💡">
+          <button type="button" id="suggestSymbol" class="secondary-btn">Vorschlagen</button>
+        </div>
+        <div id="symbolChoices" class="symbol-choices"></div>
+      </label>
+
+      <label>Foto
+        <div id="photoPreviewWrap" class="photo-preview-wrap hidden">
+          <img id="photoPreview" class="photo-preview" alt="Foto des Gegenstands">
+          <button type="button" id="removePhotoBtn" class="danger-outline-btn">Foto entfernen</button>
+        </div>
+        <input id="photoInput" type="file" accept="image/*">
+        <span class="hint">Auf dem iPhone kannst du fotografieren oder ein Bild aus der Mediathek auswählen.</span>
+      </label>
+
+      <label>Raum / Bereich*
+        <select id="roomSelect" required>
+          <option value="">Bitte auswählen …</option>
+          <option>Küche</option>
+          <option>Vorratsraum</option>
+          <option>Wohnzimmer</option>
+          <option>Schuhraum</option>
+          <option>Schaukelzimmer</option>
+          <option>Bad unten</option>
+          <option>Schlafzimmer</option>
+          <option>Nähzimmer</option>
+          <option>Flur unten</option>
+          <option>Garage</option>
+          <option>Garten</option>
+          <option>Gartenhaus</option>
+          <option>Schuppen</option>
+          <option>Dachboden</option>
+          <option value="__other__">Anderer Bereich …</option>
+        </select>
+        <input id="roomCustom" class="hidden" placeholder="Eigenen Bereich eingeben">
+      </label>
+
+      <label>Genauer Ort
+        <input id="location" placeholder="z. B. Bastelschrank, obere Schublade">
+      </label>
+
+      <label>Suchbegriffe
+        <input id="keywords" placeholder="Draht, Basteln, Mittsommer, Blumenkranz">
+        <span class="hint">Mit Kommas trennen.</span>
+      </label>
+
+      <label>Notiz
+        <textarea id="note" rows="3" placeholder="Optional"></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button type="button" id="deleteBtn" class="danger-btn hidden">Löschen</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancelBtn" class="secondary-btn">Abbrechen</button>
+        <button type="submit" class="primary-btn">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="supplyDialog">
+  <form id="supplyForm">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">VORRAT</p>
+        <h2 id="supplyDialogTitle">Neuen Vorrat eintragen</h2>
+      </div>
+      <button type="button" class="icon-btn" id="closeSupplyDialog" aria-label="Schließen">✕</button>
+    </div>
+
+    <input type="hidden" id="supplyId">
+
+    <label>Name*
+      <input id="supplyName" required placeholder="z. B. Haferflocken">
+    </label>
+
+    <fieldset class="supply-category-fieldset">
+      <legend>Kategorien*</legend>
+      <p class="category-hint">Mehrere Kategorien sind möglich.</p>
+
+      <div id="supplyCategoryChoices" class="supply-category-choices">
+        <label><input type="checkbox" name="supplyCategory" value="Frühstück"> Frühstück</label>
+        <label><input type="checkbox" name="supplyCategory" value="Backen"> Backen</label>
+        <label><input type="checkbox" name="supplyCategory" value="Konserven"> Konserven</label>
+        <label><input type="checkbox" name="supplyCategory" value="Getränke"> Getränke</label>
+        <label><input type="checkbox" name="supplyCategory" value="Nudeln"> Nudeln</label>
+        <label><input type="checkbox" name="supplyCategory" value="Grundnahrungsmittel"> Grundnahrungsmittel</label>
+        <label><input type="checkbox" name="supplyCategory" value="Snacks"> Snacks</label>
+        <label><input type="checkbox" name="supplyCategory" value="Haushalt"> Haushalt</label>
+        <label><input type="checkbox" name="supplyCategory" value="Hygiene"> Hygiene</label>
+        <label><input type="checkbox" name="supplyCategory" value="Sonstiges"> Sonstiges</label>
+      </div>
+    </fieldset>
+
+    <label>Raum / Bereich
+      <input id="supplyRoom" placeholder="z. B. Vorratsraum">
+    </label>
+
+    <label>Lagerplatz
+      <input id="supplyStorageLocation" placeholder="z. B. Holzkiste Frühstück">
+    </label>
+
+    <div class="supply-form-grid">
+      <label>Bestand
+        <input id="supplyQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+      </label>
+
+      <label>Einheit
+        <select id="supplyUnit">
+          <option value="">–</option>
+          <option>Packungen</option>
+          <option>Flaschen</option>
+          <option>Gläser</option>
+          <option>Dosen</option>
+          <option>Stück</option>
+          <option>kg</option>
+          <option>g</option>
+          <option>l</option>
+          <option>ml</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="supply-form-grid">
+      <label>Mindestbestand
+        <input id="supplyMinimumQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+      </label>
+
+      <label>MHD
+        <input id="supplyBestBefore" type="date">
+      </label>
+    </div>
+
+    <label>Notiz <span class="optional-label">(optional)</span>
+      <textarea id="supplyNote" rows="3" placeholder="Optional"></textarea>
+    </label>
+
+    <div class="dialog-actions">
+      <button type="button" id="deleteSupplyBtn" class="danger-btn hidden">Löschen</button>
+      <span class="spacer"></span>
+      <button type="button" id="cancelSupplyBtn" class="secondary-btn">Abbrechen</button>
+      <button type="submit" class="primary-btn">Speichern</button>
+    </div>
+  </form>
+</dialog>
+  
+  <dialog id="settingsDialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">DATEN</p>
+        <h2>Gemeinsame Datenbank</h2>
+      </div>
+      <button type="button" class="icon-btn" id="closeSettings" aria-label="Schließen">✕</button>
+    </div>
+    <p class="settings-copy">
+      Alle Einträge werden in der gemeinsamen Familien-Datenbank gespeichert.
+    </p>
+    <div class="stack">
+      <button id="refreshBtn" class="primary-btn">↻ Daten neu laden</button>
+      <button id="exportBtn" class="secondary-btn">⬇️ Sicherung exportieren</button>
+      <button id="logoutBtn" class="danger-outline-btn">Familienzugang abmelden</button>
+    </div>
+  </dialog>
+
+  <template id="itemTemplate">
+    <article class="item-card">
+      <div class="card-photo-wrap hidden"><img class="card-photo" alt=""></div>
+      <button class="card-main">
+        <div class="item-top">
+          <div class="item-title-row">
+            <span class="item-symbol"></span>
+            <div>
+              <h3 class="item-name"></h3>
+              <p class="item-location"></p>
+            </div>
+          </div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="item-meta"></div>
+      </button>
+    </article>
+  </template>
+
+  <script src="app.js?v=7"></script>
+</body>
+</html>        <p class="eyebrow">HAUS-SUCHMASCHINE</p>
+        <h1>Wo ist was?</h1>
+        <p class="subtitle">Finde Dinge, bevor du sie noch einmal kaufst. 😄</p>
+      </div>
+      <button id="settingsBtn" class="icon-btn" aria-label="Einstellungen">⚙️</button>
+    </header>
+<nav class="main-nav">
+  <button class="nav-btn active" data-view="items">🔎 Wo ist was?</button>
+  <button class="nav-btn" data-view="supplies">📦 Vorräte</button>
+  <button class="nav-btn" data-view="shopping">🛒 Einkauf</button>
+</nav>   
+    <main>
+      <section id="itemsView" class="app-view">
+      <section class="search-card">
+        <label for="searchInput">Was suchst du?</label>
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="z. B. Blumendraht, G9, Batterien …" autocomplete="off">
+          <button id="clearSearch" class="small-btn" aria-label="Suche löschen">✕</button>
+        </div>
+        <div id="quickFilters" class="chips"></div>
+      </section>
+
+      <section class="section-head">
+        <div>
+          <h2 id="listTitle">Alle Dinge</h2>
+          <p id="countText"></p>
+        </div>
+        <button id="addBtn" class="primary-btn">＋ Eintragen</button>
+      </section>
+
+      <p id="syncStatus" class="status-text"></p>
+
+      <section id="emptyState" class="empty hidden">
+        <div class="empty-icon">🔎</div>
+        <h3>Nichts gefunden</h3>
+        <p>Versuche einen anderen Suchbegriff oder trage den Gegenstand neu ein.</p>
+      </section>
+        
+<section id="itemsList" class="items"></section>
+</section>
+     <section id="suppliesView" class="app-view hidden">
+
+  <section id="suppliesHome">
+
+    <section class="search-card supply-search-card">
+      <label for="supplySearchInput">Was suchst du?</label>
+
+      <div class="search-row">
+        <input
+          id="supplySearchInput"
+          type="search"
+          placeholder="z. B. Milch, Mehl, Kokosmilch …"
+          autocomplete="off"
+        >
+
+        <button
+          id="clearSupplySearch"
+          class="small-btn"
+          aria-label="Suche löschen"
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div id="supplySuggestions" class="supply-suggestions hidden"></div>
+    </section>
+
+    <section class="section-head">
+      <div>
+        <h2>Vorräte</h2>
+        <p>Wähle eine Kategorie.</p>
+      </div>
+
+      <button id="addSupplyBtn" class="primary-btn">
+        ＋ Vorrat
+      </button>
+    </section>
+
+    <section
+      id="supplyCategories"
+      class="supply-categories"
+    ></section>
+
+  </section>
+
+
+  <section
+    id="suppliesCategoryView"
+    class="hidden"
+  >
+
+    <section class="section-head supply-category-head">
   <div>
     <button
       id="backToSupplyCategories"
