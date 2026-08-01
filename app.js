@@ -1084,6 +1084,64 @@ async function ensureSupplyCategory(rawName) {
   return savedName;
 }
 
+
+function ensureDatalist(id, input) {
+  let list = document.getElementById(id);
+
+  if (!list) {
+    list = document.createElement("datalist");
+    list.id = id;
+    document.body.appendChild(list);
+  }
+
+  if (input) {
+    input.setAttribute("list", id);
+  }
+
+  return list;
+}
+
+function renderSupplyPlaceSuggestions() {
+  const roomList = ensureDatalist(
+    "supplyRoomSuggestions",
+    els.supplyRoom
+  );
+
+  const storageList = ensureDatalist(
+    "supplyStorageSuggestions",
+    els.supplyStorageLocation
+  );
+
+  const rooms = [...new Set(
+    supplies
+      .map((supply) => String(supply.room || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "de"));
+
+  const storagePlaces = [...new Set(
+    supplies
+      .map((supply) =>
+        String(supply.storage_location || "").trim()
+      )
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "de"));
+
+  roomList.innerHTML = "";
+  storageList.innerHTML = "";
+
+  rooms.forEach((room) => {
+    const option = document.createElement("option");
+    option.value = room;
+    roomList.appendChild(option);
+  });
+
+  storagePlaces.forEach((place) => {
+    const option = document.createElement("option");
+    option.value = place;
+    storageList.appendChild(option);
+  });
+}
+
 async function loadSupplies() {
   if (!els.suppliesList) return;
 
@@ -1107,6 +1165,7 @@ async function loadSupplies() {
 
    supplies = body || [];
 
+   renderSupplyPlaceSuggestions();
    await syncAutomaticShoppingItems();
    renderSupplyCategories();
   } catch (error) {
@@ -1450,7 +1509,8 @@ function getCategoryIcon(category) {
 }
 
 function renderSupplySuggestions(query) {
-  const q = normalize(query.trim());
+  const typedName = String(query || "").trim();
+  const q = normalize(typedName);
 
   els.supplySuggestions.innerHTML = "";
 
@@ -1459,23 +1519,17 @@ function renderSupplySuggestions(query) {
     return;
   }
 
-const matches = supplies
-  .filter((supply) => {
-    const name = normalize(supply.name || "");
-    return name.includes(q);
-  })
-  .slice(0, 8);
+  const matches = supplies
+    .filter((supply) => {
+      const name = normalize(supply.name || "");
+      return name.includes(q);
+    })
+    .slice(0, 8);
 
-  if (matches.length === 0) {
-    els.supplySuggestions.innerHTML = `
-      <div class="supply-suggestion-empty">
-        Nichts gefunden
-      </div>
-    `;
-
-    els.supplySuggestions.classList.remove("hidden");
-    return;
-  }
+  const exactMatch = supplies.some(
+    (supply) =>
+      normalize(supply.name || "") === q
+  );
 
   matches.forEach((supply) => {
     const button = document.createElement("button");
@@ -1491,27 +1545,65 @@ const matches = supplies
     button.querySelector(".supply-suggestion-name").textContent =
       supply.name || "";
 
-  const info = button.querySelector(".supply-suggestion-place");
-const quantity = Number(supply.quantity ?? 0);
+    const info = button.querySelector(
+      ".supply-suggestion-place"
+    );
 
-const categoryText =
-  supplyCategoriesFor(supply).join(", ") || "Vorrat";
+    const quantity = Number(supply.quantity ?? 0);
 
-info.textContent =
-  `${categoryText} · ${formatQuantityWithUnit(quantity, supply.unit)}`;
+    const categoryText =
+      supplyCategoriesFor(supply).join(", ") || "Vorrat";
 
-info.classList.toggle("out-of-stock", quantity <= 0);
+    info.textContent =
+      `${categoryText} · ${formatQuantityWithUnit(
+        quantity,
+        supply.unit
+      )}`;
+
+    info.classList.toggle(
+      "out-of-stock",
+      quantity <= 0
+    );
+
     button.addEventListener("click", () => {
       els.supplySuggestions.classList.add("hidden");
       els.supplySearchInput.value = supply.name || "";
-
       openEditSupply(supply.id);
     });
 
     els.supplySuggestions.appendChild(button);
   });
 
-  els.supplySuggestions.classList.remove("hidden");
+  if (!exactMatch) {
+    const createButton = document.createElement("button");
+
+    createButton.type = "button";
+    createButton.className =
+      "supply-suggestion supply-suggestion-create";
+
+    createButton.innerHTML = `
+      <span class="supply-suggestion-name"></span>
+      <span class="supply-suggestion-place">
+        Als neuen Vorrat anlegen
+      </span>
+    `;
+
+    createButton.querySelector(
+      ".supply-suggestion-name"
+    ).textContent = `＋ ${typedName}`;
+
+    createButton.addEventListener("click", () => {
+      els.supplySuggestions.classList.add("hidden");
+      openNewSupply(typedName);
+    });
+
+    els.supplySuggestions.appendChild(createButton);
+  }
+
+  els.supplySuggestions.classList.toggle(
+    "hidden",
+    matches.length === 0 && exactMatch
+  );
 }
 
 function searchSupplies(query) {
@@ -1950,10 +2042,11 @@ function resetNewSupplyCategoryFields() {
   els.supplyNewCategoryName.required = false;
 }
 
-function openNewSupply() {
+function openNewSupply(prefillName = "") {
   els.supplyForm.reset();
 
   els.supplyId.value = "";
+  els.supplyName.value = String(prefillName || "").trim();
   els.supplyRoom.value = "Vorratsraum";
   els.supplyQuantity.value = "0";
   els.supplyMinimumQuantity.value = "1";
