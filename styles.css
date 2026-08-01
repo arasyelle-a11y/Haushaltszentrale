@@ -694,18 +694,12 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
   .supply-board-layout {
     display: grid;
-    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    grid-template-columns: minmax(0, 1fr) 24px;
     align-items: center;
     gap: 8px;
   }
 
-  /* Artikelsymbol links */
-  .supply-board-layout > .item-symbol {
-    font-size: 1.65rem;
-    line-height: 1;
-    min-width: 0;
-    text-align: center;
-  }
+  
 
   /* Gesamter mittlerer Bereich */
   .supply-board-layout .supply-quantity-controls {
