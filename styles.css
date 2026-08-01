@@ -791,3 +791,67 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   border: none !important;
   box-shadow: none !important;
 }
+@media (max-width: 600px) {
+
+  #suppliesCategoryView .item-card {
+    margin-bottom: 14px;
+    border-radius: 22px;
+  }
+
+  #suppliesCategoryView .item-card::before {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    bottom: 10px;
+  }
+
+  #suppliesCategoryView .card-main {
+    padding: 18px 18px 16px 18px;
+  }
+
+  #suppliesCategoryView .item-top {
+    align-items: flex-start;
+  }
+
+  #suppliesCategoryView .item-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #suppliesCategoryView .item-symbol {
+    font-size: 1.9rem;
+    flex: 0 0 auto;
+  }
+
+  #suppliesCategoryView .item-name {
+    font-size: 1rem;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  #suppliesCategoryView .chevron {
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-left: 10px;
+  }
+
+  #suppliesCategoryView .supply-quantity-controls {
+    width: 100%;
+    max-width: 370px;
+    margin: 12px auto 10px auto;
+  }
+
+  #suppliesCategoryView .item-location {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    color: #667b92;
+  }
+
+  #suppliesCategoryView .mhd-text {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+}
