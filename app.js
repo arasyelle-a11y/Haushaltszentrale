@@ -1084,64 +1084,6 @@ async function ensureSupplyCategory(rawName) {
   return savedName;
 }
 
-
-function ensureDatalist(id, input) {
-  let list = document.getElementById(id);
-
-  if (!list) {
-    list = document.createElement("datalist");
-    list.id = id;
-    document.body.appendChild(list);
-  }
-
-  if (input) {
-    input.setAttribute("list", id);
-  }
-
-  return list;
-}
-
-function renderSupplyPlaceSuggestions() {
-  const roomList = ensureDatalist(
-    "supplyRoomSuggestions",
-    els.supplyRoom
-  );
-
-  const storageList = ensureDatalist(
-    "supplyStorageSuggestions",
-    els.supplyStorageLocation
-  );
-
-  const rooms = [...new Set(
-    supplies
-      .map((supply) => String(supply.room || "").trim())
-      .filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b, "de"));
-
-  const storagePlaces = [...new Set(
-    supplies
-      .map((supply) =>
-        String(supply.storage_location || "").trim()
-      )
-      .filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b, "de"));
-
-  roomList.innerHTML = "";
-  storageList.innerHTML = "";
-
-  rooms.forEach((room) => {
-    const option = document.createElement("option");
-    option.value = room;
-    roomList.appendChild(option);
-  });
-
-  storagePlaces.forEach((place) => {
-    const option = document.createElement("option");
-    option.value = place;
-    storageList.appendChild(option);
-  });
-}
-
 async function loadSupplies() {
   if (!els.suppliesList) return;
 
@@ -1165,7 +1107,6 @@ async function loadSupplies() {
 
    supplies = body || [];
 
-   renderSupplyPlaceSuggestions();
    await syncAutomaticShoppingItems();
    renderSupplyCategories();
   } catch (error) {
