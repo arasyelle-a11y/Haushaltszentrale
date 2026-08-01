@@ -928,4 +928,29 @@ dialog textarea {
   max-width: 100%;
   min-width: 0;
 }
+/* ===== Vorrat innerhalb einer Kategorie hinzufügen ===== */
+
+.supply-category-head {
+  align-items: flex-start;
+}
+
+.supply-category-head > div {
+  min-width: 0;
+}
+
+.supply-category-head #addSupplyInCategoryBtn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .supply-category-head {
+    align-items: center;
+  }
+
+  .supply-category-head #addSupplyInCategoryBtn {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
 }
