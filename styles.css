@@ -678,3 +678,171 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     margin-top: 2px;
   }
 }
+/* ===== Neues Holzbrett-Design auf dem Handy ===== */
+
+@media (max-width: 600px) {
+
+  #suppliesCategoryView .item-card {
+    padding: 0;
+    min-height: 0;
+    border-radius: 20px;
+  }
+
+  #suppliesCategoryView .card-main {
+    padding: 10px 14px;
+  }
+
+  .supply-board-layout {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Artikelsymbol links */
+  .supply-board-layout > .item-symbol {
+    font-size: 1.65rem;
+    line-height: 1;
+    min-width: 0;
+    text-align: center;
+  }
+
+  /* Gesamter mittlerer Bereich */
+  .supply-board-layout .supply-quantity-controls {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    align-items: center;
+    gap: 8px;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Dunkle Plus-/Minus-Kreise */
+  .supply-board-layout .supply-qty-btn {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+
+    background: #24486d;
+    color: #d8e0e8;
+
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1;
+
+    box-shadow: none;
+  }
+
+  .supply-board-layout .supply-qty-btn:active {
+    transform: scale(0.92);
+    background: #183b61;
+  }
+
+  /* Textblock genau zwischen Plus und Minus */
+  .supply-board-layout .supply-quantity-center {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  /* Produktname */
+  .supply-board-layout .item-name {
+    margin: 0;
+
+    color: #174a7c;
+    font-size: 1rem;
+    font-weight: 750;
+    line-height: 1.15;
+
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /* Genug • 3 Packungen */
+  .supply-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    margin-top: 3px;
+
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  .supply-status-row .item-meta {
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .supply-status-row .supply-qty-value {
+    min-width: 0;
+
+    color: #24384f;
+    font-size: inherit;
+    font-weight: 700;
+  }
+
+  .supply-status-separator {
+    color: #536b83;
+  }
+
+  /* Lagerort unter Status und Menge */
+  .supply-board-layout .supply-location {
+    margin: 4px 0 0;
+
+    color: #65798d;
+    font-size: 0.67rem;
+    font-weight: 500;
+    line-height: 1.15;
+
+    text-align: center;
+  }
+
+  /* MHD unter dem Lagerort */
+  .supply-board-layout .mhd-text {
+    margin: 3px 0 0;
+
+    font-size: 0.67rem;
+    line-height: 1.1;
+
+    text-align: center;
+  }
+
+  /* Bearbeitungspfeil rechts */
+  .supply-board-layout > .chevron {
+    position: static;
+    display: block;
+
+    margin: 0;
+    padding: 0;
+
+    color: #718ba5;
+    font-size: 1.8rem;
+    line-height: 1;
+
+    text-align: center;
+  }
+}
