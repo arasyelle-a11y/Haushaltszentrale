@@ -862,7 +862,7 @@ async function addPurchasedAmountToSupply(item) {
   }
 
   setShoppingStatus(
-    `${supply.name}: Bestand wurde auf ${next}${supply.unit ? " " + supply.unit : ""} erhöht.`
+    `${supply.name}: Bestand wurde auf ${formatQuantityWithUnit(next, supply.unit)} erhöht.`
   );
 }
 
@@ -892,12 +892,15 @@ function renderShoppingItems() {
     card.className =
       "shopping-card" + (done ? " shopping-card-done" : "");
 
-    const amount = [
-      item.quantity,
-      item.unit,
-    ].filter(
-      (value) => value !== null && value !== undefined && value !== ""
-    ).join(" ");
+    const amount =
+      item.quantity !== null &&
+      item.quantity !== undefined &&
+      item.quantity !== ""
+        ? formatQuantityWithUnit(
+            item.quantity,
+            item.unit
+          )
+        : "";
 
     card.innerHTML = `
       <div class="shopping-card-main">
@@ -1288,6 +1291,46 @@ function getBestBeforeInfo(bestBefore) {
     className: "mhd-normal"
   };
 }
+
+function displayUnit(quantity, unit) {
+  const value = Number(quantity);
+  const rawUnit = String(unit || "").trim();
+
+  if (!rawUnit || value !== 1) {
+    return rawUnit;
+  }
+
+  const singularUnits = {
+    "Packungen": "Packung",
+    "Flaschen": "Flasche",
+    "Dosen": "Dose",
+    "Gläser": "Glas",
+    "Beutel": "Beutel",
+    "Tüten": "Tüte",
+    "Kartons": "Karton",
+    "Kisten": "Kiste",
+    "Rollen": "Rolle",
+    "Stück": "Stück",
+    "kg": "kg",
+    "g": "g",
+    "Liter": "Liter",
+    "ml": "ml"
+  };
+
+  return singularUnits[rawUnit] || rawUnit;
+}
+
+function formatQuantityWithUnit(quantity, unit) {
+  const shownQuantity =
+    quantity == null || quantity === ""
+      ? 0
+      : quantity;
+
+  const shownUnit = displayUnit(shownQuantity, unit);
+
+  return `${shownQuantity}${shownUnit ? " " + shownUnit : ""}`;
+}
+
 function automaticSupplyStatus(quantity, minimumQuantity) {
   if (quantity == null || quantity === "") return null;
 
@@ -1455,7 +1498,7 @@ const categoryText =
   supplyCategoriesFor(supply).join(", ") || "Vorrat";
 
 info.textContent =
-  `${categoryText} · ${quantity} ${supply.unit || ""}`;
+  `${categoryText} · ${formatQuantityWithUnit(quantity, supply.unit)}`;
 
 info.classList.toggle("out-of-stock", quantity <= 0);
     button.addEventListener("click", () => {
@@ -1606,11 +1649,10 @@ function renderSupplies(list = supplies) {
 
     const quantity =
       supply.quantity != null
-        ? `${supply.quantity}${
+        ? formatQuantityWithUnit(
+            supply.quantity,
             supply.unit
-              ? " " + supply.unit
-              : ""
-          }`
+          )
         : "";
 
     const place = [
@@ -1728,10 +1770,10 @@ if (bestBefore.text) {
 }
     const qtyValue = card.querySelector(".supply-qty-value");
 
-qtyValue.textContent =
-  supply.quantity != null
-    ? `${supply.quantity}${supply.unit ? " " + supply.unit : ""}`
-    : `0${supply.unit ? " " + supply.unit : ""}`;
+qtyValue.textContent = formatQuantityWithUnit(
+  supply.quantity,
+  supply.unit
+);
 
 card.querySelector(".supply-minus").addEventListener(
   "click",
