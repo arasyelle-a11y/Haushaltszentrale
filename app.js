@@ -1436,7 +1436,6 @@ async function showSession() {
     await loadItems();
     await loadSupplies();
 
-     restoreLastView();
   }
 }
 
