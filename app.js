@@ -3,7 +3,11 @@ const SUPABASE_KEY = "sb_publishable_F6Q3yYsgbdiOBmo1u4Ar_Q_9SF6WrHx";
 
 // Absichtlich derselbe Schlüssel wie in V4: bestehende Anmeldung bleibt erhalten.
 const SESSION_KEY = "wo-ist-was-supabase-session-v4";
-const PHOTO_BUCKET = "item-photos";
+const LAST_VIEW_KEY =
+  "wo-ist-was-last-view";
+
+const LAST_SUPPLY_CATEGORY_KEY =
+  "wo-ist-was-last-supply-category";const PHOTO_BUCKET = "item-photos";
 
 let items = [];
 let supplies = [];
@@ -1008,6 +1012,21 @@ function renderSupplyCategories() {
 
 function showSupplyCategory(category) {
   activeSupplyCategory = category;
+
+  function showSupplyCategory(category) {
+  activeSupplyCategory = category;
+
+  localStorage.setItem(
+    LAST_VIEW_KEY,
+    "supplies"
+  );
+
+  localStorage.setItem(
+    LAST_SUPPLY_CATEGORY_KEY,
+    category
+  );
+
+  els.suppliesHome.classList.add("hidden");
   
   els.suppliesHome.classList.add("hidden");
   els.suppliesCategoryView.classList.remove("hidden");
@@ -1911,6 +1930,15 @@ els.clear.addEventListener(
 
 els.backToSupplyCategories.addEventListener("click", () => {
   activeSupplyCategory = null;
+
+    localStorage.setItem(
+    LAST_VIEW_KEY,
+    "supplies"
+  );
+
+  localStorage.removeItem(
+    LAST_SUPPLY_CATEGORY_KEY
+  );
   
   els.suppliesCategoryView.classList.add("hidden");
   els.suppliesHome.classList.remove("hidden");
