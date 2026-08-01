@@ -732,6 +732,17 @@ async function removeAutomaticShoppingItemForSupply(supplyId) {
 }
 
 async function syncSupplyShoppingState(supply) {
+  const hasMinimum =
+    supply.minimum_quantity !== null &&
+    supply.minimum_quantity !== undefined &&
+    supply.minimum_quantity !== "" &&
+    Number.isFinite(Number(supply.minimum_quantity));
+
+  if (!hasMinimum) {
+    await removeAutomaticShoppingItemForSupply(supply.id);
+    return;
+  }
+
   const status = automaticSupplyStatus(
     supply.quantity,
     supply.minimum_quantity
