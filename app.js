@@ -2213,31 +2213,21 @@ navButtons.forEach(
     );
   }
 );
-if (
-  "serviceWorker" in navigator
-) {
-  window.addEventListener(
-    "load",
-    async () => {
-      try {
-        const registrations =
-          await navigator.serviceWorker.getRegistrations();
+// Alte zwischengespeicherte App-Versionen entfernen.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
 
-        for (
-          const registration
-          of registrations
-        ) {
-          await registration.update();
-        }
-
-        await navigator.serviceWorker.register(
-          "./sw.js?v=6"
-        );
-      } catch (error) {
-        console.warn(error);
+      if ("caches" in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
       }
+    } catch (error) {
+      console.warn("Cache konnte nicht vollständig geleert werden:", error);
     }
-  );
+  });
 }
 
 showSession();
