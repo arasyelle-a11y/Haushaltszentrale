@@ -1107,10 +1107,6 @@ card.innerHTML = `
 
     <div class="supply-board-layout">
 
-      <span class="item-symbol">${
-        supply.symbol || "📦"
-      }</span>
-
       <div class="supply-quantity-controls">
 
         <button
