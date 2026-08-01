@@ -1,21 +1,3 @@
-/* ===== Nur während der Entwicklung ===== */
-
-.topbar .subtitle::after {
-  content: "Stand 43";
-
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 7px;
-
-  background: #d7ebff;
-  border-radius: 999px;
-
-  color: #1767ad;
-  font-size: 0.5em;
-  font-weight: 700;
-  vertical-align: middle;
-}
-
 :root{
   --bg:#eaf4ff;
   --card:#ffffff;
@@ -872,4 +854,21 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     font-size: 0.8rem;
     line-height: 1.2;
   }
+}
+/* ===== Nur während der Entwicklung ===== */
+
+.topbar .subtitle::after {
+  content: "Stand 43";
+
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+
+  background: #d7ebff;
+  border-radius: 999px;
+
+  color: #1767ad;
+  font-size: 0.5em;
+  font-weight: 700;
+  vertical-align: middle;
 }
