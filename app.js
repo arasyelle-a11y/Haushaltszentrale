@@ -14,6 +14,7 @@ const PHOTO_BUCKET =
 
 let items = [];
 let supplies = [];
+let supplyCategories = [];
 let activeSupplyCategory = null;
 let session = loadSession();
 let pendingPhotoBlob = null;
@@ -113,6 +114,9 @@ const els = {
   supplyId: $("#supplyId"),
   supplyName: $("#supplyName"),
   supplyCategoryChoices: $("#supplyCategoryChoices"),
+  supplyNewCategoryToggle: $("#supplyNewCategoryToggle"),
+  supplyNewCategoryWrap: $("#supplyNewCategoryWrap"),
+  supplyNewCategoryName: $("#supplyNewCategoryName"),
   supplyRoom: $("#supplyRoom"),
   supplyStorageLocation: $("#supplyStorageLocation"),
   supplyQuantity: $("#supplyQuantity"),
@@ -552,6 +556,92 @@ async function loadItems() {
   }
 }
 
+async function loadSupplyCategories() {
+  try {
+    const response = await authFetch(
+      "/rest/v1/supply_categories?select=id,name,created_at&order=name.asc"
+    );
+
+    const body = await response.json().catch(() => []);
+
+    if (!response.ok) {
+      throw new Error(
+        body.message ||
+        body.error ||
+        "Kategorien konnten nicht geladen werden"
+      );
+    }
+
+    supplyCategories = (body || [])
+      .filter((entry) => entry?.name)
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, "de")
+      );
+
+    renderSupplyCategoryChoices();
+  } catch (error) {
+    console.warn(error);
+
+    // Die Vorräte bleiben nutzbar, selbst wenn die neue Tabelle
+    // vorübergehend nicht gelesen werden kann.
+    supplyCategories = [];
+    renderSupplyCategoryChoices();
+  }
+}
+
+async function ensureSupplyCategory(rawName) {
+  const name = String(rawName || "").trim();
+
+  if (!name) {
+    throw new Error("Bitte einen Namen für die neue Kategorie eingeben.");
+  }
+
+  const existing = supplyCategories.find(
+    (entry) => normalize(entry.name) === normalize(name)
+  );
+
+  if (existing) {
+    return existing.name;
+  }
+
+  const response = await authFetch(
+    "/rest/v1/supply_categories",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({ name }),
+    }
+  );
+
+  const body = await response.json().catch(() => []);
+
+  if (!response.ok) {
+    throw new Error(
+      body.message ||
+      body.error ||
+      "Neue Kategorie konnte nicht gespeichert werden"
+    );
+  }
+
+  const saved = Array.isArray(body) ? body[0] : body;
+  const savedName = saved?.name || name;
+
+  supplyCategories.push({
+    id: saved?.id ?? null,
+    name: savedName,
+    created_at: saved?.created_at ?? null,
+  });
+
+  supplyCategories.sort((a, b) =>
+    a.name.localeCompare(b.name, "de")
+  );
+
+  return savedName;
+}
+
 async function loadSupplies() {
   if (!els.suppliesList) return;
 
@@ -841,7 +931,8 @@ async function changeSupplyQuantity(id, delta) {
 
     if (activeSupplyCategory) {
   const filtered = supplies.filter(
-    (item) => item.category === activeSupplyCategory
+    (item) =>
+      supplyCategoriesFor(item).includes(activeSupplyCategory)
   );
 
   renderSupplies(filtered);
@@ -974,11 +1065,7 @@ function searchSupplies(query) {
 function renderSupplyCategories() {
   if (!els.supplyCategories) return;
 
-  const categories = [...new Set(
-    supplies.flatMap((supply) =>
-      supplyCategoriesFor(supply)
-    )
-  )].sort((a, b) => a.localeCompare(b, "de"));
+  const categories = allKnownSupplyCategoryNames();
 
   els.supplyCategories.innerHTML = "";
 
@@ -1302,6 +1389,42 @@ function supplyCategoriesFor(supply) {
   return supply?.category ? [supply.category] : [];
 }
 
+function allKnownSupplyCategoryNames() {
+  return [...new Set([
+    ...supplyCategories.map((entry) => entry.name),
+    ...supplies.flatMap((supply) => supplyCategoriesFor(supply)),
+  ].filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "de"));
+}
+
+function renderSupplyCategoryChoices(selectedCategories = null) {
+  if (!els.supplyCategoryChoices) return;
+
+  const selected = new Set(
+    selectedCategories ??
+    getSelectedSupplyCategories()
+  );
+
+  els.supplyCategoryChoices.innerHTML = "";
+
+  allKnownSupplyCategoryNames().forEach((category) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+
+    input.type = "checkbox";
+    input.name = "supplyCategory";
+    input.value = category;
+    input.checked = selected.has(category);
+
+    label.appendChild(input);
+    label.appendChild(
+      document.createTextNode(" " + category)
+    );
+
+    els.supplyCategoryChoices.appendChild(label);
+  });
+}
+
 function getSelectedSupplyCategories() {
   return Array.from(
     els.supplyCategoryChoices.querySelectorAll(
@@ -1311,13 +1434,14 @@ function getSelectedSupplyCategories() {
 }
 
 function setSelectedSupplyCategories(categories = []) {
-  const selected = new Set(categories.filter(Boolean));
+  renderSupplyCategoryChoices(categories);
+}
 
-  els.supplyCategoryChoices
-    .querySelectorAll('input[name="supplyCategory"]')
-    .forEach((input) => {
-      input.checked = selected.has(input.value);
-    });
+function resetNewSupplyCategoryFields() {
+  els.supplyNewCategoryToggle.checked = false;
+  els.supplyNewCategoryName.value = "";
+  els.supplyNewCategoryWrap.classList.add("hidden");
+  els.supplyNewCategoryName.required = false;
 }
 
 function openNewSupply() {
@@ -1327,6 +1451,7 @@ function openNewSupply() {
   els.supplyRoom.value = "Vorratsraum";
   els.supplyQuantity.value = "0";
   els.supplyMinimumQuantity.value = "1";
+  resetNewSupplyCategoryFields();
 
   setSelectedSupplyCategories(
     activeSupplyCategory ? [activeSupplyCategory] : []
@@ -1352,6 +1477,7 @@ function openEditSupply(id) {
   if (!supply) return;
 
   els.supplyForm.reset();
+  resetNewSupplyCategoryFields();
 
   els.supplyId.value =
     supply.id;
@@ -1410,8 +1536,8 @@ async function showSession() {
 
   if (signedIn) {
     await loadItems();
+    await loadSupplyCategories();
     await loadSupplies();
-
   }
 }
 
@@ -1610,6 +1736,26 @@ els.form.addEventListener(
   }
 );
 
+els.supplyNewCategoryToggle.addEventListener(
+  "change",
+  () => {
+    const active = els.supplyNewCategoryToggle.checked;
+
+    els.supplyNewCategoryWrap.classList.toggle(
+      "hidden",
+      !active
+    );
+
+    els.supplyNewCategoryName.required = active;
+
+    if (active) {
+      els.supplyNewCategoryName.focus();
+    } else {
+      els.supplyNewCategoryName.value = "";
+    }
+  }
+);
+
 els.supplyForm.addEventListener(
   "submit",
   async (event) => {
@@ -1617,6 +1763,24 @@ els.supplyForm.addEventListener(
 
     const selectedCategories =
       getSelectedSupplyCategories();
+
+    try {
+      if (els.supplyNewCategoryToggle.checked) {
+        const newCategory = await ensureSupplyCategory(
+          els.supplyNewCategoryName.value
+        );
+
+        if (!selectedCategories.includes(newCategory)) {
+          selectedCategories.push(newCategory);
+        }
+
+        renderSupplyCategoryChoices(selectedCategories);
+      }
+    } catch (error) {
+      alert(error.message);
+      els.supplyNewCategoryName.focus();
+      return;
+    }
 
     if (selectedCategories.length === 0) {
       alert("Bitte mindestens eine Kategorie auswählen.");
@@ -2048,6 +2212,7 @@ els.refreshBtn.addEventListener(
     els.settingsDialog.close();
 
     await loadItems();
+    await loadSupplyCategories();
     await loadSupplies();
   }
 );

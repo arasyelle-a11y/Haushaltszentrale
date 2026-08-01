@@ -1005,3 +1005,39 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     font-size: 0.9rem;
   }
 }
+
+/* ===== Neue Vorratskategorie direkt im Formular ===== */
+
+.new-category-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 10px;
+  border: 1px dashed var(--accent);
+  border-radius: 11px;
+  background: #f7fbff;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.new-category-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.new-category-wrap {
+  margin: 10px 0 0;
+  padding: 10px;
+  border-radius: 11px;
+  background: var(--accent-pale);
+}
+
+.new-category-wrap input {
+  margin-top: 6px;
+}
+

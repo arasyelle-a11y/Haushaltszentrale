@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -267,18 +267,22 @@
       <legend>Kategorien*</legend>
       <p class="category-hint">Mehrere Kategorien sind möglich.</p>
 
-      <div id="supplyCategoryChoices" class="supply-category-choices">
-        <label><input type="checkbox" name="supplyCategory" value="Frühstück"> Frühstück</label>
-        <label><input type="checkbox" name="supplyCategory" value="Backen"> Backen</label>
-        <label><input type="checkbox" name="supplyCategory" value="Konserven"> Konserven</label>
-        <label><input type="checkbox" name="supplyCategory" value="Getränke"> Getränke</label>
-        <label><input type="checkbox" name="supplyCategory" value="Nudeln"> Nudeln</label>
-        <label><input type="checkbox" name="supplyCategory" value="Grundnahrungsmittel"> Grundnahrungsmittel</label>
-        <label><input type="checkbox" name="supplyCategory" value="Snacks"> Snacks</label>
-        <label><input type="checkbox" name="supplyCategory" value="Haushalt"> Haushalt</label>
-        <label><input type="checkbox" name="supplyCategory" value="Hygiene"> Hygiene</label>
-        <label><input type="checkbox" name="supplyCategory" value="Sonstiges"> Sonstiges</label>
-      </div>
+      <div id="supplyCategoryChoices" class="supply-category-choices"></div>
+
+      <label class="new-category-option">
+        <input id="supplyNewCategoryToggle" type="checkbox">
+        Neue Kategorie …
+      </label>
+
+      <label id="supplyNewCategoryWrap" class="new-category-wrap hidden">
+        Name der neuen Kategorie
+        <input
+          id="supplyNewCategoryName"
+          maxlength="60"
+          placeholder="z. B. Tierfutter"
+          autocomplete="off"
+        >
+      </label>
     </fieldset>
 
     <label>Raum / Bereich
@@ -370,6 +374,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
