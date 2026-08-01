@@ -776,8 +776,18 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   background-color: transparent;
   border: none;
 
-  box-shadow: 0 4px 12px rgba(74, 55, 35, 0.10);
+  box-shadow: none;
+  padding: 22px 26px;
+  overflow: hidden;
 }
+
 #suppliesCategoryView .card-main {
   background: transparent;
+}
+#suppliesCategoryView .item-card,
+#suppliesCategoryView .item-card:before,
+#suppliesCategoryView .item-card:after {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
