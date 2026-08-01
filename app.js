@@ -1084,6 +1084,144 @@ async function ensureSupplyCategory(rawName) {
   return savedName;
 }
 
+
+let supplyPlaceSuggestionsInitialized = false;
+
+function uniqueSupplyValues(fieldName) {
+  return [...new Set(
+    supplies
+      .map((supply) =>
+        String(supply[fieldName] || "").trim()
+      )
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, "de"));
+}
+
+function ensureSupplySuggestionStyles() {
+  if (document.getElementById("supplyPlaceSuggestionStyles")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "supplyPlaceSuggestionStyles";
+  style.textContent = `
+    .supply-place-field {
+      position: relative;
+    }
+
+    .supply-place-suggestions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% - 8px);
+      z-index: 10000;
+      max-height: 210px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #c9d9ea;
+      border-radius: 12px;
+      box-shadow: 0 8px 22px rgba(20, 50, 90, 0.18);
+    }
+
+    .supply-place-suggestion {
+      width: 100%;
+      padding: 11px 13px;
+      border: 0;
+      border-bottom: 1px solid #e5edf5;
+      background: white;
+      color: #183d68;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .supply-place-suggestion:last-child {
+      border-bottom: 0;
+    }
+
+    .supply-place-suggestion:active {
+      background: #eef6ff;
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+function createSupplySuggestionBox(input, fieldName) {
+  if (!input || input.dataset.suggestionsReady === "true") {
+    return;
+  }
+
+  input.dataset.suggestionsReady = "true";
+
+  const parent = input.parentElement;
+  parent.classList.add("supply-place-field");
+
+  const box = document.createElement("div");
+  box.className = "supply-place-suggestions hidden";
+  parent.appendChild(box);
+
+  const render = () => {
+    const typed = normalize(input.value.trim());
+
+    const values = uniqueSupplyValues(fieldName)
+      .filter((value) =>
+        !typed || normalize(value).includes(typed)
+      )
+      .slice(0, 12);
+
+    box.innerHTML = "";
+
+    if (values.length === 0) {
+      box.classList.add("hidden");
+      return;
+    }
+
+    values.forEach((value) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "supply-place-suggestion";
+      button.textContent = value;
+
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        input.value = value;
+        box.classList.add("hidden");
+        input.focus();
+      });
+
+      box.appendChild(button);
+    });
+
+    box.classList.remove("hidden");
+  };
+
+  input.addEventListener("focus", render);
+  input.addEventListener("input", render);
+
+  input.addEventListener("blur", () => {
+    window.setTimeout(() => {
+      box.classList.add("hidden");
+    }, 180);
+  });
+}
+
+function initializeSupplyPlaceSuggestions() {
+  ensureSupplySuggestionStyles();
+
+  createSupplySuggestionBox(
+    els.supplyRoom,
+    "room"
+  );
+
+  createSupplySuggestionBox(
+    els.supplyStorageLocation,
+    "storage_location"
+  );
+
+  supplyPlaceSuggestionsInitialized = true;
+}
+
 async function loadSupplies() {
   if (!els.suppliesList) return;
 
@@ -1107,6 +1245,7 @@ async function loadSupplies() {
 
    supplies = body || [];
 
+   initializeSupplyPlaceSuggestions();
    await syncAutomaticShoppingItems();
    renderSupplyCategories();
   } catch (error) {
@@ -1984,6 +2123,7 @@ function resetNewSupplyCategoryFields() {
 }
 
 function openNewSupply(prefillName = "") {
+  initializeSupplyPlaceSuggestions();
   els.supplyForm.reset();
 
   els.supplyId.value = "";
@@ -2008,6 +2148,8 @@ function openNewSupply(prefillName = "") {
 }
 
 function openEditSupply(id) {
+  initializeSupplyPlaceSuggestions();
+
   const supply =
     supplies.find(
       (entry) =>
