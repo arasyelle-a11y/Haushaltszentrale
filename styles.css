@@ -765,3 +765,16 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     font-size: 0.72rem;
   }
 }
+/* ===== Vorräte als Holzbrett ===== */
+
+#suppliesCategoryView .item-card {
+  background-image: url("wood-board.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  background-color: transparent;
+  border: none;
+
+  box-shadow: 0 4px 12px rgba(74, 55, 35, 0.10);
+}
