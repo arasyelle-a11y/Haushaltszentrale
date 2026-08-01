@@ -647,37 +647,6 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
     line-height: 1.2;
   }
 }
-/* ===== Handy-Holzbrett: Höhe testen ===== */
-
-@media (max-width: 600px) {
-
-  #suppliesCategoryView {
-    --board-y: 2px;
-  }
-
-  #suppliesCategoryView .item-card {
-    padding: 0;
-    min-height: 0;
-  }
-
-  #suppliesCategoryView .card-main {
-    padding: var(--board-y) 14px;
-  }
-
-  #suppliesCategoryView .supply-item-top {
-    row-gap: 2px;
-  }
-
-  #suppliesCategoryView .supply-quantity-controls {
-    margin-top: 2px;
-    margin-bottom: 2px;
-  }
-
-  #suppliesCategoryView .supply-location,
-  #suppliesCategoryView .mhd-text {
-    margin-top: 2px;
-  }
-}
 /* ===== Neues Holzbrett-Design auf dem Handy ===== */
 
 @media (max-width: 600px) {
