@@ -1104,46 +1104,53 @@ const meta = [
 
 card.innerHTML = `
   <div class="card-main">
-    <div class="item-top supply-item-top">
 
-      <div class="item-title-row">
-        <span class="item-symbol">${
-          supply.symbol || "📦"
-        }</span>
+    <div class="supply-board-layout">
 
-        <h3 class="item-name"></h3>
-      </div>
+      <span class="item-symbol">${
+        supply.symbol || "📦"
+      }</span>
 
-      <div class="supply-quantity-box">
-        <div class="supply-quantity-controls">
+      <div class="supply-quantity-controls">
 
-          <button
-            type="button"
-            class="supply-qty-btn supply-minus"
-            aria-label="Bestand verringern"
-          >−</button>
+        <button
+          type="button"
+          class="supply-qty-btn supply-minus"
+          aria-label="Bestand verringern"
+        >
+          −
+        </button>
 
-          <div class="supply-quantity-center">
-            <div class="item-meta"></div>
+        <div class="supply-quantity-center">
+
+          <h3 class="item-name"></h3>
+
+          <div class="supply-status-row">
+            <span class="item-meta"></span>
+            <span class="supply-status-separator">•</span>
             <span class="supply-qty-value"></span>
           </div>
 
-          <button
-            type="button"
-            class="supply-qty-btn supply-plus"
-            aria-label="Bestand erhöhen"
-          >＋</button>
+          <p class="item-location supply-location"></p>
+
+          <div class="mhd-text"></div>
 
         </div>
+
+        <button
+          type="button"
+          class="supply-qty-btn supply-plus"
+          aria-label="Bestand erhöhen"
+        >
+          ＋
+        </button>
+
       </div>
 
       <span class="chevron">›</span>
 
     </div>
 
-    <p class="item-location supply-location"></p>
-
-    <div class="mhd-text"></div>
   </div>
 `;
 
