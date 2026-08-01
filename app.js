@@ -15,6 +15,7 @@ const PHOTO_BUCKET =
 let items = [];
 let supplies = [];
 let supplyCategories = [];
+let shoppingItems = [];
 let activeSupplyCategory = null;
 let session = loadSession();
 let pendingPhotoBlob = null;
@@ -131,6 +132,17 @@ const els = {
   suppliesCategoryView: $("#suppliesCategoryView"),
   backToSupplyCategories: $("#backToSupplyCategories"),
   supplyCategoryTitle: $("#supplyCategoryTitle"),
+
+  shoppingList: $("#shoppingList"),
+  shoppingDoneList: $("#shoppingDoneList"),
+  shoppingDoneSection: $("#shoppingDoneSection"),
+  shoppingEmpty: $("#shoppingEmpty"),
+  shoppingCountText: $("#shoppingCountText"),
+  shoppingStatus: $("#shoppingStatus"),
+  quickShoppingForm: $("#quickShoppingForm"),
+  quickShoppingName: $("#quickShoppingName"),
+  quickShoppingQuantity: $("#quickShoppingQuantity"),
+  quickShoppingUnit: $("#quickShoppingUnit"),
 };
 
 function loadSession() {
@@ -556,6 +568,433 @@ async function loadItems() {
   }
 }
 
+
+function setShoppingStatus(text, error = false) {
+  if (!els.shoppingStatus) return;
+
+  els.shoppingStatus.textContent = text;
+  els.shoppingStatus.classList.toggle("error-text", error);
+}
+
+function shoppingAmountForSupply(supply) {
+  const current = Number(supply.quantity ?? 0);
+  const minimum = Number(supply.minimum_quantity ?? 0);
+
+  if (!Number.isFinite(current) || !Number.isFinite(minimum)) {
+    return 1;
+  }
+
+  return Math.max(1, minimum + 1 - current);
+}
+
+function openShoppingItemForSupply(supplyId) {
+  return shoppingItems.find(
+    (item) =>
+      !item.checked &&
+      String(item.supply_id) === String(supplyId)
+  );
+}
+
+async function loadShoppingItems() {
+  if (!els.shoppingList) return;
+
+  try {
+    const response = await authFetch(
+      "/rest/v1/shopping_items?select=*&order=checked.asc,created_at.asc"
+    );
+
+    const body = await response.json().catch(() => []);
+
+    if (!response.ok) {
+      throw new Error(
+        body.message ||
+        body.error ||
+        "Einkaufsliste konnte nicht geladen werden"
+      );
+    }
+
+    shoppingItems = body || [];
+    setShoppingStatus("");
+    renderShoppingItems();
+  } catch (error) {
+    setShoppingStatus(error.message, true);
+  }
+}
+
+async function createShoppingItem({
+  supply = null,
+  name,
+  quantity = null,
+  unit = null,
+  automatic = false,
+}) {
+  if (supply && openShoppingItemForSupply(supply.id)) {
+    return openShoppingItemForSupply(supply.id);
+  }
+
+  const record = {
+    supply_id: supply?.id ?? null,
+    name: String(name || supply?.name || "").trim(),
+    quantity:
+      quantity == null || quantity === ""
+        ? null
+        : Number(quantity),
+    unit: String(unit || supply?.unit || "").trim() || null,
+    checked: false,
+    added_automatically: automatic,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (!record.name) {
+    throw new Error("Bitte einen Artikelnamen eingeben.");
+  }
+
+  const response = await authFetch(
+    "/rest/v1/shopping_items",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify(record),
+    }
+  );
+
+  const body = await response.json().catch(() => []);
+
+  if (!response.ok) {
+    throw new Error(
+      body.message ||
+      body.error ||
+      "Artikel konnte nicht zur Einkaufsliste hinzugefügt werden"
+    );
+  }
+
+  const created = Array.isArray(body) ? body[0] : body;
+
+  if (created) {
+    shoppingItems.push(created);
+  }
+
+  renderShoppingItems();
+  return created;
+}
+
+async function addSupplyToShoppingList(supply, automatic = false) {
+  const existing = openShoppingItemForSupply(supply.id);
+
+  if (existing) {
+    if (!automatic) {
+      setShoppingStatus(`${supply.name} steht bereits auf der Liste.`);
+    }
+    return existing;
+  }
+
+  const item = await createShoppingItem({
+    supply,
+    name: supply.name,
+    quantity: shoppingAmountForSupply(supply),
+    unit: supply.unit,
+    automatic,
+  });
+
+  if (!automatic) {
+    setShoppingStatus(`${supply.name} wurde hinzugefügt.`);
+  }
+
+  return item;
+}
+
+async function removeAutomaticShoppingItemForSupply(supplyId) {
+  const automaticItem = shoppingItems.find(
+    (item) =>
+      !item.checked &&
+      item.added_automatically &&
+      String(item.supply_id) === String(supplyId)
+  );
+
+  if (!automaticItem) return;
+
+  const response = await authFetch(
+    "/rest/v1/shopping_items?id=eq." +
+      encodeURIComponent(automaticItem.id),
+    { method: "DELETE" }
+  );
+
+  if (!response.ok) return;
+
+  shoppingItems = shoppingItems.filter(
+    (item) => String(item.id) !== String(automaticItem.id)
+  );
+
+  renderShoppingItems();
+}
+
+async function syncSupplyShoppingState(supply) {
+  const status = automaticSupplyStatus(
+    supply.quantity,
+    supply.minimum_quantity
+  );
+
+  if (status === "low" || status === "empty") {
+    await addSupplyToShoppingList(supply, true);
+  } else {
+    await removeAutomaticShoppingItemForSupply(supply.id);
+  }
+}
+
+async function syncAutomaticShoppingItems() {
+  if (!shoppingItems.length) {
+    await loadShoppingItems();
+  }
+
+  for (const supply of supplies) {
+    await syncSupplyShoppingState(supply);
+  }
+}
+
+async function updateShoppingItem(id, changes) {
+  const response = await authFetch(
+    "/rest/v1/shopping_items?id=eq." +
+      encodeURIComponent(id),
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        ...changes,
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+
+    throw new Error(
+      body.message ||
+      body.error ||
+      "Einkaufsartikel konnte nicht geändert werden"
+    );
+  }
+
+  const item = shoppingItems.find(
+    (entry) => String(entry.id) === String(id)
+  );
+
+  if (item) {
+    Object.assign(item, changes);
+  }
+
+  renderShoppingItems();
+}
+
+async function deleteShoppingItem(id) {
+  const response = await authFetch(
+    "/rest/v1/shopping_items?id=eq." +
+      encodeURIComponent(id),
+    { method: "DELETE" }
+  );
+
+  if (!response.ok) {
+    throw new Error("Einkaufsartikel konnte nicht gelöscht werden.");
+  }
+
+  shoppingItems = shoppingItems.filter(
+    (item) => String(item.id) !== String(id)
+  );
+
+  renderShoppingItems();
+}
+
+async function addPurchasedAmountToSupply(item) {
+  if (!item.supply_id) return;
+
+  const supply = supplies.find(
+    (entry) =>
+      String(entry.id) === String(item.supply_id)
+  );
+
+  if (!supply) return;
+
+  const amount = Number(item.quantity ?? 1);
+  const current = Number(supply.quantity ?? 0);
+  const next =
+    current + (Number.isFinite(amount) ? amount : 1);
+
+  const status = automaticSupplyStatus(
+    next,
+    supply.minimum_quantity
+  );
+
+  const response = await authFetch(
+    "/rest/v1/supplies?id=eq." +
+      encodeURIComponent(supply.id),
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        quantity: next,
+        stock_status: status,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Vorratsbestand konnte nicht erhöht werden.");
+  }
+
+  supply.quantity = next;
+  supply.stock_status = status;
+
+  if (activeSupplyCategory) {
+    renderSupplies(
+      supplies.filter((entry) =>
+        supplyCategoriesFor(entry).includes(activeSupplyCategory)
+      )
+    );
+  }
+
+  setShoppingStatus(
+    `${supply.name}: Bestand wurde auf ${next}${supply.unit ? " " + supply.unit : ""} erhöht.`
+  );
+}
+
+function renderShoppingItems() {
+  if (!els.shoppingList) return;
+
+  const openItems = shoppingItems.filter((item) => !item.checked);
+  const doneItems = shoppingItems.filter((item) => item.checked);
+
+  els.shoppingList.innerHTML = "";
+  els.shoppingDoneList.innerHTML = "";
+
+  els.shoppingEmpty.classList.toggle(
+    "hidden",
+    openItems.length !== 0
+  );
+
+  els.shoppingCountText.textContent =
+    openItems.length === 0
+      ? "Noch nichts einzukaufen."
+      : `${openItems.length} ${
+          openItems.length === 1 ? "Artikel" : "Artikel"
+        } offen`;
+
+  const buildCard = (item, done = false) => {
+    const card = document.createElement("article");
+    card.className =
+      "shopping-card" + (done ? " shopping-card-done" : "");
+
+    const amount = [
+      item.quantity,
+      item.unit,
+    ].filter(
+      (value) => value !== null && value !== undefined && value !== ""
+    ).join(" ");
+
+    card.innerHTML = `
+      <div class="shopping-card-main">
+        <button
+          type="button"
+          class="shopping-check"
+          aria-label="${done ? "Wieder öffnen" : "Als erledigt markieren"}"
+        >${done ? "↶" : "✓"}</button>
+
+        <div class="shopping-card-copy">
+          <h3 class="shopping-name"></h3>
+          <p class="shopping-amount"></p>
+          <p class="shopping-origin"></p>
+        </div>
+
+        <button
+          type="button"
+          class="shopping-delete"
+          aria-label="Löschen"
+        >✕</button>
+      </div>
+
+      ${
+        done && item.supply_id
+          ? `<button type="button" class="shopping-stock-btn">
+              Bestand um Einkaufsmenge erhöhen
+            </button>`
+          : ""
+      }
+    `;
+
+    card.querySelector(".shopping-name").textContent =
+      item.name || "";
+
+    card.querySelector(".shopping-amount").textContent =
+      amount ? `Kaufen: ${amount}` : "";
+
+    card.querySelector(".shopping-origin").textContent =
+      item.added_automatically
+        ? "Automatisch wegen niedrigem Bestand"
+        : item.supply_id
+          ? "Aus den Vorräten"
+          : "Manuell hinzugefügt";
+
+    card.querySelector(".shopping-check").addEventListener(
+      "click",
+      async () => {
+        try {
+          await updateShoppingItem(item.id, {
+            checked: !done,
+          });
+        } catch (error) {
+          setShoppingStatus(error.message, true);
+        }
+      }
+    );
+
+    card.querySelector(".shopping-delete").addEventListener(
+      "click",
+      async () => {
+        try {
+          await deleteShoppingItem(item.id);
+        } catch (error) {
+          setShoppingStatus(error.message, true);
+        }
+      }
+    );
+
+    card.querySelector(".shopping-stock-btn")?.addEventListener(
+      "click",
+      async () => {
+        try {
+          await addPurchasedAmountToSupply(item);
+          await deleteShoppingItem(item.id);
+        } catch (error) {
+          setShoppingStatus(error.message, true);
+        }
+      }
+    );
+
+    return card;
+  };
+
+  openItems.forEach((item) =>
+    els.shoppingList.appendChild(buildCard(item))
+  );
+
+  doneItems.forEach((item) =>
+    els.shoppingDoneList.appendChild(buildCard(item, true))
+  );
+
+  els.shoppingDoneSection.classList.toggle(
+    "hidden",
+    doneItems.length === 0
+  );
+}
+
 async function loadSupplyCategories() {
   try {
     const response = await authFetch(
@@ -665,7 +1104,8 @@ async function loadSupplies() {
 
    supplies = body || [];
 
-renderSupplyCategories();
+   await syncAutomaticShoppingItems();
+   renderSupplyCategories();
   } catch (error) {
     els.suppliesList.innerHTML =
       `<p class="error-text">Vorräte konnten nicht geladen werden: ${error.message}</p>`;
@@ -928,6 +1368,8 @@ async function changeSupplyQuantity(id, delta) {
 
     supply.quantity = next;
     supply.stock_status = status;
+
+    await syncSupplyShoppingState(supply);
 
     if (activeSupplyCategory) {
   const filtered = supplies.filter(
@@ -1235,6 +1677,13 @@ card.innerHTML = `
 
     </div>
 
+    <button
+      type="button"
+      class="supply-shopping-btn"
+    >
+      🛒 Auf Einkaufsliste
+    </button>
+
   </div>
 `;
 
@@ -1298,7 +1747,22 @@ card.querySelector(".supply-plus").addEventListener(
     event.stopPropagation();
     await changeSupplyQuantity(supply.id, 1);
   }
-);    
+);
+
+card.querySelector(".supply-shopping-btn").addEventListener(
+  "click",
+  async (event) => {
+    event.stopPropagation();
+
+    try {
+      await addSupplyToShoppingList(supply, false);
+    } catch (error) {
+      setShoppingStatus(error.message, true);
+      alert(error.message);
+    }
+  }
+);
+
    card.querySelector(".item-name").addEventListener(
   "click",
   () => openEditSupply(supply.id)
@@ -1537,6 +2001,7 @@ async function showSession() {
   if (signedIn) {
     await loadItems();
     await loadSupplyCategories();
+    await loadShoppingItems();
     await loadSupplies();
   }
 }
@@ -1752,6 +2217,29 @@ els.supplyNewCategoryToggle.addEventListener(
       els.supplyNewCategoryName.focus();
     } else {
       els.supplyNewCategoryName.value = "";
+    }
+  }
+);
+
+
+els.quickShoppingForm.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
+
+    try {
+      await createShoppingItem({
+        name: els.quickShoppingName.value,
+        quantity: els.quickShoppingQuantity.value,
+        unit: els.quickShoppingUnit.value,
+        automatic: false,
+      });
+
+      els.quickShoppingForm.reset();
+      setShoppingStatus("Artikel wurde hinzugefügt.");
+      els.quickShoppingName.focus();
+    } catch (error) {
+      setShoppingStatus(error.message, true);
     }
   }
 );
@@ -2373,6 +2861,10 @@ navButtons.forEach(
           await loadSupplies();
 
           renderSupplyCategories();
+        }
+
+        if (targetView === "shopping") {
+          await loadShoppingItems();
         }
       }
     );

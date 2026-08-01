@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -163,8 +163,50 @@
   <section class="section-head">
     <div>
       <h2>Einkaufsliste</h2>
-      <p>Kommt als Nächstes.</p>
+      <p id="shoppingCountText">Noch nichts einzukaufen.</p>
     </div>
+  </section>
+
+  <form id="quickShoppingForm" class="search-card shopping-add-form">
+    <label for="quickShoppingName">Artikel manuell hinzufügen</label>
+    <div class="shopping-add-row">
+      <input
+        id="quickShoppingName"
+        placeholder="z. B. Äpfel"
+        autocomplete="off"
+        required
+      >
+      <input
+        id="quickShoppingQuantity"
+        type="number"
+        min="0.1"
+        step="0.1"
+        inputmode="decimal"
+        placeholder="Menge"
+        aria-label="Einkaufsmenge"
+      >
+      <input
+        id="quickShoppingUnit"
+        placeholder="Einheit"
+        aria-label="Einheit"
+      >
+      <button class="primary-btn" type="submit">＋</button>
+    </div>
+  </form>
+
+  <p id="shoppingStatus" class="status-text"></p>
+
+  <section id="shoppingEmpty" class="empty hidden">
+    <div class="empty-icon">🛒</div>
+    <h3>Die Einkaufsliste ist leer</h3>
+    <p>Artikel kannst du hier oder direkt bei einem Vorrat hinzufügen.</p>
+  </section>
+
+  <section id="shoppingList" class="shopping-list"></section>
+
+  <section id="shoppingDoneSection" class="shopping-done-section hidden">
+    <h3>Erledigt</h3>
+    <section id="shoppingDoneList" class="shopping-list"></section>
   </section>
 </section>
     </main>
@@ -374,6 +416,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
