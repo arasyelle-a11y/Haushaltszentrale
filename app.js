@@ -865,6 +865,7 @@ function getCategoryIcon(category) {
     Backen: "🧁",
     Konserven: "🥫",
     Getränke: "🥤",
+    Nudeln: "🍝",
     Grundnahrungsmittel: "🍝",
     Snacks: "🍫",
     Haushalt: "🧻",
