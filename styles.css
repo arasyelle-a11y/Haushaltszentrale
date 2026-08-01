@@ -778,3 +778,6 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
   box-shadow: 0 4px 12px rgba(74, 55, 35, 0.10);
 }
+#suppliesCategoryView .card-main {
+  background: transparent;
+}
