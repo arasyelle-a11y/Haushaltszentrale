@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -255,32 +255,19 @@
       <input id="supplyName" required placeholder="z. B. Haferflocken">
     </label>
 
-    <label>Symbol
-      <input id="supplySymbol" maxlength="8" placeholder="🥣">
-    </label>
-
-    <label>Kategorie
-      <select id="supplyCategory">
+    <label>Kategorie*
+      <select id="supplyCategory" required>
         <option value="">Bitte auswählen …</option>
         <option>Frühstück</option>
         <option>Backen</option>
         <option>Konserven</option>
         <option>Getränke</option>
-         <option>Nudeln</option>
+        <option>Nudeln</option>
         <option>Grundnahrungsmittel</option>
         <option>Snacks</option>
         <option>Haushalt</option>
         <option>Hygiene</option>
         <option>Sonstiges</option>
-      </select>
-    </label>
-
-    <label>Vorratsart
-      <select id="supplyType">
-        <option value="">Bitte auswählen …</option>
-        <option value="daily">Häufiger Verbrauch</option>
-        <option value="stock">Immer auf Lager</option>
-        <option value="rare">Seltener Vorrat</option>
       </select>
     </label>
 
@@ -292,13 +279,9 @@
       <input id="supplyStorageLocation" placeholder="z. B. Holzkiste Frühstück">
     </label>
 
-    <label>Genauer Ort
-      <input id="supplyLocationNote" placeholder="z. B. hinten links">
-    </label>
-
-    <div class="two-columns">
+    <div class="supply-form-grid">
       <label>Bestand
-        <input id="supplyQuantity" type="number" min="0" step="1" placeholder="2">
+        <input id="supplyQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
       </label>
 
       <label>Einheit
@@ -317,24 +300,17 @@
       </label>
     </div>
 
-    <label>Mindestbestand
-      <input id="supplyMinimumQuantity" type="number" min="0" step="1" placeholder="1">
-    </label>
+    <div class="supply-form-grid">
+      <label>Mindestbestand
+        <input id="supplyMinimumQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+      </label>
 
-    <label>Status
-      <select id="supplyStockStatus">
-        <option value="">Automatisch / nicht angegeben</option>
-        <option value="enough">🟢 Genug</option>
-        <option value="low">🟡 Wenig</option>
-        <option value="empty">🔴 Leer</option>
-      </select>
-    </label>
+      <label>MHD
+        <input id="supplyBestBefore" type="date">
+      </label>
+    </div>
 
-    <label>Mindesthaltbar bis
-      <input id="supplyBestBefore" type="date">
-    </label>
-
-    <label>Notiz
+    <label>Notiz <span class="optional-label">(optional)</span>
       <textarea id="supplyNote" rows="3" placeholder="Optional"></textarea>
     </label>
 
@@ -384,6 +360,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
