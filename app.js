@@ -96,6 +96,7 @@ const els = {
 
   suppliesList: $("#suppliesList"),
   addSupplyBtn: $("#addSupplyBtn"),
+  addSupplyInCategoryBtn: $("#addSupplyInCategoryBtn"),
   supplySearchInput: $("#supplySearchInput"),
   clearSupplySearch: $("#clearSupplySearch"),
   supplySuggestions: $("#supplySuggestions"),
@@ -1930,6 +1931,10 @@ els.add.addEventListener(
 );
 
 els.addSupplyBtn.addEventListener(
+  "click",
+  openNewSupply
+);
+els.addSupplyInCategoryBtn.addEventListener(
   "click",
   openNewSupply
 );
