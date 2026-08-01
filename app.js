@@ -732,11 +732,14 @@ async function removeAutomaticShoppingItemForSupply(supplyId) {
 }
 
 async function syncSupplyShoppingState(supply) {
+  const minimum = Number(supply.minimum_quantity);
+
   const hasMinimum =
     supply.minimum_quantity !== null &&
     supply.minimum_quantity !== undefined &&
     supply.minimum_quantity !== "" &&
-    Number.isFinite(Number(supply.minimum_quantity));
+    Number.isFinite(minimum) &&
+    minimum > 0;
 
   if (!hasMinimum) {
     await removeAutomaticShoppingItemForSupply(supply.id);
