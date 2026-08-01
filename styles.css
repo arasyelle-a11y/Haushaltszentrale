@@ -105,10 +105,10 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .empty-icon{font-size:36px}
 .hidden{display:none!important}
 dialog{
-  width:min(92vw,620px);border:0;border-radius:22px;padding:20px;
   background:var(--card);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.25);
 }
 dialog::backdrop{background:rgba(16,38,74,.28);backdrop-filter:blur(2px)}
+  width:min(92vw,620px);border:0;border-radius:22px;padding:20px;
 .dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
 form label{display:block;font-weight:700;margin:13px 0}
 form label input,form label textarea,form label select{margin-top:6px;font-weight:400}
@@ -896,4 +896,36 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
     text-align: center;
   }
+  /* ===== Dialoge auf dem Handy nur senkrecht scrollbar ===== */
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+dialog {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
+}
+
+dialog form {
+  width: 100%;
+  min-width: 0;
+
+  overflow-x: hidden;
+  touch-action: pan-y;
+}
+
+dialog input,
+dialog select,
+dialog textarea {
+  max-width: 100%;
+  min-width: 0;
+}
 }
