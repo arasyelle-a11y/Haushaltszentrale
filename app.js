@@ -1361,62 +1361,6 @@ function openEditSupply(id) {
 
   els.supplyDialog.showModal();
 }
-
-  function restoreLastView() {
-  const lastView =
-    localStorage.getItem(LAST_VIEW_KEY) ||
-    "items";
-
-  navButtons.forEach((button) => {
-    button.classList.toggle(
-      "active",
-      button.dataset.view === lastView
-    );
-  });
-
-  appViews.forEach((view) => {
-    view.classList.add("hidden");
-  });
-
-  const target =
-    document.getElementById(
-      `${lastView}View`
-    );
-
-  if (target) {
-    target.classList.remove("hidden");
-  }
-
-  if (lastView === "supplies") {
-    const lastCategory =
-      localStorage.getItem(
-        LAST_SUPPLY_CATEGORY_KEY
-      );
-
-    const categoryStillExists =
-      lastCategory &&
-      supplies.some(
-        (supply) =>
-          supply.category === lastCategory
-      );
-
-    if (categoryStillExists) {
-      showSupplyCategory(lastCategory);
-    } else {
-      activeSupplyCategory = null;
-
-      els.suppliesCategoryView.classList.add(
-        "hidden"
-      );
-
-      els.suppliesHome.classList.remove(
-        "hidden"
-      );
-
-      renderSupplyCategories();
-    }
-  }
-}
   
 async function showSession() {
   const signedIn =
