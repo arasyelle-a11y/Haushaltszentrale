@@ -1,0 +1,16 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl --fail --silent --show-error \
+            "https://muujfgwspkoogjxtvcrp.supabase.co/rest/v1/keepalive?select=id&limit=1" \
+            -H "apikey: sb_publishable_F6Q3yYsgbdiOBmo1u4Ar_Q_9SF6WrHx"
