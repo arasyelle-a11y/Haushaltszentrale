@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=15">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -96,6 +96,14 @@
   </section>
 
   <section id="wantedList" class="wanted-list"></section>
+
+  <section id="wantedFoundSection" class="wanted-found-section hidden">
+    <div class="wanted-found-head">
+      <h3>✓ Gefunden</h3>
+      <p id="wantedFoundCount"></p>
+    </div>
+    <section id="wantedFoundList" class="wanted-list wanted-found-list"></section>
+  </section>
 </section>
 
      <section id="suppliesView" class="app-view hidden">
@@ -501,6 +509,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

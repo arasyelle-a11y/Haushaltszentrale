@@ -150,6 +150,9 @@ const els = {
   wantedEmpty: $("#wantedEmpty"),
   wantedCountText: $("#wantedCountText"),
   wantedStatus: $("#wantedStatus"),
+  wantedFoundSection: $("#wantedFoundSection"),
+  wantedFoundList: $("#wantedFoundList"),
+  wantedFoundCount: $("#wantedFoundCount"),
   addWantedBtn: $("#addWantedBtn"),
   wantedDialog: $("#wantedDialog"),
   wantedForm: $("#wantedForm"),
@@ -599,16 +602,25 @@ async function deleteWantedItem(id) {
       encodeURIComponent(id),
     {
       method: "DELETE",
+      headers: {
+        Prefer: "return=representation",
+      },
     }
   );
 
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
+  const body = await response.json().catch(() => null);
 
+  if (!response.ok) {
     throw new Error(
-      body.message ||
-      body.error ||
-      "Such-Eintrag konnte nicht gelöscht werden"
+      body?.message ||
+      body?.error ||
+      `Such-Eintrag konnte nicht gelöscht werden (${response.status})`
+    );
+  }
+
+  if (Array.isArray(body) && body.length === 0) {
+    throw new Error(
+      "Der Such-Eintrag wurde nicht gefunden oder konnte nicht entfernt werden."
     );
   }
 
@@ -617,6 +629,38 @@ async function deleteWantedItem(id) {
   );
 
   renderWantedItems();
+}
+
+async function resolveWantedItem(id, room, location) {
+  const response = await authFetch(
+    "/rest/v1/wanted_items?id=eq." +
+      encodeURIComponent(id),
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({
+        resolved: true,
+        found_at: new Date().toISOString(),
+        found_room: String(room || "").trim() || null,
+        found_location: String(location || "").trim() || null,
+      }),
+    }
+  );
+
+  const body = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      body?.message ||
+      body?.error ||
+      `Fund konnte nicht gespeichert werden (${response.status})`
+    );
+  }
+
+  await loadWantedItems();
 }
 
 function openWantedAsItem(wanted) {
@@ -650,23 +694,33 @@ function openWantedAsItem(wanted) {
 function renderWantedItems() {
   if (!els.wantedList) return;
 
+  const openItems = wantedItems.filter((wanted) => !wanted.resolved);
+  const foundItems = wantedItems
+    .filter((wanted) => wanted.resolved)
+    .sort((a, b) => {
+      const aTime = new Date(a.found_at || a.created_at || 0).getTime();
+      const bTime = new Date(b.found_at || b.created_at || 0).getTime();
+      return bTime - aTime;
+    });
+
   els.wantedList.innerHTML = "";
+  els.wantedFoundList.innerHTML = "";
 
   els.wantedEmpty.classList.toggle(
     "hidden",
-    wantedItems.length !== 0
+    openItems.length !== 0
   );
 
   els.wantedCountText.textContent =
-    wantedItems.length === 0
+    openItems.length === 0
       ? "Keine vermissten Dinge."
-      : `${wantedItems.length} ${
-          wantedItems.length === 1
+      : `${openItems.length} ${
+          openItems.length === 1
             ? "Gegenstand wird gesucht"
             : "Gegenstände werden gesucht"
         }`;
 
-  wantedItems.forEach((wanted) => {
+  openItems.forEach((wanted) => {
     const card = document.createElement("article");
     card.className = "wanted-card";
 
@@ -731,24 +785,137 @@ function renderWantedItems() {
       () => openWantedAsItem(wanted)
     );
 
-    card.querySelector(".wanted-delete-btn").addEventListener(
+    const deleteWantedBtn =
+      card.querySelector(".wanted-delete-btn");
+
+    let deleteWantedArmed = false;
+    let deleteWantedTimer = null;
+
+    deleteWantedBtn.addEventListener(
       "click",
       async () => {
-        const confirmed = window.confirm(
-          `"${wanted.name}" wirklich aus „Ich suche …“ entfernen?`
-        );
+        if (!deleteWantedArmed) {
+          deleteWantedArmed = true;
+          deleteWantedBtn.textContent = "Wirklich entfernen?";
+          deleteWantedBtn.classList.add("wanted-delete-armed");
 
-        if (!confirmed) return;
+          deleteWantedTimer = window.setTimeout(() => {
+            deleteWantedArmed = false;
+            deleteWantedBtn.textContent = "Nicht mehr gesucht";
+            deleteWantedBtn.classList.remove("wanted-delete-armed");
+          }, 4000);
+
+          return;
+        }
+
+        if (deleteWantedTimer) {
+          window.clearTimeout(deleteWantedTimer);
+        }
+
+        deleteWantedBtn.disabled = true;
+        deleteWantedBtn.textContent = "Entfernen …";
 
         try {
           await deleteWantedItem(wanted.id);
+          setWantedStatus(`„${wanted.name}“ wurde entfernt.`);
         } catch (error) {
+          deleteWantedArmed = false;
+          deleteWantedBtn.disabled = false;
+          deleteWantedBtn.textContent = "Nicht mehr gesucht";
+          deleteWantedBtn.classList.remove("wanted-delete-armed");
           setWantedStatus(error.message, true);
         }
       }
     );
 
     els.wantedList.appendChild(card);
+  });
+
+  els.wantedFoundSection.classList.toggle(
+    "hidden",
+    foundItems.length === 0
+  );
+
+  els.wantedFoundCount.textContent =
+    foundItems.length === 1
+      ? "1 gefundener Gegenstand"
+      : `${foundItems.length} gefundene Gegenstände`;
+
+  foundItems.forEach((wanted) => {
+    const card = document.createElement("article");
+    card.className = "wanted-card wanted-card-found";
+
+    const foundDate = wanted.found_at
+      ? new Date(wanted.found_at).toLocaleDateString("de-DE")
+      : "";
+
+    const place = [wanted.found_room, wanted.found_location]
+      .filter(Boolean)
+      .join(" · ");
+
+    card.innerHTML = `
+      <div class="wanted-card-head">
+        <div>
+          <h3 class="wanted-name"></h3>
+          <p class="wanted-found-label">✓ Gefunden</p>
+        </div>
+        <span class="wanted-icon">✅</span>
+      </div>
+
+      <p class="wanted-found-place"></p>
+      <p class="wanted-found-date"></p>
+
+      <div class="wanted-actions wanted-found-actions">
+        <button
+          type="button"
+          class="secondary-btn wanted-history-delete-btn"
+        >Aus Verlauf entfernen</button>
+      </div>
+    `;
+
+    card.querySelector(".wanted-name").textContent =
+      wanted.name || "";
+
+    const placeEl = card.querySelector(".wanted-found-place");
+    placeEl.textContent = place ? `Jetzt: ${place}` : "";
+    placeEl.classList.toggle("hidden", !place);
+
+    const dateEl = card.querySelector(".wanted-found-date");
+    dateEl.textContent = foundDate ? `Gefunden am ${foundDate}` : "";
+    dateEl.classList.toggle("hidden", !foundDate);
+
+    const historyDeleteBtn =
+      card.querySelector(".wanted-history-delete-btn");
+
+    let historyDeleteArmed = false;
+
+    historyDeleteBtn.addEventListener("click", async () => {
+      if (!historyDeleteArmed) {
+        historyDeleteArmed = true;
+        historyDeleteBtn.textContent = "Wirklich entfernen?";
+        window.setTimeout(() => {
+          historyDeleteArmed = false;
+          if (historyDeleteBtn.isConnected) {
+            historyDeleteBtn.textContent = "Aus Verlauf entfernen";
+          }
+        }, 4000);
+        return;
+      }
+
+      historyDeleteBtn.disabled = true;
+      historyDeleteBtn.textContent = "Entfernen …";
+
+      try {
+        await deleteWantedItem(wanted.id);
+      } catch (error) {
+        historyDeleteArmed = false;
+        historyDeleteBtn.disabled = false;
+        historyDeleteBtn.textContent = "Aus Verlauf entfernen";
+        setWantedStatus(error.message, true);
+      }
+    });
+
+    els.wantedFoundList.appendChild(card);
   });
 }
 
@@ -2637,14 +2804,20 @@ els.form.addEventListener(
       await loadItems();
 
       if (pendingWantedItemId) {
-        const wantedIdToRemove = pendingWantedItemId;
+        const wantedIdToResolve = pendingWantedItemId;
+        const foundRoom = selectedRoom();
+        const foundLocation = els.location.value.trim();
         pendingWantedItemId = null;
 
         try {
-          await deleteWantedItem(wantedIdToRemove);
+          await resolveWantedItem(
+            wantedIdToResolve,
+            foundRoom,
+            foundLocation
+          );
         } catch (wantedError) {
           console.warn(
-            "Gefundener Such-Eintrag konnte nicht entfernt werden:",
+            "Fund konnte nicht im Suchverlauf gespeichert werden:",
             wantedError
           );
         }

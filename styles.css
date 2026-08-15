@@ -1233,3 +1233,66 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   }
 }
 
+
+.wanted-delete-btn.wanted-delete-armed {
+  border-color: var(--danger);
+  background: #fff1f1;
+  font-weight: 800;
+}
+
+
+/* ===== Ich suche …: Gefunden-Verlauf ===== */
+
+.wanted-found-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.wanted-found-head {
+  margin: 0 2px 12px;
+}
+
+.wanted-found-head h3 {
+  color: #2e7d32;
+  font-size: 1.15rem;
+}
+
+.wanted-found-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: .84rem;
+}
+
+.wanted-card-found {
+  border-color: #b9ddbf;
+  background: #f6fff7;
+}
+
+.wanted-found-label {
+  margin: 4px 0 0;
+  color: #2e7d32;
+  font-weight: 800;
+}
+
+.wanted-found-place {
+  margin: 9px 0 0;
+  color: #315d38;
+  font-weight: 700;
+}
+
+.wanted-found-date {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.wanted-found-actions {
+  margin-top: 10px;
+}
+
+.wanted-found-actions .secondary-btn {
+  flex: 0 1 auto;
+  font-size: .86rem;
+  padding: 8px 11px;
+}
