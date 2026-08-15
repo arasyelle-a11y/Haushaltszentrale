@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -42,6 +42,7 @@
     </header>
 <nav class="main-nav">
   <button class="nav-btn active" data-view="items">🔎 Wo ist was?</button>
+  <button class="nav-btn" data-view="wanted">❓ Ich suche …</button>
   <button class="nav-btn" data-view="supplies">📦 Vorräte</button>
   <button class="nav-btn" data-view="shopping">🛒 Einkauf</button>
 </nav>   
@@ -74,6 +75,29 @@
         
 <section id="itemsList" class="items"></section>
 </section>
+
+<section id="wantedView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Ich suche …</h2>
+      <p id="wantedCountText">Keine vermissten Dinge.</p>
+    </div>
+    <button id="addWantedBtn" class="primary-btn" type="button">
+      ＋ Gesucht
+    </button>
+  </section>
+
+  <p id="wantedStatus" class="status-text"></p>
+
+  <section id="wantedEmpty" class="empty hidden">
+    <div class="empty-icon">✨</div>
+    <h3>Gerade wird nichts gesucht</h3>
+    <p>Wenn etwas verschwunden ist, kann es hier für alle eingetragen werden.</p>
+  </section>
+
+  <section id="wantedList" class="wanted-list"></section>
+</section>
+
      <section id="suppliesView" class="app-view hidden">
 
   <section id="suppliesHome">
@@ -379,6 +403,67 @@
   </form>
 </dialog>
   
+
+<dialog id="wantedDialog">
+  <form id="wantedForm">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">ICH SUCHE …</p>
+        <h2>Vermissten Gegenstand eintragen</h2>
+      </div>
+      <button
+        type="button"
+        class="icon-btn"
+        id="closeWantedDialog"
+        aria-label="Schließen"
+      >✕</button>
+    </div>
+
+    <label>Name*
+      <input
+        id="wantedName"
+        required
+        placeholder="z. B. Friedas Fahrradschlüssel"
+      >
+    </label>
+
+    <label>Zuletzt gesehen
+      <input
+        id="wantedLastSeen"
+        placeholder="z. B. gestern im Flur"
+      >
+    </label>
+
+    <label>Gesucht von
+      <input
+        id="wantedBy"
+        placeholder="z. B. Frieda"
+      >
+    </label>
+
+    <label>Notiz
+      <textarea
+        id="wantedNote"
+        rows="3"
+        placeholder="z. B. schwarzer Schlüsselanhänger"
+      ></textarea>
+    </label>
+
+    <div class="dialog-actions">
+      <span class="spacer"></span>
+      <button
+        type="button"
+        id="cancelWantedBtn"
+        class="secondary-btn"
+      >Abbrechen</button>
+      <button
+        type="submit"
+        class="primary-btn"
+      >Eintragen</button>
+    </div>
+  </form>
+</dialog>
+
   <dialog id="settingsDialog">
     <div class="dialog-head">
       <div>
@@ -416,6 +501,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

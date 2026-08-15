@@ -142,7 +142,7 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 .card-photo{width:100%;height:100%;object-fit:cover;display:block}
 .main-nav {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin: 0 16px 18px;
 }
@@ -1153,6 +1153,83 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
 
   #quickShoppingUnit {
     grid-column: 1 / -1;
+  }
+}
+
+/* ===== Ich suche … ===== */
+
+.wanted-list {
+  display: grid;
+  gap: 12px;
+}
+
+.wanted-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.wanted-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.wanted-icon {
+  font-size: 1.8rem;
+}
+
+.wanted-name {
+  color: var(--accent-dark);
+  font-size: 1.12rem;
+}
+
+.wanted-person,
+.wanted-last-seen,
+.wanted-note,
+.wanted-since {
+  margin: 5px 0 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.wanted-person {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.wanted-last-seen {
+  font-weight: 650;
+}
+
+.wanted-since {
+  font-size: .8rem;
+}
+
+.wanted-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.wanted-actions .primary-btn,
+.wanted-actions .danger-outline-btn {
+  flex: 1;
+  min-width: 150px;
+}
+
+@media (max-width: 520px) {
+  .main-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wanted-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 }
 

@@ -16,6 +16,8 @@ let items = [];
 let supplies = [];
 let supplyCategories = [];
 let shoppingItems = [];
+let wantedItems = [];
+let pendingWantedItemId = null;
 let activeSupplyCategory = null;
 let session = loadSession();
 let pendingPhotoBlob = null;
@@ -143,6 +145,20 @@ const els = {
   quickShoppingName: $("#quickShoppingName"),
   quickShoppingQuantity: $("#quickShoppingQuantity"),
   quickShoppingUnit: $("#quickShoppingUnit"),
+
+  wantedList: $("#wantedList"),
+  wantedEmpty: $("#wantedEmpty"),
+  wantedCountText: $("#wantedCountText"),
+  wantedStatus: $("#wantedStatus"),
+  addWantedBtn: $("#addWantedBtn"),
+  wantedDialog: $("#wantedDialog"),
+  wantedForm: $("#wantedForm"),
+  wantedName: $("#wantedName"),
+  wantedLastSeen: $("#wantedLastSeen"),
+  wantedBy: $("#wantedBy"),
+  wantedNote: $("#wantedNote"),
+  closeWantedDialog: $("#closeWantedDialog"),
+  cancelWantedBtn: $("#cancelWantedBtn"),
 };
 
 function loadSession() {
@@ -535,6 +551,205 @@ async function hydrateCardPhotos() {
       }
     })
   );
+}
+
+
+function setWantedStatus(text, error = false) {
+  if (!els.wantedStatus) return;
+
+  els.wantedStatus.textContent = text;
+  els.wantedStatus.classList.toggle("error-text", error);
+}
+
+async function loadWantedItems() {
+  if (!els.wantedList) return;
+
+  try {
+    const response = await authFetch(
+      "/rest/v1/wanted_items?select=*&order=created_at.asc"
+    );
+
+    const body = await response.json().catch(() => []);
+
+    if (!response.ok) {
+      throw new Error(
+        body.message ||
+        body.error ||
+        "Gesuchte Dinge konnten nicht geladen werden"
+      );
+    }
+
+    wantedItems = body || [];
+    setWantedStatus("");
+    renderWantedItems();
+  } catch (error) {
+    setWantedStatus(error.message, true);
+  }
+}
+
+function openNewWanted() {
+  els.wantedForm.reset();
+  els.wantedDialog.showModal();
+  window.setTimeout(() => els.wantedName.focus(), 50);
+}
+
+async function deleteWantedItem(id) {
+  const response = await authFetch(
+    "/rest/v1/wanted_items?id=eq." +
+      encodeURIComponent(id),
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+
+    throw new Error(
+      body.message ||
+      body.error ||
+      "Such-Eintrag konnte nicht gelöscht werden"
+    );
+  }
+
+  wantedItems = wantedItems.filter(
+    (entry) => String(entry.id) !== String(id)
+  );
+
+  renderWantedItems();
+}
+
+function openWantedAsItem(wanted) {
+  if (!wanted) return;
+
+  openNewItem();
+
+  pendingWantedItemId = wanted.id;
+
+  els.name.value = wanted.name || "";
+  els.symbol.value = suggestFor(wanted.name || "")[0];
+
+  const noteParts = [];
+
+  if (wanted.note) {
+    noteParts.push(wanted.note);
+  }
+
+  if (wanted.last_seen) {
+    noteParts.push("Zuletzt gesehen: " + wanted.last_seen);
+  }
+
+  if (wanted.wanted_by) {
+    noteParts.push("Gesucht von: " + wanted.wanted_by);
+  }
+
+  els.note.value = noteParts.join("\n");
+  renderSymbolChoices();
+}
+
+function renderWantedItems() {
+  if (!els.wantedList) return;
+
+  els.wantedList.innerHTML = "";
+
+  els.wantedEmpty.classList.toggle(
+    "hidden",
+    wantedItems.length !== 0
+  );
+
+  els.wantedCountText.textContent =
+    wantedItems.length === 0
+      ? "Keine vermissten Dinge."
+      : `${wantedItems.length} ${
+          wantedItems.length === 1
+            ? "Gegenstand wird gesucht"
+            : "Gegenstände werden gesucht"
+        }`;
+
+  wantedItems.forEach((wanted) => {
+    const card = document.createElement("article");
+    card.className = "wanted-card";
+
+    const created = wanted.created_at
+      ? new Date(wanted.created_at).toLocaleDateString("de-DE")
+      : "";
+
+    card.innerHTML = `
+      <div class="wanted-card-head">
+        <div>
+          <h3 class="wanted-name"></h3>
+          <p class="wanted-person"></p>
+        </div>
+        <span class="wanted-icon">🔎</span>
+      </div>
+
+      <p class="wanted-last-seen"></p>
+      <p class="wanted-note"></p>
+      <p class="wanted-since"></p>
+
+      <div class="wanted-actions">
+        <button
+          type="button"
+          class="primary-btn wanted-found-btn"
+        >✓ Gefunden</button>
+
+        <button
+          type="button"
+          class="danger-outline-btn wanted-delete-btn"
+        >Nicht mehr gesucht</button>
+      </div>
+    `;
+
+    card.querySelector(".wanted-name").textContent =
+      wanted.name || "";
+
+    const person = card.querySelector(".wanted-person");
+    person.textContent =
+      wanted.wanted_by
+        ? `Gesucht von ${wanted.wanted_by}`
+        : "";
+    person.classList.toggle("hidden", !wanted.wanted_by);
+
+    const lastSeen = card.querySelector(".wanted-last-seen");
+    lastSeen.textContent =
+      wanted.last_seen
+        ? `Zuletzt gesehen: ${wanted.last_seen}`
+        : "";
+    lastSeen.classList.toggle("hidden", !wanted.last_seen);
+
+    const note = card.querySelector(".wanted-note");
+    note.textContent = wanted.note || "";
+    note.classList.toggle("hidden", !wanted.note);
+
+    const since = card.querySelector(".wanted-since");
+    since.textContent =
+      created ? `Gesucht seit ${created}` : "";
+    since.classList.toggle("hidden", !created);
+
+    card.querySelector(".wanted-found-btn").addEventListener(
+      "click",
+      () => openWantedAsItem(wanted)
+    );
+
+    card.querySelector(".wanted-delete-btn").addEventListener(
+      "click",
+      async () => {
+        const confirmed = window.confirm(
+          `"${wanted.name}" wirklich aus „Ich suche …“ entfernen?`
+        );
+
+        if (!confirmed) return;
+
+        try {
+          await deleteWantedItem(wanted.id);
+        } catch (error) {
+          setWantedStatus(error.message, true);
+        }
+      }
+    );
+
+    els.wantedList.appendChild(card);
+  });
 }
 
 async function loadItems() {
@@ -2006,6 +2221,8 @@ card.querySelector(".chevron").addEventListener(
 }
 
 function openNewItem() {
+  pendingWantedItemId = null;
+
   els.form.reset();
   clearPhotoState();
   setRoomValue("");
@@ -2232,6 +2449,7 @@ async function showSession() {
 
   if (signedIn) {
     await loadItems();
+    await loadWantedItems();
     await loadSupplyCategories();
     await loadShoppingItems();
     await loadSupplies();
@@ -2417,6 +2635,20 @@ els.form.addEventListener(
       els.dialog.close();
 
       await loadItems();
+
+      if (pendingWantedItemId) {
+        const wantedIdToRemove = pendingWantedItemId;
+        pendingWantedItemId = null;
+
+        try {
+          await deleteWantedItem(wantedIdToRemove);
+        } catch (wantedError) {
+          console.warn(
+            "Gefundener Such-Eintrag konnte nicht entfernt werden:",
+            wantedError
+          );
+        }
+      }
     } catch (error) {
       if (newPath) {
         await deletePhoto(
@@ -2431,6 +2663,71 @@ els.form.addEventListener(
       );
     }
   }
+);
+
+
+els.wantedForm.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
+
+    const record = {
+      name: els.wantedName.value.trim(),
+      last_seen: els.wantedLastSeen.value.trim() || null,
+      note: els.wantedNote.value.trim() || null,
+      wanted_by: els.wantedBy.value.trim() || null,
+    };
+
+    if (!record.name) return;
+
+    setWantedStatus("Speichern …");
+
+    try {
+      const response = await authFetch(
+        "/rest/v1/wanted_items",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(record),
+        }
+      );
+
+      const body = await response.json().catch(() => []);
+
+      if (!response.ok) {
+        throw new Error(
+          body.message ||
+          body.error ||
+          "Such-Eintrag konnte nicht gespeichert werden"
+        );
+      }
+
+      els.wantedDialog.close();
+      els.wantedForm.reset();
+
+      await loadWantedItems();
+    } catch (error) {
+      setWantedStatus(error.message, true);
+    }
+  }
+);
+
+els.addWantedBtn.addEventListener(
+  "click",
+  openNewWanted
+);
+
+els.closeWantedDialog.addEventListener(
+  "click",
+  () => els.wantedDialog.close()
+);
+
+els.cancelWantedBtn.addEventListener(
+  "click",
+  () => els.wantedDialog.close()
 );
 
 els.supplyNewCategoryToggle.addEventListener(
@@ -2876,6 +3173,7 @@ els.addSupplyInCategoryBtn?.addEventListener(
 els.closeDialog.addEventListener(
   "click",
   () => {
+    pendingWantedItemId = null;
     els.dialog.close();
   }
 );
@@ -2883,6 +3181,7 @@ els.closeDialog.addEventListener(
 els.cancel.addEventListener(
   "click",
   () => {
+    pendingWantedItemId = null;
     els.dialog.close();
   }
 );
@@ -2932,6 +3231,7 @@ els.refreshBtn.addEventListener(
     els.settingsDialog.close();
 
     await loadItems();
+    await loadWantedItems();
     await loadSupplyCategories();
     await loadSupplies();
   }
@@ -2946,6 +3246,7 @@ els.logoutBtn.addEventListener(
 
     items = [];
     supplies = [];
+    wantedItems = [];
 
     renderItems();
     renderSupplies();
@@ -2960,6 +3261,7 @@ els.exportBtn.addEventListener(
     const data = {
       items,
       supplies,
+      wanted_items: wantedItems,
     };
 
     const blob =
@@ -3093,6 +3395,10 @@ navButtons.forEach(
           await loadSupplies();
 
           renderSupplyCategories();
+        }
+
+        if (targetView === "wanted") {
+          await loadWantedItems();
         }
 
         if (targetView === "shopping") {
