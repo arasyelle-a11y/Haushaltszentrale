@@ -2361,7 +2361,7 @@ function openNewSupply(prefillName = "") {
   els.supplyName.value = String(prefillName || "").trim();
   els.supplyRoom.value = "Vorratsraum";
   els.supplyQuantity.value = "0";
-  els.supplyMinimumQuantity.value = "1";
+  els.supplyMinimumQuantity.value = "0";
   resetNewSupplyCategoryFields();
 
   setSelectedSupplyCategories(
