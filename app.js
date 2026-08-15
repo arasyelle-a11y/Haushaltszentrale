@@ -41,6 +41,80 @@ const SYMBOL_RULES = [
   [["garten", "pflanze"], ["🌿", "🌱", "🪴"]],
 ];
 
+const ITEM_CATEGORY_SYMBOLS = {
+  "Werkzeug": "🔧",
+  "Küche": "🍳",
+  "Basteln": "🎨",
+  "Schule & Bücher": "📚",
+  "Kleidung": "👕",
+  "Elektronik": "🔌",
+  "Garten": "🌿",
+  "Fahrrad": "🚲",
+  "Dokumente": "📄",
+  "Camping": "🏕️",
+  "Haushalt & Reinigung": "🧼",
+  "Schlüssel & Kleinteile": "🔑",
+  "Spielzeug": "🧸",
+  "Sport & Freizeit": "⚽",
+  "Bad & Hygiene": "🧴",
+  "Auto": "🚗",
+  "Deko & Saison": "🎄",
+  "Sonstiges": "📦",
+};
+
+const ITEM_CATEGORY_RULES = [
+  ["Werkzeug", ["werkzeug", "hammer", "zange", "schraub", "bohrer", "säge", "dübel", "nagel"]],
+  ["Küche", ["küche", "kochen", "pfanne", "topf", "messer", "besteck", "schüssel", "backform"]],
+  ["Basteln", ["bastel", "kleber", "schere", "papier", "pappe", "perlen", "wolle", "draht"]],
+  ["Schule & Bücher", ["schule", "heft", "stift", "buch", "ordner", "mäppchen", "lineal"]],
+  ["Kleidung", ["kleidung", "hose", "shirt", "jacke", "socke", "mütze", "schuh"]],
+  ["Elektronik", ["kabel", "ladegerät", "stecker", "akku", "batterie", "adapter", "usb", "hdmi", "elektronik"]],
+  ["Garten", ["garten", "pflanze", "spaten", "gieß", "rasen", "blume", "erde"]],
+  ["Fahrrad", ["fahrrad", "helm", "rad", "pumpe", "fahrradschloss", "schlauch"]],
+  ["Dokumente", ["dokument", "unterlagen", "zeugnis", "vertrag", "rechnung", "pass", "urkunde"]],
+  ["Camping", ["camping", "zelt", "hering", "campingtisch", "campingstuhl", "schlafsack"]],
+  ["Haushalt & Reinigung", ["putz", "reiniger", "besen", "wischer", "staubsauger", "haushalt"]],
+  ["Schlüssel & Kleinteile", ["schlüssel", "ersatzschlüssel", "chip", "fernbedienung"]],
+  ["Spielzeug", ["spielzeug", "lego", "puppe", "playmobil", "spiel", "tonie"]],
+  ["Sport & Freizeit", ["sport", "ball", "schläger", "fitness", "schwimm", "skate"]],
+  ["Bad & Hygiene", ["hygiene", "zahnbürste", "föhn", "rasierer", "pflege", "bad"]],
+  ["Auto", ["auto", "wagen", "kofferraum", "warnweste", "eiskratzer"]],
+  ["Deko & Saison", ["deko", "weihnacht", "advent", "ostern", "halloween", "lichterkette"]],
+];
+
+function itemCategorySymbol(category) {
+  return ITEM_CATEGORY_SYMBOLS[category] || ITEM_CATEGORY_SYMBOLS["Sonstiges"];
+}
+
+function suggestItemCategory(text) {
+  const normalized = normalize(text);
+
+  for (const [category, words] of ITEM_CATEGORY_RULES) {
+    if (words.some((word) => normalized.includes(normalize(word)))) {
+      return category;
+    }
+  }
+
+  return "Sonstiges";
+}
+
+function categoryFromSymbol(symbol) {
+  const match = Object.entries(ITEM_CATEGORY_SYMBOLS).find(
+    ([, icon]) => icon === symbol
+  );
+  return match?.[0] || "";
+}
+
+function updateItemCategorySymbol() {
+  if (!els.itemCategory || !els.itemCategorySymbol) return;
+
+  const category = els.itemCategory.value || "Sonstiges";
+  const icon = itemCategorySymbol(category);
+
+  els.itemCategorySymbol.textContent = icon;
+  els.symbol.value = icon;
+}
+
 const $ = (selector) => document.querySelector(selector);
 
 const els = {
@@ -70,8 +144,8 @@ const els = {
   id: $("#itemId"),
 
   symbol: $("#symbol"),
-  suggestSymbol: $("#suggestSymbol"),
-  symbolChoices: $("#symbolChoices"),
+  itemCategory: $("#itemCategory"),
+  itemCategorySymbol: $("#itemCategorySymbol"),
 
   name: $("#name"),
   roomSelect: $("#roomSelect"),
@@ -205,6 +279,7 @@ function searchableText(item) {
   return normalize(
     [
       item.name,
+      item.category,
       item.room,
       item.location,
       item.note,
@@ -260,22 +335,7 @@ function setRoomValue(room) {
 }
 
 function renderSymbolChoices() {
-  const icons = suggestFor(els.name.value);
-
-  els.symbolChoices.innerHTML = "";
-
-  icons.forEach((icon) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "symbol-choice";
-    button.textContent = icon;
-
-    button.addEventListener("click", () => {
-      els.symbol.value = icon;
-    });
-
-    els.symbolChoices.appendChild(button);
-  });
+  updateItemCategorySymbol();
 }
 
 function clearPhotoState() {
@@ -671,7 +731,10 @@ function openWantedAsItem(wanted) {
   pendingWantedItemId = wanted.id;
 
   els.name.value = wanted.name || "";
-  els.symbol.value = suggestFor(wanted.name || "")[0];
+
+  els.itemCategory.value =
+    suggestItemCategory(wanted.name || "");
+  updateItemCategorySymbol();
 
   const noteParts = [];
 
@@ -1725,8 +1788,12 @@ function renderItems() {
     node.querySelector(
       ".item-symbol"
     ).textContent =
-      item.symbol ||
-      suggestFor(item.name)[0];
+      item.category
+        ? itemCategorySymbol(item.category)
+        : item.symbol ||
+          itemCategorySymbol(
+            suggestItemCategory(item.name || "")
+          );
 
     node.querySelector(
       ".item-name"
@@ -1744,6 +1811,11 @@ function renderItems() {
         .join(" → ");
 
     const extras = [];
+
+    if (item.category) {
+      extras.push(item.category);
+    }
+
     const keywords =
       keywordsToArray(item.keywords);
 
@@ -2395,7 +2467,8 @@ function openNewItem() {
   setRoomValue("");
 
   els.id.value = "";
-  els.symbol.value = "";
+  els.itemCategory.value = "Sonstiges";
+  updateItemCategorySymbol();
 
   els.dialogTitle.textContent =
     "Neuen Gegenstand eintragen";
@@ -2421,12 +2494,16 @@ function openEditItem(id) {
 
   els.id.value = item.id;
 
-  els.symbol.value =
-    item.symbol ||
-    suggestFor(item.name)[0];
-
   els.name.value =
     item.name || "";
+
+  els.itemCategory.value =
+    item.category ||
+    categoryFromSymbol(item.symbol) ||
+    suggestItemCategory(item.name || "") ||
+    "Sonstiges";
+
+  updateItemCategorySymbol();
 
   setRoomValue(
     item.room || ""
@@ -2687,11 +2764,15 @@ els.form.addEventListener(
       name:
         els.name.value.trim(),
 
+      category:
+        els.itemCategory.value ||
+        "Sonstiges",
+
       symbol:
-        els.symbol.value.trim() ||
-        suggestFor(
-          els.name.value
-        )[0],
+        itemCategorySymbol(
+          els.itemCategory.value ||
+          "Sonstiges"
+        ),
 
       room,
 
@@ -3497,22 +3578,22 @@ els.exportBtn.addEventListener(
 
 els.name.addEventListener(
   "input",
-  renderSymbolChoices
+  () => {
+    if (
+      !els.itemCategory.value ||
+      els.itemCategory.value === "Sonstiges"
+    ) {
+      els.itemCategory.value =
+        suggestItemCategory(els.name.value);
+    }
+
+    updateItemCategorySymbol();
+  }
 );
 
-els.suggestSymbol.addEventListener(
-  "click",
-  () => {
-    const icons =
-      suggestFor(
-        els.name.value
-      );
-
-    els.symbol.value =
-      icons[0];
-
-    renderSymbolChoices();
-  }
+els.itemCategory.addEventListener(
+  "change",
+  updateItemCategorySymbol
 );
 
 const navButtons =

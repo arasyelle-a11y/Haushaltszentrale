@@ -1296,3 +1296,39 @@ form label input,form label textarea,form label select{margin-top:6px;font-weigh
   font-size: .86rem;
   padding: 8px 11px;
 }
+
+
+/* ===== Wo ist was?: feste Kategorien-Symbole ===== */
+
+.item-category-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.item-category-row select {
+  margin-top: 0;
+}
+
+.item-category-symbol {
+  width: 58px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--accent-pale);
+  font-size: 1.8rem;
+}
+
+@media (max-width: 420px) {
+  .item-category-row {
+    grid-template-columns: minmax(0, 1fr) 52px;
+  }
+
+  .item-category-symbol {
+    width: 52px;
+  }
+}

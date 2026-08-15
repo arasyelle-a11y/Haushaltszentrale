@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wo ist was?">
   <link rel="manifest" href="manifest.webmanifest?v=5">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 <title>Wo ist was?</title>
 </head>
 <body>
@@ -260,12 +260,32 @@
         <input id="name" required placeholder="z. B. Blumendraht">
       </label>
 
-      <label>Symbol
-        <div class="symbol-row">
-          <input id="symbol" maxlength="8" placeholder="💡">
-          <button type="button" id="suggestSymbol" class="secondary-btn">Vorschlagen</button>
+      <label>Kategorie
+        <div class="item-category-row">
+          <select id="itemCategory">
+            <option>Werkzeug</option>
+            <option>Küche</option>
+            <option>Basteln</option>
+            <option>Schule & Bücher</option>
+            <option>Kleidung</option>
+            <option>Elektronik</option>
+            <option>Garten</option>
+            <option>Fahrrad</option>
+            <option>Dokumente</option>
+            <option>Camping</option>
+            <option>Haushalt & Reinigung</option>
+            <option>Schlüssel & Kleinteile</option>
+            <option>Spielzeug</option>
+            <option>Sport & Freizeit</option>
+            <option>Bad & Hygiene</option>
+            <option>Auto</option>
+            <option>Deko & Saison</option>
+            <option selected>Sonstiges</option>
+          </select>
+          <span id="itemCategorySymbol" class="item-category-symbol" aria-hidden="true">📦</span>
         </div>
-        <div id="symbolChoices" class="symbol-choices"></div>
+        <span class="hint">Das Symbol wird automatisch aus der Kategorie gewählt.</span>
+        <input id="symbol" type="hidden">
       </label>
 
       <label>Foto
@@ -509,6 +529,6 @@
     </article>
   </template>
 
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>
