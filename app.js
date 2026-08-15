@@ -2969,12 +2969,31 @@ els.delete.addEventListener(
             encodeURIComponent(id),
           {
             method: "DELETE",
+            headers: {
+              Prefer: "return=representation",
+            },
           }
         );
 
+      const deleteBody =
+        await response
+          .json()
+          .catch(() => null);
+
       if (!response.ok) {
         throw new Error(
-          "Löschen fehlgeschlagen"
+          deleteBody?.message ||
+          deleteBody?.error ||
+          `Löschen fehlgeschlagen (${response.status})`
+        );
+      }
+
+      if (
+        Array.isArray(deleteBody) &&
+        deleteBody.length === 0
+      ) {
+        throw new Error(
+          "Der Eintrag konnte nicht gefunden oder gelöscht werden."
         );
       }
 
@@ -3162,12 +3181,12 @@ els.add.addEventListener(
 
 els.addSupplyBtn.addEventListener(
   "click",
-  openNewSupply
+  () => openNewSupply()
 );
 
 els.addSupplyInCategoryBtn?.addEventListener(
   "click",
-  openNewSupply
+  () => openNewSupply()
 );
 
 els.closeDialog.addEventListener(
