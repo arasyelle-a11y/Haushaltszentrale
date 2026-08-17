@@ -1,1648 +1,534 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#55692F">
-<title>Familie Bosbach – Camping</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{
-  --cream:#FDF7EE;--cream2:#F6EEDF;--paper:#FFFEFB;--green:#55692F;--green2:#7C8F55;
-  --navy:#1A364A;--teal:#3F717C;--brown:#6B4E31;--orange:#C4562A;--red:#B43A32;
-  --line:#E4DAC5;--muted:#7A756A;--shadow:0 8px 28px rgba(26,54,74,.08)
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:var(--navy);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:88px}
-.banner{width:100%;display:block;border-bottom:3px solid var(--green);max-height:190px;object-fit:cover}
-.top{padding:14px 14px 8px;position:sticky;top:0;z-index:10;background:rgba(253,247,238,.96);backdrop-filter:blur(10px)}
-.tripbar{display:flex;gap:8px;align-items:center}
-.tripbar select{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--paper);color:var(--navy);font-weight:800}
-.iconbtn{border:0;border-radius:12px;background:var(--green);color:white;padding:11px 13px;font-weight:800}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:9px}
-.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px 3px;text-align:center}
-.stat b{display:block;font-size:17px}.stat span{font-size:8px;text-transform:uppercase;font-weight:800;color:var(--muted)}
-.quickadd{display:grid;grid-template-columns:1fr 120px auto;gap:7px;padding:10px 14px 4px}
-.quickadd input,.quickadd select,.sheet input,.sheet select,.loginCard input{min-width:0;border:1px solid var(--line);background:white;border-radius:11px;padding:11px}
-.quickadd button{border:0;border-radius:11px;background:var(--navy);color:white;padding:0 14px;font-weight:800}
-.filters,.masterToolbar{display:flex;gap:7px;padding:8px 14px;overflow:auto}.categoryTabs{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;padding:7px 8px 9px;position:sticky;top:123px;z-index:9;background:rgba(253,247,238,.97);backdrop-filter:blur(10px)}.categoryTab{min-width:0;min-height:42px;border:1px solid var(--line);background:var(--paper);color:var(--brown);border-radius:10px;padding:4px 2px;font-size:8px;line-height:1.05;font-weight:850;text-align:center;white-space:normal;transition:transform .12s ease,box-shadow .12s ease,background .12s ease;transform-origin:center;position:relative;z-index:1}.categoryTab .tabIcon{display:block;font-size:15px;line-height:1.1;margin-bottom:2px}.categoryTab.active{background:var(--green);border-color:var(--green);color:white;box-shadow:0 3px 10px rgba(26,54,74,.16)}.categoryTab.peek{transform:scale(1.38);z-index:30;box-shadow:0 8px 22px rgba(26,54,74,.28);background:white;border-color:var(--green);color:var(--navy)}.categoryTab.active.peek{background:var(--green);color:white}
-.categoryBulk{display:flex;gap:7px;padding:9px 10px 10px;border-top:1px solid var(--line);background:var(--cream2)}
-.categoryBulk button{flex:1;border:1px solid var(--green);border-radius:10px;padding:9px 6px;background:white;color:var(--green);font-size:10px;font-weight:850}
-.categoryBulk button:last-child{border-color:var(--line);color:var(--brown)}
-.allBulk{display:flex;gap:7px;padding:8px 12px 2px}
-.allBulk button{flex:1;border:1px solid var(--navy);border-radius:10px;padding:10px 7px;background:white;color:var(--navy);font-size:11px;font-weight:900}
-.allBulk button:last-child{border-color:var(--line);color:var(--brown)}
-
-@media(max-width:420px){.categoryTabs{grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;padding-left:5px;padding-right:5px}.categoryTab{font-size:7px;min-height:40px}.categoryTab .tabIcon{font-size:14px}}
-.filter,.masterToolbar button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 11px;font-size:11px;font-weight:800;white-space:nowrap;color:var(--brown)}
-.filter.active,.masterToolbar button.active{background:var(--green);color:white;border-color:var(--green)}
-.content{padding:0 12px}
-.category{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:11px 0;box-shadow:var(--shadow)}
-.cathead{width:100%;border:0;background:linear-gradient(135deg,var(--green),#485925);color:white;padding:13px 14px;display:flex;align-items:center;gap:10px;text-align:left}
-.cathead .emoji{font-size:20px}.cathead strong{font-size:16px;flex:1}.cathead small{opacity:.85;font-weight:700}
-.category.closed .catbody{display:none}
-.swipeWrap{position:relative;overflow:hidden;border-top:1px solid #eee4d2}
-.swipeDelete{position:absolute;right:0;top:0;bottom:0;width:92px;border:0;background:var(--red);color:white;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center}.swipeEdit{position:absolute;left:0;top:0;bottom:0;width:92px;border:0;background:var(--teal);color:white;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center}.row.swipedRight{transform:translateX(92px)}
-.row{padding:10px;position:relative;transition:transform .18s ease;touch-action:pan-y;background:var(--paper);z-index:1}
-.row:nth-child(even){background:var(--cream2)}.row.swiped{transform:translateX(-92px)}
-.row.dragging{transform:scale(1.045);box-shadow:0 14px 34px rgba(26,54,74,.32);border:2px solid var(--green);border-radius:14px;z-index:30;opacity:.98;background:#fffdf7}
-.swipeWrap.dragTarget{outline:3px dashed var(--green);outline-offset:-3px;background:#eef3e4}
-.dragHint{font-size:9px;color:var(--muted);font-weight:800;margin-left:auto;white-space:nowrap} body.dragMode,body.dragMode *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
-.nameLine{display:flex;align-items:center;gap:9px}.name{font-size:14px;font-weight:700;flex:1;line-height:1.2}
-.tripOnly{font-size:9px;padding:3px 6px;border-radius:999px;background:#EEE8FA;color:#65539A;font-weight:800}.noteIcon{border:0;background:transparent;padding:2px 4px;font-size:16px;line-height:1;flex:0 0 auto}.sheet textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);background:white;border-radius:11px;padding:11px;font:inherit;color:var(--navy)}.fieldLabel{display:block;font-size:10px;font-weight:850;color:var(--muted);margin:8px 0 4px}.danger{background:#8f3f36!important;color:white!important}.archiveBtn{background:#355f4b!important;color:white!important}.archiveCard{margin:10px 12px;padding:14px;border:1px solid var(--line);border-radius:15px;background:white}.archiveCard h3{margin:0 0 4px;color:var(--navy)}.archiveMeta{font-size:11px;color:var(--muted);margin-bottom:10px}.archiveActions{display:flex;gap:7px;flex-wrap:wrap}.archiveActions button{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 10px;font-weight:800;color:var(--navy)}.memoryBox{white-space:pre-wrap;background:var(--cream2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;line-height:1.45}.memoryPhoto{width:100%;max-height:320px;object-fit:cover;border-radius:14px;margin:8px 0 10px;border:1px solid var(--line)}.photoPreview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}.historyRow{padding:10px 12px;border-bottom:1px solid var(--line);background:white}.historyTop{display:flex;align-items:center;gap:8px}.historyStatus{font-size:10px;font-weight:900;padding:4px 7px;border-radius:999px}.historyStatus.yes{background:#dfeee5;color:#28533e}.historyStatus.no{background:#eee;color:#666}.historyName{font-weight:850;flex:1}.historyNote{font-size:12px;margin:6px 0 0 0;padding-left:4px;color:var(--brown)}.checkLine{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;font-weight:750;color:var(--navy)}.noteViewText{white-space:pre-wrap;background:var(--cream2);border:1px solid var(--line);border-radius:12px;padding:14px;line-height:1.45;color:var(--navy);font-size:14px;min-height:70px}
-.take{appearance:none;width:24px;height:24px;border:2px solid var(--green);border-radius:7px;background:white;display:grid;place-content:center;flex:0 0 auto}
-.take:checked{background:var(--green)}.take:checked:after{content:"✓";color:white;font-weight:900}
-.actions{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
-.stage{border:1.5px solid var(--line);border-radius:9px;background:white;padding:7px 2px;font-size:9px;font-weight:800;color:var(--muted)}
-.stage.on[data-stage="seen"]{background:#E5EDD4;border-color:var(--green);color:var(--green)}
-.stage.on[data-stage="box"]{background:#DDECF0;border-color:var(--teal);color:var(--teal)}
-.stage.on[data-stage="car"]{background:#DFE6EC;border-color:var(--navy);color:var(--navy)}
-.stage.on[data-stage="need"]{background:#F8E3D7;border-color:var(--orange);color:var(--orange)}
-.row:not(.selected) .actions{opacity:.35;pointer-events:none}
-.bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,254,251,.98);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
-.nav{width:min(760px,100%);display:grid;grid-template-columns:repeat(5,1fr)}
-.nav button{border:0;background:transparent;padding:11px 4px 9px;color:var(--muted);font-weight:800;font-size:10px}
-.nav button.active{color:var(--green)}.nav .nicon{display:block;font-size:19px;margin-bottom:2px}
-.view{display:none}.view.active{display:block}
-.needCard,.personCard{margin:10px 12px;background:white;border:1px solid var(--line);border-radius:14px;padding:12px}
-.needItem,.masterRow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid #eee}
-.needItem:last-child,.masterRow:last-child{border-bottom:0}.needItem b,.masterName{flex:1}.masterName{font-weight:700;font-size:14px}
-.badge{font-size:9px;background:#F8E3D7;color:var(--orange);padding:5px 7px;border-radius:999px;font-weight:800}
-.masterRow button{border:1px solid var(--line);border-radius:9px;padding:7px 8px;background:white;font-weight:800;font-size:10px}
-.masterRow button.addBack{background:#E5EDD4;color:var(--green);border-color:var(--green)}
-.empty{padding:34px 20px;text-align:center;color:var(--muted)}
-.modal{position:fixed;inset:0;background:rgba(15,30,40,.42);display:none;align-items:flex-end;z-index:50}
-.modal.open{display:flex}.sheet{width:100%;max-width:760px;margin:0 auto;background:var(--paper);border-radius:20px 20px 0 0;padding:18px}
-.sheet h3{margin:0 0 12px}.sheet input,.sheet select{width:100%;margin-bottom:9px}
-.sheetActions,.addChoice{display:flex;gap:8px}.sheetActions button,.addChoice button{flex:1;border:0;border-radius:11px;padding:11px;font-weight:800}
-.cancel{background:var(--cream2);color:var(--brown)}.save{background:var(--green);color:white}.save:disabled{opacity:.55;cursor:default}
-.addChoice{margin:3px 0 12px}.addChoice button{border:1px solid var(--line);background:white;color:var(--brown)}
-.addChoice button.active{background:var(--green);color:white;border-color:var(--green)}
-.toast{position:fixed;left:50%;bottom:83px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:90;background:var(--navy);color:white;border-radius:12px;padding:11px 14px;box-shadow:var(--shadow);font-size:12px;font-weight:800;transition:.2s;display:flex;gap:13px;align-items:center;max-width:92vw}
-.toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}.toast button{border:0;background:transparent;color:#F6D88A;font-weight:900;padding:0}
-.login{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#DCE6D2,var(--cream));display:flex;align-items:center;justify-content:center;padding:18px}
-.login.hidden{display:none}.loginCard{width:min(430px,100%);background:white;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
-.loginCard h1{margin:0 0 4px;color:var(--green);font-size:24px}.loginCard p{margin:0 0 15px;color:var(--muted);font-size:13px}
-.loginCard input{width:100%;margin-bottom:9px}.loginCard button{width:100%;border:0;border-radius:11px;padding:12px;background:var(--green);color:white;font-weight:900}.loginErr{font-size:11px;color:var(--red);min-height:18px;margin-top:8px}
-.tripInfo{padding:7px 14px 0;font-size:12px;color:var(--brown);display:flex;justify-content:space-between;gap:10px;align-items:center}.tripInfo strong{color:var(--navy)}.countdown{font-size:10px;font-weight:900;color:var(--green);text-align:right}.tripForm label{display:block;font-size:10px;font-weight:850;color:var(--muted);margin:8px 0 4px}.tripForm input,.tripForm select{width:100%}.sync{font-size:10px;color:var(--muted);padding:4px 14px 0;text-align:right}
-@media(max-width:520px){.stat b{font-size:14px}.stat span{font-size:7px}.quickadd{grid-template-columns:1fr 102px auto}.actions{gap:4px}.stage{font-size:8px}}
-
-.personToolbar{padding:12px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.personTabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
-.personTabs::-webkit-scrollbar{display:none}
-.personTab{border:2px solid transparent;border-radius:999px;padding:9px 13px;background:white;font-weight:850;white-space:nowrap;color:var(--navy)}
-.personTab.active{color:white;box-shadow:0 4px 12px rgba(26,54,74,.15)}
-.personList{padding:0 12px 20px}
-.personCategory{margin:10px 0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:white}
-.personCatHead{padding:10px 12px;background:var(--cream2);font-weight:900}
-.personItem{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;padding:11px 12px;border-top:1px solid var(--line)}
-.qtyBox{display:flex;align-items:center;gap:5px}
-.qtyBox button{width:28px;height:28px;border:1px solid var(--line);border-radius:8px;background:white;font-weight:900}
-.qty{min-width:28px;text-align:center;font-weight:900}
-.linkBadge{font-size:9px;font-weight:850;border:1px solid currentColor;border-radius:999px;padding:3px 6px;margin-left:5px}
-.colorPalette{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:8px 0 12px}
-.colorChoice{height:38px;border-radius:11px;border:3px solid transparent}
-.colorChoice.active{outline:3px solid var(--navy);outline-offset:2px}
-.personEmpty{padding:24px;text-align:center;color:var(--muted)}
-@media print{
-  body *{visibility:hidden}
-  #printArea,#printArea *{visibility:visible}
-  #printArea{position:absolute;left:0;top:0;width:100%;background:white;color:#111;padding:10mm}
-  #printArea h1{font-size:22pt;margin:0 0 3mm}
-  #printArea h2{font-size:14pt;margin:6mm 0 2mm;border-bottom:2px solid #555;padding-bottom:1mm}
-  .printRow{display:grid;grid-template-columns:9mm 1fr 22mm;align-items:center;min-height:10mm;border-bottom:1px solid #ddd;font-size:13pt}
-  .printCheck{width:6mm;height:6mm;border:1.5px solid #111}
-  .printQty{text-align:right;font-weight:700}
-}
-
-.personControlPanel{margin:10px 12px;padding:12px;border:1px solid var(--line);border-radius:15px;background:white}
-.personControlPanel h3{margin:0 0 8px;font-size:15px}
-.controlItem{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
-.controlItem:first-of-type{border-top:0}
-.personDot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
-.starBadge{display:inline-block;margin-left:5px;font-size:11px;font-weight:900;color:#9b6d00}
-.ruleHint{font-size:10px;color:var(--muted);margin-top:3px}
-.personMiniActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.personMiniActions button{border:1px solid var(--line);background:white;border-radius:8px;padding:4px 7px;font-size:10px;font-weight:800}
-.personMiniActions button.on{background:var(--cream2)}
-.moduleGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.moduleChoice{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:9px;background:white;font-size:12px;font-weight:800}
-.ruleFields{display:grid;grid-template-columns:1fr 100px;gap:8px}
-.criticalPrint{margin-top:9mm;padding-top:4mm;border-top:3px solid #444}
-.criticalPrint h2{margin-top:0}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf4ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Wo ist was?">
+  <link rel="manifest" href="manifest.webmanifest?v=5">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css?v=16">
+<title>Wo ist was?</title>
 </head>
 <body>
-<div id="login" class="login">
-  <div class="loginCard">
-    <h1>🏕️ Camping</h1>
-    <p>Mit eurem Familienzugang anmelden. Die Packliste wird danach mit Supabase synchronisiert.</p>
-    <input id="loginEmail" type="email" autocomplete="username" placeholder="E-Mail">
-    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Passwort">
-    <button id="loginBtn">Anmelden</button>
-    <div id="loginErr" class="loginErr"></div>
-  </div>
-</div>
+  <section id="loginScreen" class="login-screen hidden">
+    <div class="login-card">
+      <p class="eyebrow">HAUS-SUCHMASCHINE</p>
+      <h1>Wo ist was?</h1>
+      <p class="subtitle">Mit dem gemeinsamen Familienzugang anmelden.</p>
+      <form id="loginForm">
+        <label>E-Mail
+          <input id="loginEmail" type="email" autocomplete="username" required>
+        </label>
+        <label>Passwort
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary-btn full-btn" type="submit">Anmelden</button>
+        <p id="loginStatus" class="status-text"></p>
+      </form>
+    </div>
+  </section>
 
-<div class="app">
-  <img class="banner" src="camping-header.png" alt="Camping im Pinienwald">
-  <section class="view active" id="view-pack">
-    <div class="top">
-      <div class="tripbar">
-        <select id="tripSelect"></select>
-        <button class="iconbtn" id="newTripBtn">＋ Urlaub</button>
+  <div id="appShell" class="hidden">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">HAUS-SUCHMASCHINE</p>
+        <h1>Wo ist was?</h1>
+        <p class="subtitle">Finde Dinge, bevor du sie noch einmal kaufst. 😄</p>
       </div>
-      <div class="tripInfo"><strong id="tripName">Aktueller Urlaub</strong><div style="display:flex;gap:8px;align-items:center"><span class="countdown" id="tripCountdown"></span><button id="editTripBtn" class="iconbtn" style="padding:7px 9px;font-size:11px">✏️</button></div></div>
-      <div class="stats">
-        <div class="stat"><b id="sTake">0</b><span>Mitnehmen</span></div>
-        <div class="stat"><b id="sSeen">0</b><span>Gesichtet</span></div>
-        <div class="stat"><b id="sBox">0</b><span>In Kiste</span></div>
-        <div class="stat"><b id="sCar">0</b><span>Im Auto</span></div>
-        <div class="stat"><b id="sNeed">0</b><span>Suchen</span></div>
+      <button id="settingsBtn" class="icon-btn" aria-label="Einstellungen">⚙️</button>
+    </header>
+<nav class="main-nav">
+  <button class="nav-btn active" data-view="items">🔎 Wo ist was?</button>
+  <button class="nav-btn" data-view="wanted">❓ Ich suche …</button>
+  <button class="nav-btn" data-view="supplies">📦 Vorräte</button>
+  <button class="nav-btn" data-view="shopping">🛒 Einkauf</button>
+</nav>   
+    <main>
+      <section id="itemsView" class="app-view">
+      <section class="search-card">
+        <label for="searchInput">Was suchst du?</label>
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="z. B. Blumendraht, G9, Batterien …" autocomplete="off">
+          <button id="clearSearch" class="small-btn" aria-label="Suche löschen">✕</button>
+        </div>
+        <div id="quickFilters" class="chips"></div>
+      </section>
+
+      <section class="section-head">
+        <div>
+          <h2 id="listTitle">Alle Dinge</h2>
+          <p id="countText"></p>
+        </div>
+        <button id="addBtn" class="primary-btn">＋ Eintragen</button>
+      </section>
+
+      <p id="syncStatus" class="status-text"></p>
+
+      <section id="emptyState" class="empty hidden">
+        <div class="empty-icon">🔎</div>
+        <h3>Nichts gefunden</h3>
+        <p>Versuche einen anderen Suchbegriff oder trage den Gegenstand neu ein.</p>
+      </section>
+        
+<section id="itemsList" class="items"></section>
+</section>
+
+<section id="wantedView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Ich suche …</h2>
+      <p id="wantedCountText">Keine vermissten Dinge.</p>
+    </div>
+    <button id="addWantedBtn" class="primary-btn" type="button">
+      ＋ Gesucht
+    </button>
+  </section>
+
+  <p id="wantedStatus" class="status-text"></p>
+
+  <section id="wantedEmpty" class="empty hidden">
+    <div class="empty-icon">✨</div>
+    <h3>Gerade wird nichts gesucht</h3>
+    <p>Wenn etwas verschwunden ist, kann es hier für alle eingetragen werden.</p>
+  </section>
+
+  <section id="wantedList" class="wanted-list"></section>
+
+  <section id="wantedFoundSection" class="wanted-found-section hidden">
+    <div class="wanted-found-head">
+      <h3>✓ Gefunden</h3>
+      <p id="wantedFoundCount"></p>
+    </div>
+    <section id="wantedFoundList" class="wanted-list wanted-found-list"></section>
+  </section>
+</section>
+
+     <section id="suppliesView" class="app-view hidden">
+
+  <section id="suppliesHome">
+
+    <section class="search-card supply-search-card">
+      <label for="supplySearchInput">Was suchst du?</label>
+
+      <div class="search-row">
+        <input
+          id="supplySearchInput"
+          type="search"
+          placeholder="z. B. Milch, Mehl, Kokosmilch …"
+          autocomplete="off"
+        >
+
+        <button
+          id="clearSupplySearch"
+          class="small-btn"
+          aria-label="Suche löschen"
+        >
+          ✕
+        </button>
       </div>
-      <div class="sync" id="syncText">Synchronisiert</div>
-    </div>
-    <div class="quickadd">
-      <input id="quickName" placeholder="Was fällt dir noch ein?">
-      <select id="quickCat"></select>
-      <button id="quickAdd">＋</button>
-    </div>
-    <div class="filters">
-      <button class="filter active" data-filter="all">Alle</button>
-      <button class="filter" data-filter="selected">Mitnehmen</button>
-      <button class="filter" data-filter="open">Noch offen</button>
-      <button class="filter" data-filter="need">Suchen/Kaufen</button>
-    </div>
-    <div id="personControlPanels"></div><div class="categoryTabs" id="categoryTabs"></div><main class="content" id="list"></main>
-  </section>
+      
+      <div id="supplySuggestions" class="supply-suggestions hidden"></div>
+    </section>
 
-  <section class="view" id="view-need">
-    <div class="top"><h2 style="margin:5px 0">🔎 Suchen & Kaufen</h2></div>
-    <div id="needList"></div>
-  </section>
+    <section class="section-head">
+      <div>
+        <h2>Vorräte</h2>
+        <p>Wähle eine Kategorie.</p>
+      </div>
 
-  <section class="view" id="view-master">
-    <div class="top"><h2 style="margin:5px 0">📚 Masterliste</h2><div style="font-size:12px;color:var(--muted)">Zentrale Campingliste in Supabase.</div></div>
-    <div class="masterToolbar">
-      <button class="active" data-mf="all">Alle</button>
-      <button data-mf="in">Dabei</button>
-      <button data-mf="out">Nicht dabei</button>
-    </div>
-    <main class="content" id="masterList"></main>
-  </section>
+      <button id="addSupplyBtn" class="primary-btn">
+        ＋ Vorrat
+      </button>
+    </section>
 
-  <section class="view" id="view-person">
-    <div class="top"><h2 style="margin:5px 0">👤 Persönliche Listen</h2><div style="font-size:12px;color:var(--muted)">Eigene Packliste pro Person – mit Menge und Verknüpfung zur Familienliste.</div></div>
-    <div class="personToolbar">
-      <div class="personTabs" id="personTabs"></div>
-      <button class="iconbtn" id="addPersonBtn">＋ Person</button><button class="iconbtn" id="editPersonBtn">✏️ Person</button>
-      <button class="iconbtn" id="modulesBtn">🧩 Grundausstattung</button><button class="iconbtn" id="addPersonItemBtn">＋ Artikel</button><button class="iconbtn" id="bulkPersonItemBtn">＋ Mehrere</button><button class="iconbtn" id="copyPersonListBtn">⧉ Liste kopieren</button>
-      <button class="iconbtn" id="printPersonBtn">🖨️ Drucken</button>
-    </div>
-    <div class="personList" id="personList"></div>
-  </section>
-  <section class="view" id="view-archive">
-    <div class="top"><h2 style="margin:5px 0">🗂️ Urlaubsarchiv</h2><div style="font-size:12px;color:var(--muted)">Abgeschlossene Urlaube mit damaliger Packliste und Erinnerungen.</div></div>
-    <main class="content" id="archiveList"></main>
+    <section
+      id="supplyCategories"
+      class="supply-categories"
+    ></section>
+
   </section>
 
 
-  <nav class="bottom"><div class="nav">
-    <button class="active" data-view="pack"><span class="nicon">🏕️</span>Packliste</button>
-    <button data-view="need"><span class="nicon">🔎</span>Suchen</button>
-    <button data-view="master"><span class="nicon">📚</span>Master</button>
-    <button data-view="person"><span class="nicon">👤</span>Personen</button><button data-view="archive"><span class="nicon">🗂️</span>Archiv</button>
-  </div></nav>
-</div>
+  <section
+    id="suppliesCategoryView"
+    class="hidden"
+  >
 
-<div class="toast" id="undoToast"><span id="undoText">Artikel entfernt</span><button id="undoBtn">Rückgängig</button></div>
+    <section class="section-head supply-category-head">
+      <div>
+        <button
+          id="backToSupplyCategories"
+          class="secondary-btn"
+          type="button"
+        >
+          ← Kategorien
+        </button>
 
-<div class="modal" id="editTripModal">
-  <div class="sheet tripForm">
-    <h3>Urlaub bearbeiten</h3>
-    <label for="editTripPlace">Ziel</label>
-    <select id="editTripPlace"></select>
-    <label for="editTripName">Urlaubsname</label>
-    <input id="editTripName" placeholder="z. B. Le Gurp 2028">
-    <label for="editTripStart">Anreise</label>
-    <input id="editTripStart" type="date">
-    <label for="editTripEnd">Abreise</label>
-    <input id="editTripEnd" type="date">
-    <label for="editTripMemory">Urlaubserinnerung</label>
-    <textarea id="editTripMemory" placeholder="Mit wem wart ihr da? Stellplatz, was hat sich bewährt, was nächstes Mal anders?"></textarea>
-    <label for="editTripPhoto">Erinnerungsfoto</label>
-    <input id="editTripPhoto" type="file" accept="image/*">
-    <img id="editTripPhotoPreview" class="photoPreview" alt="Erinnerungsfoto">
-    <label class="checkLine" id="removeTripPhotoLine" style="display:none"><input id="removeTripPhoto" type="checkbox"> Foto entfernen</label>
-    <div class="sheetActions" style="margin-top:14px">
-      <button class="cancel" id="editTripCancel">Abbrechen</button>
-      <button class="save" id="editTripSave">Speichern</button>
+        <h2 id="supplyCategoryTitle">
+          Vorräte
+        </h2>
+
+        <p id="supplyCategoryCount"></p>
+      </div>
+
+      <button
+        id="addSupplyInCategoryBtn"
+        class="primary-btn"
+        type="button"
+      >
+        ＋ Vorrat
+      </button>
+    </section>
+
+    <section
+      id="suppliesList"
+      class="items"
+    ></section>
+
+  </section>
+
+</section>
+<section id="shoppingView" class="app-view hidden">
+  <section class="section-head">
+    <div>
+      <h2>Einkaufsliste</h2>
+      <p id="shoppingCountText">Noch nichts einzukaufen.</p>
     </div>
-    <div class="sheetActions" style="margin-top:8px">
-      <button class="archiveBtn" id="archiveTripBtn">🗂️ Archivieren</button>
-      <button class="danger" id="deleteTripBtn">Urlaub löschen</button>
+  </section>
+
+  <form id="quickShoppingForm" class="search-card shopping-add-form">
+    <label for="quickShoppingName">Artikel manuell hinzufügen</label>
+    <div class="shopping-add-row">
+      <input
+        id="quickShoppingName"
+        placeholder="z. B. Äpfel"
+        autocomplete="off"
+        required
+      >
+      <input
+        id="quickShoppingQuantity"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="decimal"
+        placeholder="Menge"
+        aria-label="Einkaufsmenge"
+      >
+      <input
+        id="quickShoppingUnit"
+        placeholder="Stück"
+        aria-label="Stück"
+      >
+      <button class="primary-btn" type="submit">＋</button>
     </div>
+  </form>
+
+  <p id="shoppingStatus" class="status-text"></p>
+
+  <section id="shoppingEmpty" class="empty hidden">
+    <div class="empty-icon">🛒</div>
+    <h3>Die Einkaufsliste ist leer</h3>
+    <p>Artikel kannst du hier oder direkt bei einem Vorrat hinzufügen.</p>
+  </section>
+
+  <section id="shoppingList" class="shopping-list"></section>
+
+  <section id="shoppingDoneSection" class="shopping-done-section hidden">
+    <h3>Erledigt</h3>
+    <section id="shoppingDoneList" class="shopping-list"></section>
+  </section>
+</section>
+    </main>
   </div>
-</div>
 
-<div class="modal" id="tripModal">
-  <div class="sheet tripForm">
-    <h3>Neuen Urlaub anlegen</h3>
-    <label for="tripPlace">Wohin geht es?</label>
-    <select id="tripPlace"></select>
-    <label for="tripNewPlace">Oder neues Ziel</label>
-    <input id="tripNewPlace" placeholder="z. B. Bretagne">
-    <label for="tripNameInput">Name des Urlaubs</label>
-    <input id="tripNameInput" placeholder="z. B. Le Gurp 2028">
-    <label for="tripStart">Anreise</label>
-    <input id="tripStart" type="date">
-    <label for="tripEnd">Abreise</label>
-    <input id="tripEnd" type="date">
-    <div class="sheetActions" style="margin-top:14px">
-      <button class="cancel" id="tripCancel">Abbrechen</button>
-      <button class="save" id="tripSave">Urlaub anlegen</button>
+  <dialog id="itemDialog">
+    <form id="itemForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">EINTRAG</p>
+          <h2 id="dialogTitle">Neuen Gegenstand eintragen</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closeDialog" aria-label="Schließen">✕</button>
+      </div>
+
+      <input type="hidden" id="itemId">
+
+      <label>Name*
+        <input id="name" required placeholder="z. B. Blumendraht">
+      </label>
+
+      <label>Kategorie
+        <div class="item-category-row">
+          <select id="itemCategory">
+            <option>Werkzeug</option>
+            <option>Küche</option>
+            <option>Basteln</option>
+            <option>Schule & Bücher</option>
+            <option>Kleidung</option>
+            <option>Elektronik</option>
+            <option>Garten</option>
+            <option>Fahrrad</option>
+            <option>Dokumente</option>
+            <option>Camping</option>
+            <option>Haushalt & Reinigung</option>
+            <option>Schlüssel & Kleinteile</option>
+            <option>Spielzeug</option>
+            <option>Sport & Freizeit</option>
+            <option>Bad & Hygiene</option>
+            <option>Auto</option>
+            <option>Deko & Saison</option>
+            <option selected>Sonstiges</option>
+          </select>
+          <span id="itemCategorySymbol" class="item-category-symbol" aria-hidden="true">📦</span>
+        </div>
+        <span class="hint">Das Symbol wird automatisch aus der Kategorie gewählt.</span>
+        <input id="symbol" type="hidden">
+      </label>
+
+      <label>Foto
+        <div id="photoPreviewWrap" class="photo-preview-wrap hidden">
+          <img id="photoPreview" class="photo-preview" alt="Foto des Gegenstands">
+          <button type="button" id="removePhotoBtn" class="danger-outline-btn">Foto entfernen</button>
+        </div>
+        <input id="photoInput" type="file" accept="image/*">
+        <span class="hint">Auf dem iPhone kannst du fotografieren oder ein Bild aus der Mediathek auswählen.</span>
+      </label>
+
+      <label>Raum / Bereich*
+        <select id="roomSelect" required>
+          <option value="">Bitte auswählen …</option>
+          <option>Küche</option>
+          <option>Vorratsraum</option>
+          <option>Wohnzimmer</option>
+          <option>Schuhraum</option>
+          <option>Schaukelzimmer</option>
+          <option>Bad unten</option>
+          <option>Schlafzimmer</option>
+          <option>Nähzimmer</option>
+          <option>Flur unten</option>
+          <option>Garage</option>
+          <option>Garten</option>
+          <option>Gartenhaus</option>
+          <option>Schuppen</option>
+          <option>Dachboden</option>
+          <option value="__other__">Anderer Bereich …</option>
+        </select>
+        <input id="roomCustom" class="hidden" placeholder="Eigenen Bereich eingeben">
+      </label>
+
+      <label>Genauer Ort
+        <input id="location" placeholder="z. B. Bastelschrank, obere Schublade">
+      </label>
+
+      <label>Suchbegriffe
+        <input id="keywords" placeholder="Draht, Basteln, Mittsommer, Blumenkranz">
+        <span class="hint">Mit Kommas trennen.</span>
+      </label>
+
+      <label>Notiz
+        <textarea id="note" rows="3" placeholder="Optional"></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button type="button" id="deleteBtn" class="danger-btn hidden">Löschen</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancelBtn" class="secondary-btn">Abbrechen</button>
+        <button type="submit" class="primary-btn">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="supplyDialog">
+  <form id="supplyForm">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">VORRAT</p>
+        <h2 id="supplyDialogTitle">Neuen Vorrat eintragen</h2>
+      </div>
+      <button type="button" class="icon-btn" id="closeSupplyDialog" aria-label="Schließen">✕</button>
     </div>
-  </div>
-</div>
 
-<div class="modal" id="personModal"><div class="sheet">
-  <h3>Person anlegen</h3>
-  <input id="personName" placeholder="Name">
-  <label class="fieldLabel">Farbe</label>
-  <div class="colorPalette" id="personColors"></div>
-  <div class="sheetActions"><button class="cancel" id="personCancel">Abbrechen</button><button class="save" id="personSave">Anlegen</button></div>
-</div></div>
+    <input type="hidden" id="supplyId">
 
-<div class="modal" id="bulkPersonItemModal"><div class="sheet">
-  <h3>Mehrere Artikel anlegen</h3>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Eine Zeile = ein Artikel.</div>
-  <input id="bulkPersonCategory" placeholder="Kategorie, z. B. Kleidung">
-  <textarea id="bulkPersonItems" rows="10" placeholder="Unterhosen&#10;Socken&#10;T-Shirts&#10;Kurze Hosen&#10;Pullover"></textarea>
-  <div id="bulkCount" style="font-size:12px;color:var(--muted);margin-top:5px">0 Artikel erkannt</div>
-  <div class="sheetActions"><button class="cancel" id="bulkPersonCancel">Abbrechen</button><button class="save" id="bulkPersonSave">Alle anlegen</button></div>
-</div></div>
+    <label>Name*
+      <input id="supplyName" required placeholder="z. B. Haferflocken">
+    </label>
 
-<div class="modal" id="copyPersonModal"><div class="sheet">
-  <h3>Persönliche Liste kopieren</h3>
-  <div id="copyPersonInfo" style="margin-bottom:10px"></div>
-  <label class="fieldLabel">Zielperson</label>
-  <select id="copyPersonTarget"></select>
-  <div class="sheetActions"><button class="cancel" id="copyPersonCancel">Abbrechen</button><button class="save" id="copyPersonSave">Liste kopieren</button></div>
-</div></div>
+    <fieldset class="supply-category-fieldset">
+      <legend>Kategorien*</legend>
+      <p class="category-hint">Mehrere Kategorien sind möglich.</p>
 
-<div class="modal" id="editPersonModal"><div class="sheet">
-<h3>Person bearbeiten</h3><input id="editPersonName" placeholder="Name"><label class="fieldLabel">Farbe</label>
-<div class="colorPalette" id="editPersonColors"></div>
-<button id="deletePersonBtn" style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:1px solid #d9a3a3;background:#fff4f4;color:#a33;font-weight:900">Person löschen</button>
-<div class="sheetActions"><button class="cancel" id="editPersonCancel">Abbrechen</button><button class="save" id="editPersonSave">Speichern</button></div>
-</div></div>
-<div class="modal" id="modulesModal"><div class="sheet">
-  <h3>Grundausstattung & Module</h3>
-  <div style="font-size:12px;color:var(--muted)">Wähle die Bausteine, die für <b id="modulesPersonName"></b> angelegt werden sollen. Bereits vorhandene Artikel werden nicht doppelt angelegt.</div>
-  <div class="moduleGrid" id="moduleGrid"></div>
-  <div class="sheetActions"><button class="cancel" id="modulesCancel">Abbrechen</button><button class="save" id="modulesSave">Auswahl hinzufügen</button></div>
-</div></div>
+      <div id="supplyCategoryChoices" class="supply-category-choices"></div>
 
-<div class="modal" id="personItemModal"><div class="sheet">
-  <h3>Persönlichen Artikel anlegen</h3>
-  <input id="personItemName" placeholder="z. B. AirPods">
-  <input id="personItemCategory" placeholder="Kategorie, z. B. Technik">
-  <label class="fieldLabel">Mengenregel</label>
-  <select id="personItemRule">
-    <option value="fixed">Feste Menge</option>
-    <option value="underwear">Unterhosen: Tage + 1, max. 10</option>
-    <option value="tshirts">T-Shirts: 2 je angefangene 3 Tage, max. 8</option>
-    <option value="shorts">Kurze Hosen: 1 je angefangene 5 Tage, max. 4</option>
-    <option value="socks">Socken: Standard 4</option>
-    <option value="sleep">Schlafsachen: kurz 1, ab 7 Tagen 2</option>
-  </select>
-  <div class="ruleFields">
-    <div><label class="fieldLabel">Grundmenge</label><input id="personItemQty" type="number" min="0" value="1"></div>
-    <div><label class="fieldLabel">Persönlich +/−</label><input id="personItemOffset" type="number" value="0"></div>
-  </div>
-  <label class="checkLine"><input id="personItemStar" type="checkbox"> ⭐ Darf nicht fehlen</label>
-  <label class="fieldLabel">Optional mit Familien-Masterartikel verknüpfen</label>
-  <select id="personItemLink"><option value="">Nicht verknüpfen</option></select>
-  <div class="sheetActions"><button class="cancel" id="personItemCancel">Abbrechen</button><button class="save" id="personItemSave">Anlegen</button></div>
-</div></div>
+      <label class="new-category-option">
+        <input id="supplyNewCategoryToggle" type="checkbox">
+        Neue Kategorie …
+      </label>
 
-<div id="printArea" style="display:none"></div>
+      <label id="supplyNewCategoryWrap" class="new-category-wrap hidden">
+        Name der neuen Kategorie
+        <input
+          id="supplyNewCategoryName"
+          maxlength="60"
+          placeholder="z. B. Tierfutter"
+          autocomplete="off"
+        >
+      </label>
+    </fieldset>
 
-<div class="modal" id="noteModal">
-  <div class="sheet">
-    <h3 id="noteTitle">Notiz</h3>
-    <div class="noteViewText" id="noteViewText"></div>
-    <div class="sheetActions" style="margin-top:12px">
-      <button class="cancel" id="noteClose">Schließen</button>
-      <button class="save" id="noteEdit">Bearbeiten</button>
+    <label>Raum / Bereich
+      <input id="supplyRoom" placeholder="z. B. Vorratsraum">
+    </label>
+
+    <label>Lagerplatz
+      <input id="supplyStorageLocation" placeholder="z. B. Holzkiste Frühstück">
+    </label>
+
+    <div class="supply-form-grid">
+      <label>Bestand
+        <input id="supplyQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+      </label>
+
+      <label>Einheit
+        <select id="supplyUnit">
+          <option value="">–</option>
+          <option>Packungen</option>
+          <option>Flaschen</option>
+          <option>Gläser</option>
+          <option>Dosen</option>
+          <option>Stück</option>
+          <option>kg</option>
+          <option>g</option>
+          <option>l</option>
+          <option>ml</option>
+        </select>
+      </label>
     </div>
-  </div>
-</div>
 
-<div class="modal" id="editModal"><div class="sheet"><h3>Artikel bearbeiten</h3><input id="editName" placeholder="Artikel"><select id="editCat"></select><label class="fieldLabel" for="editNote">Notiz für diesen Urlaub</label><textarea id="editNote" placeholder="z. B. Luftmatratze verliert Luft – flicken oder ersetzen"></textarea><label class="checkLine"><input id="notePermanent" type="checkbox"> 📌 Auch dauerhaft beim Artikel merken</label><div id="permanentNoteHint" style="font-size:10px;color:var(--muted);margin-top:6px"></div><div class="sheetActions"><button class="cancel" id="editCancel">Abbrechen</button><button class="save" id="editSave">Speichern</button></div></div></div>
-<div class="modal" id="addModal">
-  <div class="sheet">
-    <h3>Artikel hinzufügen</h3>
-    <input id="addName" placeholder="Artikel">
-    <select id="addCat"></select>
-    <div class="addChoice">
-      <button class="active" data-scope="trip">Nur dieser Urlaub</button>
-      <button data-scope="master">Zur Masterliste</button>
+    <div class="supply-form-grid">
+      <label>Mindestbestand
+        <input id="supplyMinimumQuantity" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+      </label>
+
+      <label>MHD
+        <input id="supplyBestBefore" type="date">
+      </label>
     </div>
-    <div class="sheetActions">
-      <button class="cancel" id="addCancel">Abbrechen</button>
-      <button class="save" id="addSave">Hinzufügen</button>
+
+    <label>Notiz <span class="optional-label">(optional)</span>
+      <textarea id="supplyNote" rows="3" placeholder="Optional"></textarea>
+    </label>
+
+    <div class="dialog-actions">
+      <button type="button" id="deleteSupplyBtn" class="danger-btn hidden">Löschen</button>
+      <span class="spacer"></span>
+      <button type="button" id="cancelSupplyBtn" class="secondary-btn">Abbrechen</button>
+      <button type="submit" class="primary-btn">Speichern</button>
     </div>
-  </div>
-</div>
-
-<script>
-const SUPABASE_URL="https://muujfgwspkoogjxtvcrp.supabase.co";
-const SUPABASE_KEY="sb_publishable_F6Q3yYsgbdiOBmo1u4Ar_Q_9SF6WrHx";
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-
-let masterItems=[], places=[], trips=[], archivedTrips=[], states=new Map(), currentTrip=null, currentPlace=null, people=[], personItems=[], personStates=new Map(), currentPerson=null;
-let filter="all", masterFilter="all", addScope="trip", lastRemoved=null, channel=null, addingItem=false, editingItem=null, noteViewingItem=null, activeCategory=null, booting=false, chosenPersonColor="#C96F5B", editPersonColor="#C96F5B", editingPersonItem=null;
-const el=id=>document.getElementById(id);
-
-function toast(msg,undo=false){
-  el("undoText").textContent=msg;el("undoBtn").style.display=undo?"block":"none";el("undoToast").classList.add("show");
-  clearTimeout(toast.t);toast.t=setTimeout(()=>el("undoToast").classList.remove("show"),4500);
-}
-function setSync(msg){el("syncText").textContent=msg}
-function iconForCategory(cat){const x=masterItems.find(i=>i.category===cat&&i.icon);return x?.icon||"🏕️"}
-function state(id){return states.get(id)||{selected:false,seen:false,in_box:false,in_car:false,need:false}}
-function currentItems(){
-  return masterItems.filter(i=>i.is_master || states.has(i.id));
-}
-function grouped(items){
-  const map=new Map();
-  for(const i of items){if(!map.has(i.category))map.set(i.category,[]);map.get(i.category).push(i)}
-  return [...map.entries()].map(([name,items])=>({name,icon:iconForCategory(name),items}));
-}
-async function dbUpsert(itemId,patch){
-  if(!currentTrip)return;
-  const old=state(itemId);
-  const row={trip_id:currentTrip.id,item_id:itemId,selected:old.selected,seen:old.seen,in_box:old.in_box,in_car:old.in_car,need:old.need,note:old.note||null,...patch,updated_at:new Date().toISOString()};
-  states.set(itemId,row);render();setSync("Speichert …");
-  const {error}=await sb.from("camping_trip_items").upsert(row,{onConflict:"trip_id,item_id"});
-  if(error){toast("Speichern fehlgeschlagen");console.error(error)}else setSync("Synchronisiert");
-}
-const CACHE_KEY="camping-app-cache-v1";
-
-function saveCache(){
-  try{
-    localStorage.setItem(CACHE_KEY,JSON.stringify({
-      savedAt:Date.now(),
-      masterItems,places,trips,archivedTrips,
-      currentTripId:currentTrip?.id||localStorage.getItem("camping-trip-id")||null,
-      states:[...states.entries()]
-    }));
-  }catch(e){console.warn("Cache konnte nicht gespeichert werden",e)}
-}
-
-function restoreCache(){
-  try{
-    const raw=localStorage.getItem(CACHE_KEY);
-    if(!raw)return false;
-    const c=JSON.parse(raw);
-    if(!Array.isArray(c.masterItems)||!c.masterItems.length)return false;
-
-    masterItems=c.masterItems||[];
-    places=c.places||[];
-    trips=c.trips||[];
-    archivedTrips=c.archivedTrips||[];
-    states=new Map(c.states||[]);
-
-    const wanted=localStorage.getItem("camping-trip-id")||c.currentTripId;
-    currentTrip=trips.find(t=>t.id===wanted)||trips[0]||null;
-    currentPlace=currentTrip?places.find(p=>p.id===currentTrip.place_id)||null:null;
-
-    // Dropdowns aus dem Cache aufbauen.
-    const sel=el("tripSelect"); sel.innerHTML="";
-    for(const t of trips){
-      const o=document.createElement("option");
-      o.value=t.id;o.textContent=t.name||"Urlaub";sel.appendChild(o);
-    }
-    if(currentTrip)sel.value=currentTrip.id;
-
-    for(const id of ["tripPlace","editTripPlace"]){
-      const s=el(id); if(!s)continue; s.innerHTML="";
-      for(const p of places){
-        const o=document.createElement("option");
-        o.value=p.id;o.textContent=p.name;s.appendChild(o);
-      }
-    }
-
-    updateTripInfo();
-    render();
-    renderArchive();
-
-    const age=c.savedAt?Math.max(0,Math.round((Date.now()-c.savedAt)/60000)):null;
-    setSync(age===null?"Gespeicherte Daten":"Gespeicherte Daten · "+(age<1?"gerade eben":`vor ${age} Min.`));
-    return true;
-  }catch(e){
-    console.warn("Cache konnte nicht geladen werden",e);
-    return false;
-  }
-}
-
-async function loadItems(){
-  const {data,error}=await sb.from("camping_items").select("id,name,category,icon,is_master,is_active,household_item_id,category_order,item_order,note").eq("is_active",true).order("category_order",{ascending:true}).order("item_order",{ascending:true});
-  if(error)throw error;masterItems=data||[];saveCache();
-}
-async function loadPlaces(){
-  const {data,error}=await sb.from("camping_places").select("*").order("name");
-  if(error)throw error;
-  places=data||[];
-  el("tripPlace").innerHTML="";
-  el("editTripPlace").innerHTML="";
-  for(const p of places){
-    const t=document.createElement("option");
-    t.value=p.id;t.textContent=p.name;el("tripPlace").appendChild(t);
-    const e=document.createElement("option");
-    e.value=p.id;e.textContent=p.name;el("editTripPlace").appendChild(e);
-  }
-  saveCache();
-}
-async function loadTrips(){
-  const {data,error}=await sb.from("camping_trips").select("*").eq("archived",false).order("created_at",{ascending:true});
-  if(error)throw error;
-  trips=data||[];
-  const sel=el("tripSelect");
-  sel.innerHTML="";
-  for(const t of trips){
-    const o=document.createElement("option");
-    o.value=t.id;
-    o.textContent=t.name||"Urlaub";
-    sel.appendChild(o);
-  }
-  const saved=localStorage.getItem("camping-trip-id");
-  currentTrip=trips.find(t=>t.id===saved)||trips[0]||null;
-  currentPlace=currentTrip?places.find(p=>p.id===currentTrip.place_id)||null:null;
-  if(currentTrip)sel.value=currentTrip.id;
-  saveCache();
-}
-async function loadArchivedTrips(){
-  const {data,error}=await sb.from("camping_trips").select("*").eq("archived",true).order("end_date",{ascending:false}).order("created_at",{ascending:false});
-  if(error)throw error;
-  archivedTrips=data||[];
-  renderArchive();
-  saveCache();
-}
-function updateTripInfo(){
-  if(!currentTrip){
-    el("tripName").textContent="Kein Urlaub ausgewählt";
-    el("tripCountdown").textContent="";
-    return;
-  }
-
-  el("tripName").textContent=currentTrip.name||"Aktueller Urlaub";
-
-  if(!currentTrip.start_date){
-    el("tripCountdown").textContent="";
-    return;
-  }
-
-  const today=new Date();
-  today.setHours(0,0,0,0);
-
-  const start=new Date(currentTrip.start_date+"T00:00:00");
-  const end=currentTrip.end_date ? new Date(currentTrip.end_date+"T00:00:00") : null;
-  const days=Math.ceil((start-today)/86400000);
-
-  if(days>1) el("tripCountdown").textContent=`Noch ${days} Tage bis zur Abfahrt`;
-  else if(days===1) el("tripCountdown").textContent="Morgen geht’s los! 🏕️";
-  else if(days===0) el("tripCountdown").textContent="Heute geht’s los! 🏕️";
-  else if(end && today<=end) el("tripCountdown").textContent="Urlaub läuft 🌲";
-  else el("tripCountdown").textContent="";
-}
-
-async function ensureTrip(place){ return currentTrip; }
-async function loadStates(){
-  states=new Map();
-  if(!currentTrip)return;
-  const {data,error}=await sb.from("camping_trip_items").select("*").eq("trip_id",currentTrip.id);
-  if(error)throw error;(data||[]).forEach(x=>states.set(x.item_id,x));
-  saveCache();
-}
-async function switchTrip(id){
-  currentTrip=trips.find(t=>t.id===id)||null;
-  if(!currentTrip)return;
-  currentPlace=places.find(p=>p.id===currentTrip.place_id)||null;
-  localStorage.setItem("camping-trip-id",id);
-  setSync("Lädt …");
-  await loadStates();
-  await loadPersonStates();
-  updateTripInfo();
-  render();
-  renderPeople();
-  try{subscribeTrip()}catch(e){console.warn("Realtime konnte nicht gestartet werden",e)}
-  setSync("Synchronisiert");
-}
-function subscribeTrip(){
-  if(channel)sb.removeChannel(channel);
-  if(!currentTrip)return;
-  channel=sb.channel("camping-"+currentTrip.id)
-   .on("postgres_changes",{event:"*",schema:"public",table:"camping_trip_items",filter:"trip_id=eq."+currentTrip.id},async()=>{await loadStates();render();setSync("Synchronisiert")})
-   .subscribe();
-}
-function visible(i){
-  const s=state(i.id);
-  if(filter==="selected")return s.selected;
-  if(filter==="open")return s.selected&&!s.in_car;
-  if(filter==="need")return s.need;
-  return true;
-}
-async function persistCategoryOrder(category){
-  const ordered=[...document.querySelectorAll(".swipeWrap")].filter(w=>w.dataset.category===category).map((w,idx)=>({id:w.dataset.itemId,item_order:idx+1}));
-  if(!ordered.length)return;
-  setSync("Reihenfolge speichert …");
-  for(const x of ordered){
-    const {error}=await sb.from("camping_items").update({item_order:x.item_order}).eq("id",x.id);
-    if(error){console.error(error);toast("Reihenfolge konnte nicht gespeichert werden");setSync("Fehler");return}
-    const local=masterItems.find(i=>i.id===x.id);if(local)local.item_order=x.item_order;
-  }
-  setSync("Synchronisiert");
-}
-function enableLongPressDrag(wrap,row,item){
-  let timer=null,dragging=false,startY=0;
-  const start=e=>{
-    if(e.target.closest("button,input"))return;
-    const t=e.touches?.[0];if(!t)return;startY=t.clientY;
-    timer=setTimeout(()=>{dragging=true;row.classList.add("dragging");document.body.classList.add("dragMode");navigator.vibrate?.(25)},480);
-  };
-  const move=e=>{
-    const t=e.touches?.[0];if(!t)return;
-    if(!dragging){if(Math.abs(t.clientY-startY)>10){clearTimeout(timer);timer=null}return}
-    e.preventDefault();
-    const hit=document.elementFromPoint(t.clientX,t.clientY)?.closest(".swipeWrap");
-    if(!hit||hit===wrap||hit.dataset.category!==wrap.dataset.category)return;
-    document.querySelectorAll(".swipeWrap.dragTarget").forEach(x=>x.classList.remove("dragTarget"));hit.classList.add("dragTarget");
-    const rect=hit.getBoundingClientRect(),parent=hit.parentNode;
-    if(t.clientY<rect.top+rect.height/2)parent.insertBefore(wrap,hit);else parent.insertBefore(wrap,hit.nextSibling);
-  };
-  const end=async()=>{
-    clearTimeout(timer);timer=null;document.querySelectorAll(".swipeWrap.dragTarget").forEach(x=>x.classList.remove("dragTarget"));
-    if(dragging){dragging=false;row.classList.remove("dragging");document.body.classList.remove("dragMode");await persistCategoryOrder(item.category);await loadItems();render()}
-  };
-  row.addEventListener("touchstart",start,{passive:true});row.addEventListener("touchmove",move,{passive:false});row.addEventListener("touchend",end);row.addEventListener("touchcancel",end);
-}
-function attachSwipe(row,item){
-  let sx=0,sy=0,dx=0,dy=0,active=false,axis=null;
-
-  row.addEventListener("touchstart",e=>{
-    const t=e.touches[0];
-    sx=t.clientX; sy=t.clientY;
-    dx=0; dy=0; axis=null; active=true;
-  },{passive:true});
-
-  row.addEventListener("touchmove",e=>{
-    if(!active||row.classList.contains("dragging"))return;
-
-    const t=e.touches[0];
-    dx=t.clientX-sx;
-    dy=t.clientY-sy;
-
-    if(!axis){
-      if(Math.abs(dx)<10 && Math.abs(dy)<10)return;
-
-      // Klare vertikale Bewegung = Scrollen.
-      if(Math.abs(dy) > Math.abs(dx)*1.15){
-        axis="vertical";
-        row.style.transform="";
-        return;
-      }
-
-      // Klare horizontale Bewegung = Wischen.
-      if(Math.abs(dx) > Math.abs(dy)*1.35 && Math.abs(dx)>=18){
-        axis="horizontal";
-      }else{
-        return; // noch nicht eindeutig – weiter beobachten
-      }
-    }
-
-    if(axis!=="horizontal")return;
-
-    row.style.transform=`translateX(${Math.max(-92,Math.min(92,dx))}px)`;
-  },{passive:true});
-
-  row.addEventListener("touchend",()=>{
-    if(row.classList.contains("dragging"))return;
-
-    active=false;
-    row.style.transform="";
-    row.classList.remove("swiped","swipedRight");
-
-    if(axis==="horizontal"){
-      if(dx < -72) row.classList.add("swiped");
-      else if(dx > 76) row.classList.add("swipedRight");
-    }
-
-    axis=null;
-  });
-
-  row.addEventListener("touchcancel",()=>{
-    active=false; axis=null; dx=0; dy=0;
-    row.style.transform="";
-  });
-}
-function renderCategoryTabs(items){
-  const tabs=el("categoryTabs");tabs.innerHTML="";
-  const cats=grouped(items);
-  if(!cats.length){activeCategory=null;return}
-  if(!activeCategory || (activeCategory!=="__ALL__" && !cats.some(c=>c.name===activeCategory))) activeCategory=cats[0].name;
-
-  cats.forEach(cat=>{
-    const b=document.createElement("button");
-    b.className="categoryTab"+(cat.name===activeCategory?" active":"");
-    b.dataset.category=cat.name;
-    b.innerHTML=`<span class="tabIcon">${cat.icon}</span><span>${cat.name}</span>`;
-    b.onclick=()=>{activeCategory=cat.name;render()};
-    tabs.appendChild(b);
-  });
-  const all=document.createElement("button");
-  all.className="categoryTab"+(activeCategory==="__ALL__"?" active":"");
-  all.dataset.category="__ALL__";
-  all.innerHTML='<span class="tabIcon">📋</span><span>Alle</span>';
-  all.onclick=()=>{activeCategory="__ALL__";render()};
-  tabs.appendChild(all);
-
-  let touched=null;
-  const mark=(x,y)=>{
-    const hit=document.elementFromPoint(x,y)?.closest(".categoryTab");
-    tabs.querySelectorAll(".categoryTab.peek").forEach(b=>b.classList.remove("peek"));
-    if(hit && tabs.contains(hit)){hit.classList.add("peek");touched=hit}else touched=null;
-  };
-  tabs.ontouchstart=e=>{const t=e.touches[0];mark(t.clientX,t.clientY)};
-  tabs.ontouchmove=e=>{const t=e.touches[0];mark(t.clientX,t.clientY)};
-  tabs.ontouchend=()=>{
-    const chosen=touched;
-    tabs.querySelectorAll(".categoryTab.peek").forEach(b=>b.classList.remove("peek"));
-    touched=null;
-    if(chosen){activeCategory=chosen.dataset.category;render()}
-  };
-  tabs.ontouchcancel=()=>{
-    tabs.querySelectorAll(".categoryTab.peek").forEach(b=>b.classList.remove("peek"));
-    touched=null;
-  };
-}
-
-async function setAllSelected(selected){
-  if(!currentTrip)return;
-  const targets=currentItems();
-  if(!targets.length)return;
-  setSync("Speichert …");
-  const rows=targets.map(item=>{
-    const s=state(item.id);
-    return {
-      trip_id:currentTrip.id,item_id:item.id,
-      selected:selected,
-      seen:selected?s.seen:false,
-      in_box:selected?s.in_box:false,
-      in_car:selected?s.in_car:false,
-      need:s.need,
-      updated_at:new Date().toISOString()
-    };
-  });
-  rows.forEach(r=>states.set(r.item_id,r));
-  render();
-  const {error}=await sb.from("camping_trip_items").upsert(rows,{onConflict:"trip_id,item_id"});
-  if(error){console.error(error);toast("Gesamtauswahl konnte nicht gespeichert werden");setSync("Fehler");await loadStates();render()}
-  else setSync("Synchronisiert");
-}
-
-async function setCategorySelected(category,selected){
-  if(!currentTrip)return;
-  const targets=currentItems().filter(i=>i.category===category);
-  if(!targets.length)return;
-  setSync("Speichert …");
-  const rows=targets.map(item=>{
-    const s=state(item.id);
-    return {
-      trip_id:currentTrip.id,item_id:item.id,
-      selected:selected,
-      seen:selected?s.seen:false,
-      in_box:selected?s.in_box:false,
-      in_car:selected?s.in_car:false,
-      need:s.need,
-      updated_at:new Date().toISOString()
-    };
-  });
-  rows.forEach(r=>states.set(r.item_id,r));
-  render();
-  const {error}=await sb.from("camping_trip_items").upsert(rows,{onConflict:"trip_id,item_id"});
-  if(error){console.error(error);toast("Auswahl konnte nicht gespeichert werden");setSync("Fehler");await loadStates();render()}
-  else setSync("Synchronisiert");
-}
-function openNoteViewer(item){
-  noteViewingItem=item;
-  const tripNote=state(item.id).note||"";
-  const permanent=item.note||"";
-  el("noteTitle").textContent=item.name||"Notiz";
-  let parts=[];
-  if(tripNote)parts.push("🕓 "+(currentTrip?.name||"Dieser Urlaub")+":\n"+tripNote);
-  if(permanent)parts.push("📌 Dauerhafte Artikelnotiz:\n"+permanent);
-  el("noteViewText").textContent=parts.join("\n\n")||"Keine Notiz vorhanden.";
-  el("noteModal").classList.add("open");
-}
-function openItemEditor(item){
-  editingItem=item;
-  el("editName").value=item.name||"";
-  renderCats();
-  el("editCat").value=item.category||"";
-  el("editNote").value=state(item.id).note||"";
-  el("notePermanent").checked=false;
-  el("permanentNoteHint").textContent=item.note ? "Aktuell dauerhaft gespeichert: "+item.note : "Noch keine dauerhafte Artikelnotiz.";
-  el("editModal").classList.add("open");
-}
-function render(){
-  renderPersonControlPanels();
-  const items=currentItems();
-  renderCategoryTabs(items);
-  el("list").innerHTML="";
-
-  if(activeCategory==="__ALL__"){
-    const allBulk=document.createElement("div");
-    allBulk.className="allBulk";
-    allBulk.innerHTML='<button>✓ Wirklich alle auswählen</button><button>Alle abwählen</button>';
-    const allButtons=allBulk.querySelectorAll("button");
-    allButtons[0].onclick=()=>setAllSelected(true);
-    allButtons[1].onclick=()=>setAllSelected(false);
-    el("list").appendChild(allBulk);
-  }
-
-  const allGroups=grouped(items.filter(visible));
-  const groupsToShow=activeCategory==="__ALL__" ? allGroups : allGroups.filter(c=>c.name===activeCategory);
-
-  if(groupsToShow.length){
-    for(const cat of groupsToShow){
-    const sec=document.createElement("section");
-    sec.className="category";
-    sec.innerHTML=`<button class="cathead"><span class="emoji">${cat.icon}</span><strong>${cat.name}</strong><small>${cat.items.length}</small></button><div class="catbody"></div>`;
-    const body=sec.querySelector(".catbody");
-
-    for(const item of cat.items){
-      const s=state(item.id),wrap=document.createElement("div"),del=document.createElement("button"),edit=document.createElement("button"),row=document.createElement("div");
-      wrap.className="swipeWrap";wrap.dataset.itemId=item.id;
-      const ownerItem=personItems.find(pi=>pi.linked_master_item_id===item.id);
-      const owner=ownerItem?people.find(p=>p.id===ownerItem.person_id):null;
-      if(owner){wrap.style.borderLeft=`4px solid ${owner.color}`;wrap.style.borderRadius="8px"}wrap.dataset.category=item.category;
-      del.className="swipeDelete";del.textContent="🗑 Entfernen";
-      edit.className="swipeEdit";edit.textContent="✏️ Bearbeiten";
-      row.className="row"+(s.selected?" selected":"");
-      row.innerHTML=`<div class="nameLine"><input class="take" type="checkbox" ${s.selected?"checked":""}><div class="name">${item.name}</div>${(item.note||s.note)?'<button class="noteIcon" type="button" title="Notiz">✉️</button>':""}${item.is_master?"":'<span class="tripOnly">nur Urlaub</span>'}<span class="dragHint">↕ halten</span></div>
-      <div class="actions"><button class="stage ${s.seen?"on":""}" data-stage="seen">✓ Gesichtet</button><button class="stage ${s.in_box?"on":""}" data-stage="box">📦 Kiste</button><button class="stage ${s.in_car?"on":""}" data-stage="car">🚗 Auto</button><button class="stage ${s.need?"on":""}" data-stage="need">🔎 Suchen</button></div>`;
-
-      row.querySelector(".take").onchange=e=>dbUpsert(item.id,{selected:e.target.checked,...(!e.target.checked?{seen:false,in_box:false,in_car:false}:{})});
-      row.querySelectorAll(".stage").forEach(b=>b.onclick=()=>{
-        const k=b.dataset.stage,ss=state(item.id);
-        const key=k==="box"?"in_box":k==="car"?"in_car":k;
-        dbUpsert(item.id,{[key]:!ss[key],...(key!=="need"&&!ss[key]?{selected:true}:{})});
-      });
-
-      del.onclick=async()=>{
-        lastRemoved={itemId:item.id,old:{...state(item.id)}};
-        await dbUpsert(item.id,{selected:false,seen:false,in_box:false,in_car:false});
-        toast(item.name+" entfernt",true)
-      };
-
-      edit.onclick=()=>{
-        openItemEditor(item);
-        row.classList.remove("swipedRight");
-      };
-      const noteBtn=row.querySelector(".noteIcon");
-      if(noteBtn)noteBtn.onclick=e=>{
-        e.stopPropagation();
-        openNoteViewer(item);
-      };
-
-      wrap.appendChild(edit);wrap.appendChild(del);wrap.appendChild(row);body.appendChild(wrap);
-      attachSwipe(row,item);enableLongPressDrag(wrap,row,item);
-    }
-
-    const bulk=document.createElement("div");
-    bulk.className="categoryBulk";
-    bulk.innerHTML='<button>✓ Alle auswählen</button><button>Alle abwählen</button>';
-    const bulkButtons=bulk.querySelectorAll("button");
-    bulkButtons[0].onclick=()=>setCategorySelected(cat.name,true);
-    bulkButtons[1].onclick=()=>setCategorySelected(cat.name,false);
-    body.appendChild(bulk);
-
-    el("list").appendChild(sec);
-    }
-  }else{
-    el("list").innerHTML='<div class="empty">In dieser Kategorie gibt es mit dem aktuellen Filter keine sichtbaren Artikel.</div>';
-  }
-
-  updateStats();renderNeed();renderMaster();renderCats();
-}
-function updateStats(){
-  const ss=currentItems().map(i=>state(i.id)),cnt=k=>ss.filter(s=>s[k]).length;
-  el("sTake").textContent=cnt("selected");el("sSeen").textContent=cnt("seen");el("sBox").textContent=cnt("in_box");el("sCar").textContent=cnt("in_car");el("sNeed").textContent=cnt("need");
-}
-async function signedMemoryPhoto(path){
-  if(!path)return null;
-  const {data,error}=await sb.storage.from("camping-memory-photos").createSignedUrl(path,3600);
-  if(error){console.warn("Foto konnte nicht geladen werden",error);return null}
-  return data?.signedUrl||null;
-}
-async function uploadMemoryPhoto(tripId,file,oldPath=null){
-  if(!file)return oldPath||null;
-  const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
-  const path=`${tripId}/cover-${Date.now()}.${ext}`;
-  const {error}=await sb.storage.from("camping-memory-photos").upload(path,file,{contentType:file.type||"image/jpeg"});
-  if(error)throw error;
-  if(oldPath)await sb.storage.from("camping-memory-photos").remove([oldPath]);
-  return path;
-}
-
-const PERSON_COLORS=["#C96F5B","#D79A3B","#7E9B55","#4F8B82","#5B83B4","#7767A8","#B76D92","#9A6B4F","#68757D","#A96D55"];
-
-const PERSON_MODULES=[
-  {key:"clothes",label:"👕 Kleidung",items:[
-    ["Unterhosen","Kleidung",1,"underwear"],["T-Shirts","Kleidung",1,"tshirts"],["Kurze Hosen","Kleidung",1,"shorts"],["Socken","Kleidung",4,"socks"],
-    ["Lange Hose dünn","Kleidung",1,"fixed"],["Lange Hose dick","Kleidung",1,"fixed"],["Pullover","Kleidung",2,"fixed"],
-    ["Langarmshirts","Kleidung",2,"fixed"],["Fleecejacke","Kleidung",1,"fixed"],["Schlafsachen","Kleidung",1,"sleep"],["Rock/Kleid","Kleidung",1,"fixed"]
-  ]},
-  {key:"shoes",label:"👟 Schuhe",items:[["Sandalen","Schuhe",1,"fixed"],["Crocs","Schuhe",1,"fixed"],["Halbschuhe","Schuhe",1,"fixed"]]},
-  {key:"swim",label:"🏖️ Baden & Strand",items:[["Badebekleidung","Baden & Strand",2,"fixed"],["UV-Shirt","Baden & Strand",1,"fixed"]]},
-  {key:"hygiene",label:"🪥 Hygiene",items:[["Zahnbürste","Hygiene",1,"fixed"],["Zahnpasta","Hygiene",1,"fixed"],["Duschgel/Shampoo","Hygiene",1,"fixed"],["Haarbürste/Kamm","Hygiene",1,"fixed"]]},
-  {key:"tech",label:"📱 Technik",items:[["Handy","Technik",1,"fixed"],["Handyladekabel","Technik",1,"fixed"],["Kopfhörer","Technik",1,"fixed"],["Tablet","Technik",1,"fixed"],["Tablet-Ladekabel","Technik",1,"fixed"]]},
-  {key:"personal",label:"🎒 Persönliches",items:[["Bauchtasche","Persönliches",1,"fixed"],["Portemonnaie","Persönliches",1,"fixed"]]},
-  {key:"bike",label:"🚲 Fahrrad",items:[["Fahrrad","Fahrrad",1,"fixed"],["Fahrradschloss","Fahrrad",1,"fixed"],["Fahrradhelm","Fahrrad",1,"fixed"]]},
-  {key:"sport",label:"🏃 Sport/Laufen",items:[["Sportkleidung","Sport/Laufen",1,"fixed"],["Sportschuhe","Sport/Laufen",1,"fixed"]]},
-  {key:"reading",label:"📚 Lesen & Freizeit",items:[["Buch","Lesen & Freizeit",1,"fixed"]]},
-  {key:"cosmetics",label:"💄 Kosmetik",items:[["Kosmetik","Kosmetik",1,"fixed"]]},
-  {key:"meds",label:"💊 Medikamente",items:[["Persönliche Medikamente","Medikamente",1,"fixed"]]}
-];
-
-function tripLengthDays(){
-  if(!currentTrip?.start_date||!currentTrip?.end_date)return 1;
-  const a=new Date(currentTrip.start_date+"T00:00:00"),b=new Date(currentTrip.end_date+"T00:00:00");
-  return Math.max(1,Math.round((b-a)/86400000)+1);
-}
-function suggestedQuantity(item){
-  const d=tripLengthDays(),r=item.quantity_rule||"fixed";
-  let q=item.default_quantity??1;
-  if(r==="underwear")q=Math.min(d+1,10);
-  else if(r==="tshirts")q=Math.min(Math.ceil(d/3)*2,8);
-  else if(r==="shorts")q=Math.min(Math.ceil(d/5),4);
-  else if(r==="socks")q=4;
-  else if(r==="sleep")q=d>=7?2:1;
-  return Math.max(0,q+(item.quantity_offset||0));
-}
-function quantityRuleLabel(item){
-  const r=item.quantity_rule||"fixed";
-  if(r==="underwear")return "Tage + 1 · max. 10";
-  if(r==="tshirts")return "2 je 3 Tage · max. 8";
-  if(r==="shorts")return "1 je 5 Tage · max. 4";
-  if(r==="socks")return "Sommerstandard 4";
-  if(r==="sleep")return "ab 7 Tagen: 2";
-  return item.default_quantity>1?`fest ${item.default_quantity}`:"";
-}
-
-async function loadPeople(){
-  const {data,error}=await sb.from("camping_people").select("*").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:true});
-  if(error)throw error;
-  people=data||[];
-  const saved=localStorage.getItem("camping-person-id");
-  currentPerson=people.find(p=>p.id===saved)||people[0]||null;
-}
-async function loadPersonItems(){
-  const {data,error}=await sb.from("camping_person_items").select("*").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:true});
-  if(error)throw error;
-  personItems=data||[];
-}
-async function loadPersonStates(){
-  personStates=new Map();
-  if(!currentTrip)return;
-  const {data,error}=await sb.from("camping_trip_person_items").select("*").eq("trip_id",currentTrip.id);
-  if(error)throw error;
-  for(const x of data||[])personStates.set(x.person_item_id,x);
-}
-function personState(item){
-  const saved=personStates.get(item.id);
-  if(!saved)return {selected:true,quantity:suggestedQuantity(item),packed:false,note:null,needs_purchase:false,final_checked:false,quantity_manual:false};
-  return {...saved,quantity:saved.quantity_manual?saved.quantity:suggestedQuantity(item)};
-}
-async function savePersonState(item,patch){
-  if(!currentTrip)return;
-  const old=personState(item);
-  const row={trip_id:currentTrip.id,person_item_id:item.id,selected:old.selected,quantity:old.quantity,packed:old.packed,note:old.note,
-    needs_purchase:old.needs_purchase||false,final_checked:old.final_checked||false,quantity_manual:old.quantity_manual||false,...patch,updated_at:new Date().toISOString()};
-  const {error}=await sb.from("camping_trip_person_items").upsert(row,{onConflict:"trip_id,person_item_id"});
-  if(error){console.error(error);toast("Änderung konnte nicht gespeichert werden");return}
-  personStates.set(item.id,row);
-  renderPeople();renderPersonControlPanels();renderNeed();
-}
-function renderPeople(){
-  const tabs=el("personTabs"),list=el("personList");
-  if(!tabs||!list)return;
-  tabs.innerHTML="";list.innerHTML="";
-  for(const p of people){
-    const b=document.createElement("button");b.className="personTab"+(currentPerson?.id===p.id?" active":"");
-    b.textContent=p.name;b.style.borderColor=p.color;
-    if(currentPerson?.id===p.id)b.style.background=p.color;
-    b.onclick=()=>{currentPerson=p;localStorage.setItem("camping-person-id",p.id);renderPeople()};
-    tabs.appendChild(b);
-  }
-  if(!currentPerson){list.innerHTML='<div class="personEmpty">Noch keine Person angelegt. Tippe oben auf „＋ Person“.</div>';return}
-  const mine=personItems.filter(i=>i.person_id===currentPerson.id);
-  if(!mine.length){list.innerHTML=`<div class="personEmpty">Für ${currentPerson.name} gibt es noch keine Artikel. Mit „🧩 Grundausstattung“ kannst du mehrere auf einmal anlegen.</div>`;return}
-  const groups=new Map();
-  for(const i of mine){if(!groups.has(i.category))groups.set(i.category,[]);groups.get(i.category).push(i)}
-  for(const [cat,items] of groups){
-    const sec=document.createElement("section");sec.className="personCategory";
-    sec.innerHTML=`<div class="personCatHead" style="border-left:5px solid ${currentPerson.color}">${cat}</div><div></div>`;
-    const body=sec.lastElementChild;
-    for(const item of items){
-      const s=personState(item),linked=masterItems.find(m=>m.id===item.linked_master_item_id);
-      const row=document.createElement("div");row.className="personItem";
-      row.innerHTML=`<input class="pselect" type="checkbox" ${s.selected?"checked":""}>
-      <div><b>${item.name}</b>${item.must_not_forget?'<span class="starBadge">⭐ Darf nicht fehlen</span>':""}${linked?`<span class="linkBadge" style="color:${currentPerson.color}">${currentPerson.name} · Familienliste</span>`:""}
-      <div class="ruleHint">${quantityRuleLabel(item)}${item.quantity_offset?` · persönlich ${item.quantity_offset>0?"+":""}${item.quantity_offset}`:""}</div>
-      <div class="personMiniActions"><button class="needp ${s.needs_purchase?"on":""}">🔎 ${s.needs_purchase?"Suchen/Kaufen":"fehlt?"}</button><button class="pedit">Bearbeiten</button><button class="pdelete">Löschen</button></div></div>
-      <div class="qtyBox"><button class="minus">−</button><span class="qty">${s.quantity}</span><button class="plus">＋</button></div>`;
-      row.querySelector(".pselect").onchange=e=>savePersonState(item,{selected:e.target.checked});
-      row.querySelector(".minus").onclick=()=>savePersonState(item,{quantity:Math.max(0,s.quantity-1),quantity_manual:true});
-      row.querySelector(".plus").onclick=()=>savePersonState(item,{quantity:s.quantity+1,quantity_manual:true});
-      row.querySelector(".needp").onclick=()=>savePersonState(item,{needs_purchase:!s.needs_purchase});
-      row.querySelector(".pedit").onclick=()=>openEditPersonItem(item);
-      row.querySelector(".pdelete").onclick=()=>deletePersonItem(item);
-      body.appendChild(row);
-    }
-    list.appendChild(sec);
-  }
-}
-function renderPersonControlPanels(){
-  const host=el("personControlPanels");if(!host)return;host.innerHTML="";
-  if(!currentTrip)return;
-  const critical=personItems.filter(i=>i.must_not_forget&&personState(i).selected);
-  const needs=personItems.filter(i=>personState(i).needs_purchase);
-  if(critical.length){
-    const box=document.createElement("div");box.className="personControlPanel";
-    box.innerHTML="<h3>⭐ Darf nicht fehlen – Endkontrolle</h3>";
-    for(const item of critical){
-      const p=people.find(x=>x.id===item.person_id),s=personState(item),d=document.createElement("div");d.className="controlItem";
-      d.innerHTML=`<div><span class="personDot" style="background:${p?.color||"#888"}"></span><b>${p?.name||""}</b> · ${item.name}</div><label class="checkLine"><input type="checkbox" ${s.final_checked?"checked":""}> kontrolliert</label>`;
-      d.querySelector("input").onchange=e=>savePersonState(item,{final_checked:e.target.checked});
-      box.appendChild(d);
-    }
-    host.appendChild(box);
-  }
-  if(needs.length){
-    const box=document.createElement("div");box.className="personControlPanel";
-    box.innerHTML="<h3>🔎 Persönlich suchen / kaufen</h3>";
-    for(const item of needs){
-      const p=people.find(x=>x.id===item.person_id),d=document.createElement("div");d.className="controlItem";
-      d.innerHTML=`<div><span class="personDot" style="background:${p?.color||"#888"}"></span><b>${p?.name||""}</b> · ${item.name}</div><button class="stage on">✓ erledigt</button>`;
-      d.querySelector("button").onclick=()=>savePersonState(item,{needs_purchase:false});
-      box.appendChild(d);
-    }
-    host.appendChild(box);
-  }
-}
-function renderPersonColors(){
-  const host=el("personColors");host.innerHTML="";
-  for(const c of PERSON_COLORS){
-    const b=document.createElement("button");b.type="button";b.className="colorChoice"+(c===chosenPersonColor?" active":"");b.style.background=c;
-    b.onclick=()=>{chosenPersonColor=c;renderPersonColors()};
-    host.appendChild(b);
-  }
-}
-function renderEditPersonColors(){
- const host=el("editPersonColors");host.innerHTML="";
- for(const c of PERSON_COLORS){const b=document.createElement("button");b.type="button";b.className="colorChoice"+(c===editPersonColor?" active":"");b.style.background=c;b.onclick=()=>{editPersonColor=c;renderEditPersonColors()};host.appendChild(b)}
-}
-function openModulesModal(){
-  if(!currentPerson)return toast("Bitte zuerst eine Person auswählen");
-  el("modulesPersonName").textContent=currentPerson.name;
-  const grid=el("moduleGrid");grid.innerHTML="";
-  for(const m of PERSON_MODULES){
-    const l=document.createElement("label");l.className="moduleChoice";
-    l.innerHTML=`<input type="checkbox" value="${m.key}"> ${m.label}`;
-    grid.appendChild(l);
-  }
-  el("modulesModal").classList.add("open");
-}
-async function addSelectedModules(){
-  if(!currentPerson)return;
-  const keys=[...el("moduleGrid").querySelectorAll("input:checked")].map(x=>x.value);
-  if(!keys.length)return toast("Bitte mindestens einen Baustein auswählen");
-  const existing=new Set(personItems.filter(i=>i.person_id===currentPerson.id).map(i=>`${i.category.toLowerCase()}|${i.name.toLowerCase()}`));
-  const rows=[];let n=personItems.filter(i=>i.person_id===currentPerson.id).length;
-  for(const m of PERSON_MODULES.filter(x=>keys.includes(x.key))){
-    for(const [name,category,default_quantity,quantity_rule] of m.items){
-      const k=`${category.toLowerCase()}|${name.toLowerCase()}`;if(existing.has(k))continue;
-      existing.add(k);rows.push({person_id:currentPerson.id,name,category,default_quantity,quantity_rule,module_key:m.key,sort_order:n++});
-    }
-  }
-  if(!rows.length){el("modulesModal").classList.remove("open");return toast("Diese Artikel sind schon vorhanden")}
-  const {data,error}=await sb.from("camping_person_items").insert(rows).select();
-  if(error){console.error(error);return toast("Grundausstattung konnte nicht angelegt werden")}
-  personItems.push(...(data||[]));el("modulesModal").classList.remove("open");renderPeople();toast(`${rows.length} Artikel hinzugefügt`);
-}
-function fillPersonMasterLinks(){
-  const s=el("personItemLink");s.innerHTML='<option value="">Nicht verknüpfen</option>';
-  for(const i of masterItems.filter(x=>x.is_master)){
-    const o=document.createElement("option");o.value=i.id;o.textContent=`${i.category} · ${i.name}`;s.appendChild(o);
-  }
-}
-function openEditPersonItem(item){
-  editingPersonItem=item;
-  fillPersonMasterLinks();
-  el("personItemModal").querySelector("h3").textContent="Persönlichen Artikel bearbeiten";
-  el("personItemName").value=item.name||"";
-  el("personItemCategory").value=item.category||"";
-  el("personItemQty").value=item.default_quantity??1;
-  el("personItemRule").value=item.quantity_rule||"fixed";
-  el("personItemOffset").value=item.quantity_offset||0;
-  el("personItemStar").checked=!!item.must_not_forget;
-  el("personItemLink").value=item.linked_master_item_id||"";
-  el("personItemSave").textContent="Speichern";
-  el("personItemModal").classList.add("open");
-}
-async function deletePersonItem(item){
-  if(!confirm(`„${item.name}“ wirklich löschen?`))return;
-  const {error}=await sb.from("camping_person_items").delete().eq("id",item.id);
-  if(error){console.error(error);return toast("Artikel konnte nicht gelöscht werden")}
-  personItems=personItems.filter(i=>i.id!==item.id);
-  personStates.delete(item.id);
-  renderPeople();
-  render();
-  toast("Artikel gelöscht");
-}
-function printCurrentPerson(){
-  if(!currentPerson)return;
-  const mine=personItems.filter(i=>i.person_id===currentPerson.id&&personState(i).selected);
-  const groups=new Map();for(const i of mine){if(!groups.has(i.category))groups.set(i.category,[]);groups.get(i.category).push(i)}
-  const area=el("printArea");
-  let html=`<h1 style="border-bottom:4px solid ${currentPerson.color};padding-bottom:3mm">${currentPerson.name} – Packliste</h1><div>${currentTrip?.name||""}${currentTrip?.start_date?" · "+fmtDate(currentTrip.start_date):""}${currentTrip?.end_date?" – "+fmtDate(currentTrip.end_date):""}</div>`;
-  for(const [cat,items] of groups){
-    html+=`<h2 style="border-color:${currentPerson.color}">${cat}</h2>`;
-    for(const i of items)html+=`<div class="printRow"><span class="printCheck"></span><span>${i.name}${i.must_not_forget?" ⭐":""}</span><span class="printQty">${personState(i).quantity}×</span></div>`;
-  }
-  const critical=mine.filter(i=>i.must_not_forget);
-  if(critical.length){
-    html+=`<div class="criticalPrint"><h2>⭐ DARF NICHT FEHLEN – NOCHMAL KONTROLLIEREN</h2>`;
-    for(const i of critical)html+=`<div class="printRow"><span class="printCheck"></span><span>${i.name}</span><span></span></div>`;
-    html+="</div>";
-  }
-  area.innerHTML=html;area.style.display="block";window.print();setTimeout(()=>area.style.display="none",500);
-}
-function fmtDate(d){
-  if(!d)return "";
-  return new Date(d+"T00:00:00").toLocaleDateString("de-DE");
-}
-async function openArchivedTrip(trip){
-  setSync("Archiv wird geladen …");
-  const {data,error}=await sb.from("camping_trip_items").select("*").eq("trip_id",trip.id);
-  if(error){console.error(error);toast("Archiv konnte nicht geladen werden");return}
-  const hist=new Map((data||[]).map(x=>[x.item_id,x]));
-  const card=document.createElement("div");card.className="archiveCard";
-  const place=places.find(p=>p.id===trip.place_id);
-  card.innerHTML=`<h3>${trip.name}</h3><div class="archiveMeta">${place?.name||""}${trip.start_date?" · "+fmtDate(trip.start_date):""}${trip.end_date?" – "+fmtDate(trip.end_date):""}</div>
-    ${trip.photo_path?'<img class="memoryPhoto archivePhoto" alt="Urlaubserinnerung">':""}
-    ${trip.memory_text?`<div class="memoryBox">${trip.memory_text}</div>`:""}
-    <div class="archiveActions"><button class="restore">↩️ Wieder aktivieren</button><button class="close">Schließen</button></div>
-    <h4 style="margin:16px 0 8px">Damals in der Packliste</h4><div class="historyList"></div>`;
-  if(trip.photo_path){
-    signedMemoryPhoto(trip.photo_path).then(url=>{const img=card.querySelector(".archivePhoto");if(img&&url)img.src=url});
-  }
-  const list=card.querySelector(".historyList");
-  for(const group of grouped(masterItems)){
-    const h=document.createElement("div");h.style.cssText="padding:10px 12px 5px;font-weight:900;color:var(--navy);background:var(--cream2)";
-    h.textContent=group.icon+" "+group.name;list.appendChild(h);
-    for(const item of group.items){
-      const s=hist.get(item.id)||{selected:false,note:null};
-      const r=document.createElement("div");r.className="historyRow";
-      r.innerHTML=`<div class="historyTop"><span class="historyStatus ${s.selected?"yes":"no"}">${s.selected?"✓ MIT":"— NICHT MIT"}</span><span class="historyName">${item.name}</span></div>
-        ${s.note?`<div class="historyNote">🕓 Damals: ${s.note}</div>`:""}
-        ${item.note?`<div class="historyNote">📌 Aktuell: ${item.note}</div>`:""}`;
-      list.appendChild(r);
-    }
-  }
-  const host=el("archiveList");host.innerHTML="";host.appendChild(card);
-  card.querySelector(".close").onclick=()=>renderArchive();
-  card.querySelector(".restore").onclick=async()=>{
-    const {error}=await sb.from("camping_trips").update({archived:false}).eq("id",trip.id);
-    if(error){console.error(error);toast("Wiederherstellen fehlgeschlagen");return}
-    await loadArchivedTrips();await loadTrips();renderArchive();toast("Urlaub wieder aktiviert");
-  };
-  setSync("Synchronisiert");
-}
-function renderArchive(){
-  const host=el("archiveList");if(!host)return;host.innerHTML="";
-  if(!archivedTrips.length){host.innerHTML='<div class="personCard">Noch keine archivierten Urlaube.</div>';return}
-  for(const trip of archivedTrips){
-    const place=places.find(p=>p.id===trip.place_id);
-    const c=document.createElement("div");c.className="archiveCard";
-    c.innerHTML=`<h3>${trip.name}</h3><div class="archiveMeta">${place?.name||""}${trip.start_date?" · "+fmtDate(trip.start_date):""}${trip.end_date?" – "+fmtDate(trip.end_date):""}</div>${trip.photo_path?'<img class="memoryPhoto archiveThumb" alt="Urlaubserinnerung">':""}${trip.memory_text?`<div class="memoryBox">${trip.memory_text}</div>`:""}<div class="archiveActions"><button>Urlaub ansehen</button></div>`;
-    if(trip.photo_path)signedMemoryPhoto(trip.photo_path).then(url=>{const img=c.querySelector(".archiveThumb");if(img&&url)img.src=url});
-    c.querySelector("button").onclick=()=>openArchivedTrip(trip);
-    host.appendChild(c);
-  }
-}
-function renderNeed(){
-  const root=el("needList");root.innerHTML="";
-  const items=currentItems().filter(i=>state(i.id).need);
-  const personal=personItems.filter(i=>personState(i).needs_purchase);
-  if(!items.length&&!personal.length){root.innerHTML='<div class="empty">Noch nichts auf der Such-/Kaufliste 🎉</div>';return}
-  const card=document.createElement("div");card.className="needCard";
-  items.forEach(i=>{const d=document.createElement("div");d.className="needItem";d.innerHTML=`<b>${i.name}</b><span class="badge">${i.category}</span><button class="stage on">✓ erledigt</button>`;d.querySelector("button").onclick=()=>dbUpsert(i.id,{need:false});card.appendChild(d)});
-  personal.forEach(i=>{const p=people.find(x=>x.id===i.person_id),d=document.createElement("div");d.className="needItem";d.innerHTML=`<b><span class="personDot" style="background:${p?.color||"#888"}"></span>${p?.name||""}: ${i.name}</b><span class="badge">persönlich</span><button class="stage on">✓ erledigt</button>`;d.querySelector("button").onclick=()=>savePersonState(i,{needs_purchase:false});card.appendChild(d)});
-  root.appendChild(card);
-}
-function renderMaster(){
-  const root=el("masterList");root.innerHTML="";
-  let items=masterItems.filter(i=>i.is_master);
-  if(masterFilter==="in")items=items.filter(i=>state(i.id).selected);
-  if(masterFilter==="out")items=items.filter(i=>!state(i.id).selected);
-  for(const cat of grouped(items)){
-    const sec=document.createElement("section");sec.className="category closed";
-    sec.innerHTML=`<button class="cathead"><span class="emoji">${cat.icon}</span><strong>${cat.name}</strong><small>${cat.items.length}</small></button><div class="catbody"></div>`;
-    sec.querySelector(".cathead").onclick=()=>sec.classList.toggle("closed");
-    const body=sec.querySelector(".catbody");
-    cat.items.forEach(i=>{const on=state(i.id).selected,r=document.createElement("div");r.className="masterRow";r.innerHTML=`<div class="masterName">${i.name}</div><button class="${on?"":"addBack"}">${on?"✓ Dabei":"＋ Mitnehmen"}</button>`;r.querySelector("button").onclick=()=>dbUpsert(i.id,{selected:!on,...(on?{seen:false,in_box:false,in_car:false}:{})});body.appendChild(r)});
-    root.appendChild(sec);
-  }
-}
-function renderCats(){
-  const cats=[...new Set(masterItems.filter(i=>i.is_master).map(i=>i.category))];
-  [el("quickCat"),el("addCat"),el("editCat")].filter(Boolean).forEach(sel=>{const old=sel.value;sel.innerHTML="";cats.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c;sel.appendChild(o)});if(cats.includes(old))sel.value=old});
-}
-el("undoBtn").onclick=async()=>{if(!lastRemoved)return;const x=lastRemoved;lastRemoved=null;await dbUpsert(x.itemId,x.old);el("undoToast").classList.remove("show")};
-document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;render()});
-document.querySelectorAll(".masterToolbar button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".masterToolbar button").forEach(x=>x.classList.remove("active"));b.classList.add("active");masterFilter=b.dataset.mf;renderMaster()});
-
-el("editPersonBtn").onclick=()=>{
- if(!currentPerson)return toast("Bitte zuerst eine Person auswählen");
- el("editPersonName").value=currentPerson.name;editPersonColor=currentPerson.color||PERSON_COLORS[0];renderEditPersonColors();el("editPersonModal").classList.add("open");
-};
-el("editPersonCancel").onclick=()=>el("editPersonModal").classList.remove("open");
-el("editPersonSave").onclick=async()=>{
- if(!currentPerson)return;const name=el("editPersonName").value.trim();if(!name)return toast("Bitte einen Namen eingeben");
- const {data,error}=await sb.from("camping_people").update({name,color:editPersonColor}).eq("id",currentPerson.id).select().single();
- if(error){console.error(error);return toast("Person konnte nicht geändert werden")}
- const idx=people.findIndex(p=>p.id===currentPerson.id);if(idx>=0)people[idx]=data;currentPerson=data;
- el("editPersonModal").classList.remove("open");renderPeople();render();toast("Person gespeichert");
-};
-el("deletePersonBtn").onclick=async()=>{
- if(!currentPerson)return;const doomed=currentPerson;
- if(!confirm(`${doomed.name} wirklich löschen?\n\nDie persönliche Packliste dieser Person wird ebenfalls gelöscht.`))return;
- const {error}=await sb.from("camping_people").delete().eq("id",doomed.id);
- if(error){console.error(error);return toast("Person konnte nicht gelöscht werden")}
- people=people.filter(p=>p.id!==doomed.id);personItems=personItems.filter(i=>i.person_id!==doomed.id);currentPerson=people[0]||null;
- if(currentPerson)localStorage.setItem("camping-person-id",currentPerson.id);else localStorage.removeItem("camping-person-id");
- el("editPersonModal").classList.remove("open");renderPeople();render();toast(`${doomed.name} gelöscht`);
-};
-el("modulesBtn").onclick=openModulesModal;
-el("modulesCancel").onclick=()=>el("modulesModal").classList.remove("open");
-el("modulesSave").onclick=addSelectedModules;
-el("addPersonBtn").onclick=()=>{el("personName").value="";chosenPersonColor=PERSON_COLORS[people.length%PERSON_COLORS.length];renderPersonColors();el("personModal").classList.add("open")};
-el("personCancel").onclick=()=>el("personModal").classList.remove("open");
-el("personSave").onclick=async()=>{
-  const name=el("personName").value.trim();if(!name)return toast("Bitte einen Namen eingeben");
-  const {data,error}=await sb.from("camping_people").insert({name,color:chosenPersonColor,sort_order:people.length}).select().single();
-  if(error){console.error(error);return toast("Person konnte nicht angelegt werden")}
-  people.push(data);currentPerson=data;localStorage.setItem("camping-person-id",data.id);el("personModal").classList.remove("open");renderPeople();toast(name+" angelegt");
-  setTimeout(openModulesModal,150);
-};
-function parseBulkPersonNames(){
-  const raw=(el("bulkPersonItems").value||"")
-    .replace(/\r\n?/g,"\n")
-    .replace(/[\u2028\u2029\u0085]/g,"\n")
-    .replace(/<br\s*\/?>/gi,"\n");
-  return raw.split(/\n+|;+/)
-    .map(x=>x.replace(/^[\s•·▪▫◦‣⁃\-–—*✓✔☐☑]+/,"").trim())
-    .filter(Boolean);
-}
-el("bulkPersonItems").addEventListener("input",()=>{
-  const n=parseBulkPersonNames().length;
-  el("bulkCount").textContent=`${n} Artikel erkannt`;
-});
-el("bulkPersonItemBtn").onclick=()=>{
-  if(!currentPerson)return toast("Bitte zuerst eine Person anlegen");
-  el("bulkPersonCategory").value="";
-  el("bulkPersonItems").value="";
-  el("bulkCount").textContent="0 Artikel erkannt";
-  el("bulkPersonItemModal").classList.add("open");
-};
-el("bulkPersonCancel").onclick=()=>el("bulkPersonItemModal").classList.remove("open");
-el("bulkPersonSave").onclick=async()=>{
-  if(!currentPerson)return;
-  const category=el("bulkPersonCategory").value.trim()||"Sonstiges";
-  const names=parseBulkPersonNames();
-  if(!names.length)return toast("Bitte mindestens einen Artikel eingeben");
-  const base=personItems.filter(i=>i.person_id===currentPerson.id).length;
-  const rows=names.map((name,n)=>({person_id:currentPerson.id,name,category,default_quantity:1,sort_order:base+n}));
-  const {data,error}=await sb.from("camping_person_items").insert(rows).select();
-  if(error){console.error(error);return toast("Artikel konnten nicht angelegt werden")}
-  personItems.push(...(data||[]));
-  el("bulkPersonItemModal").classList.remove("open");
-  renderPeople();
-  toast(`${names.length} Artikel angelegt`);
-};
-
-el("copyPersonListBtn").onclick=()=>{
-  if(!currentPerson)return toast("Bitte zuerst eine Person anlegen");
-  const targets=people.filter(p=>p.id!==currentPerson.id);
-  if(!targets.length)return toast("Es gibt noch keine andere Person");
-  el("copyPersonInfo").textContent=`Liste von ${currentPerson.name} kopieren`;
-  const s=el("copyPersonTarget");s.innerHTML="";
-  for(const p of targets){const o=document.createElement("option");o.value=p.id;o.textContent=p.name;s.appendChild(o)}
-  el("copyPersonModal").classList.add("open");
-};
-el("copyPersonCancel").onclick=()=>el("copyPersonModal").classList.remove("open");
-el("copyPersonSave").onclick=async()=>{
-  if(!currentPerson)return;
-  const targetId=el("copyPersonTarget").value;
-  const source=personItems.filter(i=>i.person_id===currentPerson.id);
-  if(!source.length)return toast("Diese Liste ist noch leer");
-  const existing=new Set(personItems.filter(i=>i.person_id===targetId).map(i=>`${i.category.toLowerCase()}|${i.name.toLowerCase()}`));
-  const targetBase=personItems.filter(x=>x.person_id===targetId).length;
-  const rows=source.filter(i=>!existing.has(`${i.category.toLowerCase()}|${i.name.toLowerCase()}`)).map((i,n)=>({
-    person_id:targetId,name:i.name,category:i.category,icon:i.icon,default_quantity:i.default_quantity,
-    quantity_rule:i.quantity_rule||"fixed",quantity_offset:i.quantity_offset||0,must_not_forget:i.must_not_forget||false,module_key:i.module_key||null,
-    linked_master_item_id:null,sort_order:targetBase+n
-  }));
-  if(!rows.length){el("copyPersonModal").classList.remove("open");return toast("Alle Artikel sind dort schon vorhanden")}
-  const {data,error}=await sb.from("camping_person_items").insert(rows).select();
-  if(error){console.error(error);return toast("Liste konnte nicht kopiert werden")}
-  personItems.push(...(data||[]));
-  el("copyPersonModal").classList.remove("open");
-  renderPeople();
-  toast(`${rows.length} Artikel kopiert`);
-};
-
-el("addPersonItemBtn").onclick=()=>{
-  if(!currentPerson)return toast("Bitte zuerst eine Person anlegen");
-  editingPersonItem=null;
-  el("personItemModal").querySelector("h3").textContent="Persönlichen Artikel anlegen";
-  el("personItemSave").textContent="Anlegen";
-  el("personItemName").value="";el("personItemCategory").value="";el("personItemQty").value="1";el("personItemRule").value="fixed";el("personItemOffset").value="0";el("personItemStar").checked=false;fillPersonMasterLinks();el("personItemModal").classList.add("open");
-};
-el("personItemCancel").onclick=()=>{editingPersonItem=null;el("personItemModal").classList.remove("open")};
-el("personItemSave").onclick=async()=>{
-  if(!currentPerson)return;
-  const name=el("personItemName").value.trim(),category=el("personItemCategory").value.trim()||"Sonstiges",
-    default_quantity=Math.max(0,parseInt(el("personItemQty").value||"1")),quantity_rule=el("personItemRule").value||"fixed",
-    quantity_offset=parseInt(el("personItemOffset").value||"0"),must_not_forget=el("personItemStar").checked,
-    linked_master_item_id=el("personItemLink").value||null;
-  if(!name)return toast("Bitte einen Artikelnamen eingeben");
-  const patch={name,category,default_quantity,quantity_rule,quantity_offset,must_not_forget,linked_master_item_id};
-  if(editingPersonItem){
-    const {data,error}=await sb.from("camping_person_items").update(patch).eq("id",editingPersonItem.id).select().single();
-    if(error){console.error(error);return toast("Artikel konnte nicht geändert werden")}
-    const idx=personItems.findIndex(i=>i.id===editingPersonItem.id);if(idx>=0)personItems[idx]=data;
-    editingPersonItem=null;el("personItemModal").classList.remove("open");renderPeople();render();toast("Artikel gespeichert");
-  }else{
-    const {data,error}=await sb.from("camping_person_items").insert({...patch,person_id:currentPerson.id,sort_order:personItems.filter(i=>i.person_id===currentPerson.id).length}).select().single();
-    if(error){console.error(error);return toast("Artikel konnte nicht angelegt werden")}
-    personItems.push(data);el("personItemModal").classList.remove("open");renderPeople();render();toast("Artikel angelegt");
-  }
-};
-el("printPersonBtn").onclick=printCurrentPerson;
-
-document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
-document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));el("view-"+b.dataset.view).classList.add("active")});
-el("tripSelect").onchange=e=>switchTrip(e.target.value);
-el("editTripBtn").onclick=()=>{
-  if(!currentTrip)return;
-  el("editTripPlace").value=currentTrip.place_id||"";
-  el("editTripName").value=currentTrip.name||"";
-  el("editTripStart").value=currentTrip.start_date||"";
-  el("editTripEnd").value=currentTrip.end_date||"";
-  el("editTripMemory").value=currentTrip.memory_text||"";
-  el("editTripPhoto").value="";
-  el("removeTripPhoto").checked=false;
-  pendingTripPhoto=null;
-  const preview=el("editTripPhotoPreview");
-  preview.style.display="none";preview.removeAttribute("src");
-  el("removeTripPhotoLine").style.display=currentTrip.photo_path?"flex":"none";
-  if(currentTrip.photo_path)signedMemoryPhoto(currentTrip.photo_path).then(url=>{if(url){preview.src=url;preview.style.display="block"}});
-  el("editTripModal").classList.add("open");
-};
-el("editTripPhoto").onchange=()=>{
-  const f=el("editTripPhoto").files?.[0]||null;
-  pendingTripPhoto=f;
-  if(f){
-    const u=URL.createObjectURL(f);
-    el("editTripPhotoPreview").src=u;
-    el("editTripPhotoPreview").style.display="block";
-    el("removeTripPhoto").checked=false;
-  }
-};
-el("editTripCancel").onclick=()=>el("editTripModal").classList.remove("open");
-el("editTripSave").onclick=async()=>{
-  if(!currentTrip)return;
-  const name=el("editTripName").value.trim();
-  const place_id=el("editTripPlace").value;
-  const start_date=el("editTripStart").value||null;
-  const end_date=el("editTripEnd").value||null;
-  const memory_text=el("editTripMemory").value.trim()||null;
-
-  if(!name)return toast("Bitte einen Urlaubsnamen eingeben");
-  if(start_date && end_date && end_date<start_date)return toast("Das Abreisedatum liegt vor der Anreise");
-
-  el("editTripSave").disabled=true;
-  setSync("Urlaub wird gespeichert …");
-  try{
-    let photo_path=currentTrip.photo_path||null;
-    if(el("removeTripPhoto").checked && photo_path){
-      await sb.storage.from("camping-memory-photos").remove([photo_path]);
-      photo_path=null;
-    }
-    if(pendingTripPhoto)photo_path=await uploadMemoryPhoto(currentTrip.id,pendingTripPhoto,photo_path);
-    const {data,error}=await sb.from("camping_trips")
-      .update({name,place_id,start_date,end_date,memory_text,photo_path})
-      .eq("id",currentTrip.id)
-      .select()
-      .single();
-    if(error)throw error;
-
-    currentTrip=data;
-    currentPlace=places.find(p=>p.id===data.place_id)||null;
-
-    const local=trips.findIndex(t=>t.id===data.id);
-    if(local>=0)trips[local]=data;
-
-    el("tripSelect").innerHTML="";
-    for(const t of trips){
-      const o=document.createElement("option");
-      o.value=t.id;o.textContent=t.name||"Urlaub";
-      el("tripSelect").appendChild(o);
-    }
-    el("tripSelect").value=currentTrip.id;
-
-    updateTripInfo();
-    el("editTripModal").classList.remove("open");
-    setSync("Synchronisiert");
-    toast("Urlaub geändert");
-  }catch(error){
-    console.error(error);
-    toast("Urlaub konnte nicht gespeichert werden");
-    setSync("Fehler");
-  }finally{
-    el("editTripSave").disabled=false;
-  }
-};
-el("archiveTripBtn").onclick=async()=>{
-  if(!currentTrip)return;
-  if(!confirm(`„${currentTrip.name}“ wirklich archivieren? Die Packliste bleibt vollständig erhalten und wird im Archiv nur noch lesbar angezeigt.`))return;
-  setSync("Archiviert …");
-  const {error}=await sb.from("camping_trips").update({archived:true,memory_text:el("editTripMemory").value.trim()||null}).eq("id",currentTrip.id);
-  if(error){console.error(error);toast("Archivieren fehlgeschlagen");setSync("Fehler");return}
-  el("editTripModal").classList.remove("open");
-  localStorage.removeItem("camping-trip-id");
-  await loadTrips();await loadArchivedTrips();
-  if(currentTrip)await switchTrip(currentTrip.id);else{states=new Map();updateTripInfo();render()}
-  toast("Urlaub archiviert 🗂️");
-};
-el("deleteTripBtn").onclick=async()=>{
-  if(!currentTrip)return;
-  const typed=prompt(`Zum endgültigen Löschen bitte den Urlaubsnamen eingeben:\n${currentTrip.name}`);
-  if(typed!==currentTrip.name)return typed!==null&&toast("Name stimmt nicht – nichts gelöscht");
-  setSync("Löscht …");
-  const id=currentTrip.id;
-  const {error:e1}=await sb.from("camping_trip_items").delete().eq("trip_id",id);
-  if(e1){console.error(e1);toast("Löschen fehlgeschlagen");setSync("Fehler");return}
-  const {error:e2}=await sb.from("camping_trips").delete().eq("id",id);
-  if(e2){console.error(e2);toast("Löschen fehlgeschlagen");setSync("Fehler");return}
-  el("editTripModal").classList.remove("open");
-  localStorage.removeItem("camping-trip-id");
-  await loadTrips();
-  if(currentTrip)await switchTrip(currentTrip.id);else{states=new Map();updateTripInfo();render()}
-  toast("Urlaub gelöscht");
-};
-el("newTripBtn").onclick=()=>{
-  if(currentPlace)el("tripPlace").value=currentPlace.id;
-  el("tripNewPlace").value="";
-  const place=places.find(p=>p.id===el("tripPlace").value)||currentPlace;
-  el("tripNameInput").value=(place?.name||"Urlaub")+" "+new Date().getFullYear();
-  el("tripStart").value="";
-  el("tripEnd").value="";
-  el("tripModal").classList.add("open");
-};
-el("tripPlace").onchange=()=>{
-  if(el("tripNewPlace").value.trim())return;
-  const p=places.find(x=>x.id===el("tripPlace").value);
-  if(p)el("tripNameInput").value=p.name+" "+new Date().getFullYear();
-};
-el("tripNewPlace").oninput=()=>{
-  const n=el("tripNewPlace").value.trim();
-  if(n)el("tripNameInput").value=n+" "+new Date().getFullYear();
-};
-el("tripCancel").onclick=()=>el("tripModal").classList.remove("open");
-el("tripSave").onclick=async()=>{
-  const name=el("tripNameInput").value.trim();
-  const start=el("tripStart").value,end=el("tripEnd").value;
-  if(!name)return toast("Bitte einen Urlaubsnamen eingeben");
-  if(start&&end&&end<start)return toast("Das Abreisedatum liegt vor der Anreise");
-  el("tripSave").disabled=true;setSync("Urlaub wird angelegt …");
-  try{
-    let place=null;
-    const newPlaceName=el("tripNewPlace").value.trim();
-    if(newPlaceName){
-      const existing=places.find(p=>p.name.toLowerCase()===newPlaceName.toLowerCase());
-      if(existing)place=existing;
-      else{
-        const {data,error}=await sb.from("camping_places").insert({name:newPlaceName}).select().single();
-        if(error)throw error;place=data;
-      }
-    }else place=places.find(p=>p.id===el("tripPlace").value);
-    if(!place)throw new Error("Kein Ziel gewählt");
-
-    const {data,error}=await sb.from("camping_trips").insert({
-      name,place_id:place.id,start_date:start||null,end_date:end||null,archived:false
-    }).select().single();
-    if(error)throw error;
-
-    currentPlace=place;currentTrip=data;
-    localStorage.setItem("camping-trip-id",data.id);
-    await loadPlaces();
-    await loadTrips();
-    currentTrip=trips.find(t=>t.id===data.id)||data;
-    currentPlace=places.find(p=>p.id===currentTrip.place_id)||place;
-    el("tripSelect").value=currentTrip.id;
-    await loadStates();subscribeTrip();updateTripInfo();render();
-    el("tripModal").classList.remove("open");
-    setSync("Synchronisiert");toast("Urlaub angelegt 🏕️");
-  }catch(error){
-    console.error(error);toast("Urlaub konnte nicht angelegt werden");setSync("Fehler");
-  }finally{el("tripSave").disabled=false}
-};
-el("quickAdd").onclick=()=>{const n=el("quickName").value.trim();if(!n)return;el("addName").value=n;el("addCat").value=el("quickCat").value;addScope="trip";document.querySelectorAll(".addChoice button").forEach(b=>b.classList.toggle("active",b.dataset.scope==="trip"));el("addModal").classList.add("open")};
-el("quickName").onkeydown=e=>{if(e.key==="Enter")el("quickAdd").click()};
-document.querySelectorAll(".addChoice button").forEach(b=>b.onclick=()=>{addScope=b.dataset.scope;document.querySelectorAll(".addChoice button").forEach(x=>x.classList.toggle("active",x===b))});
-el("addCancel").onclick=()=>el("addModal").classList.remove("open");
-el("addSave").onclick=async()=>{
-  if(addingItem)return;
-  const name=el("addName").value.trim(),category=el("addCat").value;
-  if(!name||!category)return;
-  addingItem=true;el("addSave").disabled=true;setSync("Speichert …");
-  try{
-    let item=null;
-
-    // Existiert der Artikel bereits, wird er für diesen Urlaub aktiviert
-    // statt einen doppelten Datensatz anzulegen.
-    const {data:existing,error:findError}=await sb
-      .from("camping_items")
-      .select("*")
-      .eq("name",name)
-      .eq("category",category)
-      .maybeSingle();
-    if(findError)throw findError;
-
-    if(existing){
-      item=existing;
-      // Ein bisher nur urlaubsspezifischer Artikel kann später zur Masterliste werden.
-      if(addScope==="master" && !existing.is_master){
-        const {data:promoted,error:promoteError}=await sb
-          .from("camping_items")
-          .update({is_master:true})
-          .eq("id",existing.id)
-          .select("*")
-          .single();
-        if(promoteError)throw promoteError;
-        item=promoted;
-      }
-    }else{
-      const {data:created,error:createError}=await sb
-        .from("camping_items")
-        .insert({name,category,icon:iconForCategory(category),is_master:addScope==="master"})
-        .select("*")
-        .single();
-      if(createError)throw createError;
-      item=created;
-    }
-
-    await dbUpsert(item.id,{selected:true});
-    await loadItems();
-    el("quickName").value="";
-    el("addName").value="";
-    el("addModal").classList.remove("open");
-    render();
-    toast(existing
-      ? (addScope==="master" ? "Artikel ist jetzt in der Masterliste" : "Artikel für diesen Urlaub hinzugefügt")
-      : (addScope==="master" ? "Zur Masterliste hinzugefügt" : "Für diesen Urlaub hinzugefügt"));
-    setSync("Synchronisiert");
-  }catch(error){
-    console.error(error);
-    toast("Artikel konnte nicht gespeichert werden");
-    setSync("Fehler");
-  }finally{
-    addingItem=false;el("addSave").disabled=false;
-  }
-};
-el("noteClose").onclick=()=>{noteViewingItem=null;el("noteModal").classList.remove("open")};
-el("noteEdit").onclick=()=>{
-  if(!noteViewingItem)return;
-  const item=noteViewingItem;
-  noteViewingItem=null;
-  el("noteModal").classList.remove("open");
-  openItemEditor(item);
-};
-el("editCancel").onclick=()=>{editingItem=null;el("editModal").classList.remove("open")};
-el("editSave").onclick=async()=>{
-  if(!editingItem)return;
-  const name=el("editName").value.trim(),category=el("editCat").value,tripNote=el("editNote").value.trim();if(!name||!category)return;
-  el("editSave").disabled=true;setSync("Speichert …");
-  try{
-    const patch={name,category};
-    if(el("notePermanent").checked && tripNote)patch.note=tripNote;
-    if(category!==editingItem.category){patch.category_order=null;patch.item_order=null}
-    const {error}=await sb.from("camping_items").update(patch).eq("id",editingItem.id);
-    if(error)throw error;
-    await dbUpsert(editingItem.id,{note:tripNote||null});
-    editingItem=null;el("editModal").classList.remove("open");await loadItems();render();setSync("Synchronisiert");toast("Artikel geändert");
-  }catch(error){console.error(error);toast("Änderung konnte nicht gespeichert werden");setSync("Fehler")}
-  finally{el("editSave").disabled=false}
-};
-el("loginBtn").onclick=async()=>{
-  el("loginErr").textContent="";el("loginBtn").disabled=true;
-  const {data,error}=await sb.auth.signInWithPassword({email:el("loginEmail").value.trim(),password:el("loginPassword").value});
-  el("loginBtn").disabled=false;
-  if(error){
-    el("loginErr").textContent="Anmeldung fehlgeschlagen: "+error.message;
-  }else if(data?.session){
-    el("login").classList.add("hidden");
-    setTimeout(()=>boot(),0);
-  }
-};
-async function boot(){
-  if(booting)return;
-  booting=true;
-
-  // Sofort die zuletzt bekannte Ansicht zeigen, noch bevor Supabase antwortet.
-  const hadCache=restoreCache();
-
-  try{
-    const {data:{session}}=await sb.auth.getSession();
-    if(!session){el("login").classList.remove("hidden");return}
-    el("login").classList.add("hidden");
-
-    setSync(hadCache?"Aktualisiert im Hintergrund …":"Lädt Artikel …");
-    await loadItems();
-
-    if(!hadCache)setSync("Lädt Ziele …");
-    await loadPlaces();
-
-    if(!hadCache)setSync("Lädt Urlaube …");
-    await loadTrips();
-    await loadArchivedTrips();
-    await loadPeople();
-    await loadPersonItems();
-
-    if(currentTrip){
-      el("tripSelect").value=currentTrip.id;
-      currentPlace=places.find(p=>p.id===currentTrip.place_id)||null;
-
-      if(!hadCache)setSync("Lädt Packliste …");
-      await loadStates();
-      await loadPersonStates();
-
-      updateTripInfo();
-      render();
-      renderPeople();
-      saveCache();
-
-      try{subscribeTrip()}catch(e){console.warn("Realtime konnte nicht gestartet werden",e)}
-      setSync("Synchronisiert");
-    }else{
-      states=new Map();
-      updateTripInfo();
-      render();
-      saveCache();
-      setSync("Kein Urlaub vorhanden");
-    }
-  }catch(e){
-    console.error("BOOT ERROR",e);
-    if(hadCache){
-      setSync(navigator.onLine?"Gespeicherte Daten · Sync später":"Offline · gespeicherte Daten");
-      toast("Gespeicherte Packliste wird angezeigt");
-    }else{
-      toast("Daten konnten nicht geladen werden");
-      setSync(navigator.onLine?"Fehler: "+(e?.message||"unbekannt"):"Offline");
-    }
-  }finally{
-    booting=false;
-  }
-}
-window.addEventListener("online",()=>{setSync("Wieder online · synchronisiert …");if(!booting)boot()});
-window.addEventListener("offline",()=>setSync("Offline · gespeicherte Daten"));
-sb.auth.onAuthStateChange((_event,session)=>{
-  if(session){
-    el("login").classList.add("hidden");
-    if(!booting)setTimeout(()=>boot(),0);
-  }else{
-    el("login").classList.remove("hidden");
-  }
-});
-boot();
-</script>
-</body></html>
+  </form>
+</dialog>
+  
+
+<dialog id="wantedDialog">
+  <form id="wantedForm">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">ICH SUCHE …</p>
+        <h2>Vermissten Gegenstand eintragen</h2>
+      </div>
+      <button
+        type="button"
+        class="icon-btn"
+        id="closeWantedDialog"
+        aria-label="Schließen"
+      >✕</button>
+    </div>
+
+    <label>Name*
+      <input
+        id="wantedName"
+        required
+        placeholder="z. B. Friedas Fahrradschlüssel"
+      >
+    </label>
+
+    <label>Zuletzt gesehen
+      <input
+        id="wantedLastSeen"
+        placeholder="z. B. gestern im Flur"
+      >
+    </label>
+
+    <label>Gesucht von
+      <input
+        id="wantedBy"
+        placeholder="z. B. Frieda"
+      >
+    </label>
+
+    <label>Notiz
+      <textarea
+        id="wantedNote"
+        rows="3"
+        placeholder="z. B. schwarzer Schlüsselanhänger"
+      ></textarea>
+    </label>
+
+    <div class="dialog-actions">
+      <span class="spacer"></span>
+      <button
+        type="button"
+        id="cancelWantedBtn"
+        class="secondary-btn"
+      >Abbrechen</button>
+      <button
+        type="submit"
+        class="primary-btn"
+      >Eintragen</button>
+    </div>
+  </form>
+</dialog>
+
+  <dialog id="settingsDialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">DATEN</p>
+        <h2>Gemeinsame Datenbank</h2>
+      </div>
+      <button type="button" class="icon-btn" id="closeSettings" aria-label="Schließen">✕</button>
+    </div>
+    <p class="settings-copy">
+      Alle Einträge werden in der gemeinsamen Familien-Datenbank gespeichert.
+    </p>
+    <div class="stack">
+      <button id="refreshBtn" class="primary-btn">↻ Daten neu laden</button>
+      <button id="exportBtn" class="secondary-btn">⬇️ Sicherung exportieren</button>
+      <button id="logoutBtn" class="danger-outline-btn">Familienzugang abmelden</button>
+    </div>
+  </dialog>
+
+  <template id="itemTemplate">
+    <article class="item-card">
+      <div class="card-photo-wrap hidden"><img class="card-photo" alt=""></div>
+      <button class="card-main">
+        <div class="item-top">
+          <div class="item-title-row">
+            <span class="item-symbol"></span>
+            <div>
+              <h3 class="item-name"></h3>
+              <p class="item-location"></p>
+            </div>
+          </div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="item-meta"></div>
+      </button>
+    </article>
+  </template>
+
+  <script src="app.js?v=16"></script>
+</body>
+</html>
