@@ -113,6 +113,23 @@ function updateSupplyQuantityInputStep() {
 updateSupplyQuantityInputStep();
 els.supplyUnit?.addEventListener("change", updateSupplyQuantityInputStep);
 
+// Beim Öffnen eines bestehenden Vorrats wird die Einheit per JavaScript gesetzt.
+// Dabei feuert kein change-Event. Deshalb den passenden Schritt nach dem Öffnen
+// ausdrücklich noch einmal setzen, damit z. B. 0,5 nicht als ungültig markiert wird.
+const originalOpenEditSupplyForBottleRest = openEditSupply;
+openEditSupply = function (...args) {
+  const result = originalOpenEditSupplyForBottleRest(...args);
+  updateSupplyQuantityInputStep();
+  return result;
+};
+
+const originalOpenNewSupplyForBottleRest = openNewSupply;
+openNewSupply = function (...args) {
+  const result = originalOpenNewSupplyForBottleRest(...args);
+  updateSupplyQuantityInputStep();
+  return result;
+};
+
 // ===== Mehrere Vorräte am gleichen Ort eintragen =====
 
 function parseBulkSupplyLines(text, unit) {
