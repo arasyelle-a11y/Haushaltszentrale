@@ -102,8 +102,13 @@ async function changeSupplyQuantity(id, delta) {
   }
 }
 
-// Damit ein gespeicherter Rest (intern 0,5) auch im Bearbeiten-Dialog gültig bleibt.
-if (els.supplyQuantity) {
-  els.supplyQuantity.step = "0.5";
-  els.supplyQuantity.inputMode = "decimal";
+function updateSupplyQuantityInputStep() {
+  if (!els.supplyQuantity || !els.supplyUnit) return;
+
+  const bottles = isBottleUnit(els.supplyUnit.value);
+  els.supplyQuantity.step = bottles ? "0.5" : "1";
+  els.supplyQuantity.inputMode = bottles ? "decimal" : "numeric";
 }
+
+updateSupplyQuantityInputStep();
+els.supplyUnit?.addEventListener("change", updateSupplyQuantityInputStep);
