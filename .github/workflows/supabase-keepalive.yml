@@ -18,7 +18,7 @@ jobs:
           API_KEY=$(grep 'const SUPABASE_KEY' app.js | head -1 | cut -d '"' -f 2)
           BASE_URL="https://muujfgwspkoogjxtvcrp.supabase.co/rest/v1/keepalive"
 
-          for QUERY in             "?select=id&limit=1"             "?select=id,created_at&limit=1"             "?select=id&order=id.desc&limit=1"             "?select=id&order=id.asc&limit=1"
+          for QUERY in             "?select=id&limit=1"             "?select=id,note&limit=1"             "?select=id&order=id.desc&limit=1"             "?select=id&order=id.asc&limit=1"
           do
             curl --fail --silent --show-error               "$BASE_URL$QUERY"               -H "apikey: $API_KEY"
             echo
